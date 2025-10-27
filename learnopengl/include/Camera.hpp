@@ -76,7 +76,7 @@ class Camera {
 		void processMouseMovement(GLfloat x_offset, GLfloat y_offset, GLboolean constrain_pitch = true);
 
 		// processes input received from keyboard
-		void processKeyboard(CameraMovement direction, float delta_time);
+		void processKeyboard(CameraMovement direction, float deltaTime);
 
 		// processes input received from mouse scroll-wheel
 		void processMouseScroll(GLfloat y_offset);
@@ -89,8 +89,8 @@ glm::mat4 Camera::getViewMatrix() {
 	return glm::lookAt(position, position + front, up);
 }
 
-void Camera::processKeyboard(CameraMovement direction, float delta_time) {
-	float velocity = movement_speed * delta_time;
+void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
+	float velocity = movement_speed * deltaTime;
 	if (direction == FORWARD)
 		position += glm::normalize(glm::vec3(front.x, 0.0f, front.z)) * velocity;
 	if (direction == BACKWARD)

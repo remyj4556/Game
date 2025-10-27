@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f15d4eba-5bde-4115-8c5c-65bfeb882ccb}</ProjectGuid>
-    <RootNamespace>Game</RootNamespace>
+    <ProjectGuid>{df53be7e-c29f-45c8-8def-ba6ddea1e68b}</ProjectGuid>
+    <RootNamespace>learnopengl</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -97,6 +97,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -106,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\remyj\source\repos\Game\Game\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\remyj\source\repos\learnopengl\learnopengl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,25 +127,38 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\glad.c" />
-    <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\stb_image.cpp" />
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Block.hpp" />
+    <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
-    <ClInclude Include="include\Chunk.hpp" />
     <ClInclude Include="include\EBO.hpp" />
+    <ClInclude Include="include\glm\glm.hpp" />
+    <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />
+    <ClInclude Include="include\glm\gtc\type_ptr.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
+    <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Shader.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\Texture.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
+    <ClInclude Include="include\Vertex.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\lightCubeShader.fs" />
+    <None Include="shaders\lightCubeShader.vs" />
+    <None Include="shaders\lightingShader.fs" />
+    <None Include="shaders\lightingShader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

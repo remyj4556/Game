@@ -32,7 +32,7 @@ Texture::Texture(const char* path, GLenum textureType, GLenum slot, GLenum image
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// load image

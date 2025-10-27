@@ -1,16 +1,15 @@
 #ifndef VBO_HPP
 #define VBO_HPP
 
-#include <vector>
 #include <glad/glad.h>
+#include <vector>
 
+#include "Vertex.hpp"
 
 class VBO {
 	public:
 		VBO(GLfloat vertices[], GLsizeiptr size, GLenum type);
-		VBO(std::vector<GLfloat>& vertices, GLsizeiptr size, GLenum type);
-		template <typename T>
-		VBO(std::vector<T>& vertices, GLenum type);
+		VBO(std::vector<Vertex> &vertices, GLenum type);
 		VBO();
 		void bind();
 		void unbind();
@@ -20,9 +19,7 @@ class VBO {
 		GLuint ID;
 };
 
-VBO::VBO() {
-	glGenBuffers(1, &ID);
-}
+VBO::VBO() {}
 
 VBO::VBO(GLfloat vertices[], GLsizeiptr size, GLenum type) {
 	glGenBuffers(1, &ID);
@@ -30,17 +27,10 @@ VBO::VBO(GLfloat vertices[], GLsizeiptr size, GLenum type) {
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, type);
 }
 
-VBO::VBO(std::vector<GLfloat> & vertices, GLsizeiptr size, GLenum type) {
+VBO::VBO(std::vector<Vertex> &vertices, GLenum type) {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, size, &vertices, type);
-}
-
-template <typename T>
-VBO::VBO(std::vector<T>& vertices, GLenum type) {
-	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), type);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), type);
 }
 
 void VBO::bind() {

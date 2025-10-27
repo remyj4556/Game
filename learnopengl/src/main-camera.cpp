@@ -11,11 +11,9 @@
 #include "../include/EBO.hpp"
 #include "../include/Texture.hpp"
 #include "../include/Camera.hpp"
-#include "../include/Block.hpp"
-#include "../include/Chunk.hpp"
 #include "stb_image.h"
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouseCallback(GLFWwindow* window, double x_pos_in, double y_pos_in);
 void scrollCallback(GLFWwindow* window, double x_offset, double y_offset);
@@ -30,8 +28,8 @@ float last_y = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // delta time 
-float delta_time = 0.0f;
-float last_frame = 0.0f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 
 int main() {
@@ -41,14 +39,14 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Game", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetScrollCallback(window, scrollCallback);
 
@@ -66,12 +64,11 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	// create shader object
-	Shader new_shader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/shader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/shader.fs");
+	Shader newShader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/shader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/shader.fs");
 
 
 	// set up objects
 	// -----------------------------------------------
-	// this is the vertices of a *single* cube
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -116,8 +113,39 @@ int main() {
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	// create (temp) Chunk object
-	Chunk chunk;
+	// world space positions of our cubes
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	// 1. create VAO
+	VAO vao;
+	vao.bind();
+
+	// 2. create VBO
+	VBO vbo(vertices, sizeof(vertices), GL_STATIC_DRAW);
+
+	// 3. tell openGL how to read vertex data : note the difference being the offset and the layout index
+	// position attribute
+	vao.linkAttrib(vbo, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
+	
+	// texture attribute
+	vao.linkAttrib(vbo, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	// 4. unbind for safety
+	vbo.unbind();
+	vao.unbind();
+
+	// -----------------------------------------------
 
 	// toggle wireframe mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -125,20 +153,22 @@ int main() {
 
 	// Textures
 	// -----------------------------------------------
-	Texture texture1("C:/Users/remyj/source/repos/Game/Game/textures/cobblestone.png", GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE);
+	Texture texture1("C:/Users/remyj/source/repos/learnopengl/learnopengl/textures/container.jpg", GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE);
+	Texture texture2("C:/Users/remyj/source/repos/learnopengl/learnopengl/textures/awesomeface.png", GL_TEXTURE_2D, 1, GL_RGBA, GL_UNSIGNED_BYTE);
 
 	// tell opengl which texture unit each shader sampler belongs
-	texture1.textureUnit(new_shader, "texture1", 0);
+	texture1.textureUnit(newShader, "texture1", 0);
+	texture2.textureUnit(newShader, "texture2", 1);
 
 	// -----------------------------------------------
 	
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
-		// calculate new delta_time
+		// calculate new deltaTime
 		float currentFrame = glfwGetTime();
-		delta_time = currentFrame - last_frame;
-		last_frame = currentFrame;
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
 		// input
 		processInput(window);
@@ -151,57 +181,79 @@ int main() {
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
 		texture1.bind();
+		glActiveTexture(GL_TEXTURE1);
+		texture2.bind();
 
 		// use shader
-		new_shader.use();
+		newShader.use();
 
-		// create a view matrix, assign it to camera's view
+		// create a view matrix, rotate around origin
+		const float radius = 10.0f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
+
 		glm::mat4 view = camera.getViewMatrix();
-		new_shader.setMat4("view", view);
+		newShader.setMat4("view", view);
 
 		// create projection matrix, using perspective
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		
 		// set uniform(s)
-		new_shader.setMat4("view", view);
-		new_shader.setMat4("projection", projection);
-		
-		// draw the chunk
-		chunk.draw(new_shader);
+		newShader.setMat4("view", view);
+		newShader.setMat4("projection", projection);
+
+		vao.bind();
+		for (unsigned int i = 0; i < 10; ++i) {
+			// create model matrix: consists of any translations, scalin, rotations, etc.,
+			// that we would apply to transform all object's vertices to *world space*
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, (float)glfwGetTime() + angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			
+			// update uniforms
+			newShader.setMat4("model", model);
+
+			// render each 
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	new_shader.deleteShader();
+	newShader.deleteShader();
+	vao.del();
+	vbo.del();
 	texture1.del();
+	texture2.del();
 
 
 	glfwTerminate(); 
 	return 0;
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
 void processInput(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float cameraSpeed = 5.0f * delta_time;
+	const float cameraSpeed = 5.0f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.processKeyboard(FORWARD, delta_time);
+		camera.processKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.processKeyboard(BACKWARD, delta_time);
+		camera.processKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.processKeyboard(LEFT, delta_time);
+		camera.processKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(RIGHT, delta_time);
+		camera.processKeyboard(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camera.processKeyboard(UP, delta_time);
+		camera.processKeyboard(UP, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		camera.processKeyboard(DOWN, delta_time);
+		camera.processKeyboard(DOWN, deltaTime);
 }
 
 void mouseCallback(GLFWwindow* window, double x_pos_in, double y_pos_in) {
