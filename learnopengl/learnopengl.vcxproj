@@ -141,6 +141,7 @@
     <ClInclude Include="include\Block.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
+    <ClInclude Include="include\Chunk.hpp" />
     <ClInclude Include="include\EBO.hpp" />
     <ClInclude Include="include\glm\glm.hpp" />
     <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />

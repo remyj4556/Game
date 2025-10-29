@@ -58,6 +58,9 @@ class ModelLibrary {
 		};
 
 	public:
+		// make a single getter function, and provide it an enum
+		// argument. the function then has a case for each enum
+		// and returns the corresponding vertices
 		std::vector<Vertex>& getCubeVertices() {
 			return cube_vertices;
 		}

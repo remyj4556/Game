@@ -6,6 +6,9 @@
 
 #include "Vertex.hpp"
 
+// perhaps define this in another file, we need this ordering to match that in the ModelLibrary
+// somehow, such that we can, given a BlockModel enum, access its corresponding geometry from 
+// the ModelLibrary class
 enum class BlockModel {
 	cube,
 };

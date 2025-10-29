@@ -86,7 +86,8 @@ int main() {
 	// the block registry holds the information for what a block is, but not its vertices or rendering data.
 	// here we assign cobblestone to be ID of 0 and a cube shape. we would ideally do this in a loop, reading
 	// from a json containing all blocks in the game, adding them to the registry upon startup. then, whenever 
-	// we need to access a block's info, we use the registry
+	// we need to access a block's info, we use the registry. block registry will also contain coordinates to
+	// a texture atlas, right now simply 
 	BlockRegistry block_reg;
 	block_reg.addDefinition({ 0, "cobblestone", BlockModel::cube });
 
