@@ -16,6 +16,8 @@
 #include "../include/Vertex.hpp"
 #include "../include/BlockRegistry.hpp"
 #include "../include/ModelLibrary.hpp"
+#include "../include/BlockDefinition.hpp"
+#include "../include/Chunk.hpp"
 #include "stb_image.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -81,33 +83,53 @@ int main() {
 	// the model library contains the actual *definition* of what each block model looks like.
 	// e.g., a cube is simply a cube, a stair might have many different faces, etc.
 	// we instantiate the library once, and then use it to build meshes.
-	ModelLibrary model_lib;
+	auto& model_lib = ModelLibrary::getInstance();
 
 	// the block registry holds the information for what a block is, but not its vertices or rendering data.
 	// here we assign cobblestone to be ID of 0 and a cube shape. we would ideally do this in a loop, reading
 	// from a json containing all blocks in the game, adding them to the registry upon startup. then, whenever 
 	// we need to access a block's info, we use the registry. block registry will also contain coordinates to
-	// a texture atlas, right now simply 
-	BlockRegistry block_reg;
-	block_reg.addDefinition({ 0, "cobblestone", BlockModel::cube });
+	// a texture atlas, right now simply . we use a singleton pattern for block registry, meaning only a single
+	// instance exists (inside the class), here we get it using the function
+	auto& block_reg = BlockRegistry::getInstance();
+	block_reg.addDefinition({ 0, "air", BlockModel::cube });
+	block_reg.addDefinition({ 1, "cobblestone", BlockModel::cube });
 
 
 	// load textures
 	Texture texture1("C:/Users/remyj/source/repos/Game2/learnopengl/textures/cobblestone.png", GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE);
 	texture1.textureUnit(lightingShader, "texture1", 0);
-	Texture texture2("C:/Users/remyj/source/repos/Game2/learnopengl/textures/container.jpg", GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE);
-	texture2.textureUnit(lightingShader, "texture2", 1);
 
-	std::vector<Texture> textures = { texture1, texture2 };
+	std::vector<Texture> textures = { texture1 };
 
 	// create mesh for cube and light. note: we *should* create a mesh for each entire chunk of cubes, not just the vertices of a single one
 	// this would be done not here in main but rather in Chunk or something, updating only when a block is broken/placed. An interesting thing
 	// is that we pass in a vector of textures, but how do we know which texture goes to which block in the chunk? well, we will eventually have
 	// a class for a Block, and thus every block is not a mesh but a Block. then, when creating a mesh for a Chunk, we iterate over every block,
 	// and can access its ID. we then use the ID to look it up in the registry, and find its necessary texture, etc.
-	Mesh cube_mesh(model_lib.getCubeVertices(), textures);
-	Mesh cube_mesh2(model_lib.getCubeVertices(), textures);
-	Mesh light_mesh(model_lib.getCubeVertices(), textures);
+	Mesh cube_mesh(model_lib.getVertices(BlockModel::cube), textures);
+	Mesh light_mesh(model_lib.getVertices(BlockModel::cube), textures);
+
+	// test chunk creation
+	Chunk chunk1;
+	chunk1.positions[10][10][10] = 1;
+	chunk1.positions[0][0][0] = 1;
+	chunk1.positions[31][31][31] = 1;
+
+	for (int i = 0; i < 32; ++i) {
+		for (int j = 0; j < 32; ++j) {
+			for (int k = 0; k < 32; ++k) {
+				chunk1.positions[i][j][k] = 1;
+			}
+		}
+	}
+	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
+	chunk1.updateChunkMesh();
+
+	// for testing if the chunk mesh gets the right vertices
+	//chunk1.printChunkVertices();
+	//std::cout << "out of scope vao: " << chunk1.chunk_mesh.vao.getID() << "\n";
+	//std::cout << "out of scope vbo: " << chunk1.chunk_mesh.vbo.getID() << "\n";
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -159,11 +181,11 @@ int main() {
 
 		glm::mat4 model = glm::mat4(1.0f);
 		lightingShader.setMat4("model", model);
-		cube_mesh.draw(lightingShader);
+		//cube_mesh.draw(lightingShader);
 
-		model = glm::translate(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		lightingShader.setMat4("model", model);
-		cube_mesh2.draw(lightingShader);
+		// draw chunk
+		chunk1.chunk_mesh.draw(lightingShader);
+		
 		
 		// --------------------------------------------------------------------------------------------------------------------
 		

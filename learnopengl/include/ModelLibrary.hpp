@@ -4,9 +4,13 @@
 #include <vector>
 
 #include "Vertex.hpp"
+#include "BlockDefinition.hpp"
 
 class ModelLibrary {
 	private:
+		// private default constructor for singleton
+		ModelLibrary() {}
+
 		std::vector<Vertex> cube_vertices = {
 			// Back face
 			{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
@@ -58,12 +62,13 @@ class ModelLibrary {
 		};
 
 	public:
-		// make a single getter function, and provide it an enum
-		// argument. the function then has a case for each enum
-		// and returns the corresponding vertices
-		std::vector<Vertex>& getCubeVertices() {
-			return cube_vertices;
+		// singleton getter
+		static ModelLibrary& getInstance() {
+			static ModelLibrary instance;
+			return instance;
 		}
+
+		const std::vector<Vertex>& getVertices(BlockModel model_type);
 };
 
 #endif

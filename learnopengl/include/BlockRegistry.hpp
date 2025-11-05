@@ -2,39 +2,26 @@
 #define BLOCKREGISTRY_HPP
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 #include "Vertex.hpp"
-
-// perhaps define this in another file, we need this ordering to match that in the ModelLibrary
-// somehow, such that we can, given a BlockModel enum, access its corresponding geometry from 
-// the ModelLibrary class
-enum class BlockModel {
-	cube,
-};
-
-struct BlockDefinition {
-	int id;
-	std::string display_name;
-	BlockModel model;
-	// probably want to store the pointer to the texture here, or some reference to it
-};
+#include "BlockDefinition.hpp"
 
 class BlockRegistry {
-	public:
+	private:
 		BlockRegistry();
-		BlockRegistry(std::vector<BlockDefinition> defs);
-		void addDefinition(BlockDefinition definition);
-		std::vector<BlockDefinition> block_defs;
+		std::unordered_map<int, BlockDefinition> block_defs;
+
+	public:
+		void addDefinition(const BlockDefinition& definition);
+		const BlockDefinition& getDefinition(int id);
+
+		// singleton instance
+		static BlockRegistry& getInstance() {
+			static BlockRegistry instance;
+			return instance;
+		}
 };
-
-BlockRegistry::BlockRegistry() {}
-
-BlockRegistry::BlockRegistry(std::vector<BlockDefinition> defs) : block_defs(defs) {}
-
-void BlockRegistry::addDefinition(BlockDefinition definition) {
-	block_defs.push_back(definition);
-}
 
 
 
