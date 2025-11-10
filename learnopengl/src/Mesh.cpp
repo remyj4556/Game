@@ -7,8 +7,25 @@ Mesh::Mesh(const std::vector<Vertex>& vertices_in, const std::vector<Texture>& t
 }
 
 Mesh::~Mesh() {
-	//vao.del();
-	//vbo.del();
+	vao.del();
+	vbo.del();
+}
+
+Mesh::Mesh(Mesh&& other) noexcept {
+	vao = std::move(other.vao);
+	vbo = std::move(other.vbo);
+	vertices = std::move(other.vertices);
+	textures = std::move(other.textures);
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept {
+	if (this != &other) {
+		vao = std::move(other.vao);
+		vbo = std::move(other.vbo);
+		vertices = std::move(other.vertices);
+		textures = std::move(other.textures);
+	}
+	return *this;
 }
 
 void Mesh::buildMesh() {

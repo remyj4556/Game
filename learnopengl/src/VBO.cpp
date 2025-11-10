@@ -1,6 +1,28 @@
 #include "../include/VBO.hpp"
 
-VBO::VBO() {}
+VBO::VBO() {
+	glGenBuffers(1, &ID);
+}
+
+VBO::~VBO() {
+	del();
+}
+
+VBO::VBO(VBO&& other) noexcept : ID(other.ID) {
+	other.ID = 0;
+}
+
+VBO& VBO::operator=(VBO&& other) noexcept {
+	if (this != &other) {
+		if (ID != 0) {
+			del();
+		}
+
+		ID = other.ID;
+		other.ID = 0;
+	}
+	return *this;
+}
 
 VBO::VBO(GLfloat vertices[], GLsizeiptr size, GLenum type) {
 	glGenBuffers(1, &ID);
@@ -23,7 +45,10 @@ void VBO::unbind() {
 }
 
 void VBO::del() {
-	glDeleteBuffers(1, &ID);
+	if (ID != 0) {
+		glDeleteBuffers(1, &ID);
+		ID = 0;
+	}
 }
 
 const GLuint VBO::getID() {
