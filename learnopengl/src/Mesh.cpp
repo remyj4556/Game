@@ -2,7 +2,7 @@
 
 Mesh::Mesh() {}
 
-Mesh::Mesh(const std::vector<Vertex>& vertices_in, const std::vector<Texture>& textures_in) : vertices(vertices_in), textures(textures_in) {
+Mesh::Mesh(const std::vector<Vertex>& vertices_in) : vertices(vertices_in) {
 	buildMesh();
 }
 
@@ -52,12 +52,7 @@ void Mesh::buildMesh() {
 	vao.unbind();
 }
 
-void Mesh::draw(Shader& shader) {
-	for (int i = 0; i < textures.size(); i++) {
-		// set texture
-		glActiveTexture(GL_TEXTURE0 + i);
-		textures[i].bind();
-	}
+void Mesh::draw() {
 	// draw the mesh
 	vao.bind();
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());

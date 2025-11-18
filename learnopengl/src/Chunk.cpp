@@ -8,13 +8,7 @@
 // vertex vector and texture vector respectively, and then create a mesh out of them.
 void Chunk::updateChunkMesh() {
 	// create local vector to store vertices for chunk, this is all the vertices from an entire chunk
-	// i.e., potentially: CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 36    (36 being the number for a cube)
-	// so possibly 32 * 32 * 32 * 36 = 1179648 vertices. This is why we NEED to minimize the number of them
-	// we add to the mesh, as well as the size of the Vertex object itself (could use bytes/chars in the future)
 	std::vector<Vertex> chunk_vertices;
-
-	// create a local vector to store all textures found in this chunk
-	std::vector<Texture> chunk_textures;
 	
 	// TEST: maximum number of vertices for a single chunk of cubes -- not sure how this affects performance in practice
 	//chunk_vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 36);
@@ -30,54 +24,44 @@ void Chunk::updateChunkMesh() {
 					continue;
 				}
 
-				//std::cout << "at position: " << i << " " << j << " " << k << "\n is block id: " << current_block_id 
-				//		  << "\n with name: " << BlockRegistry::getInstance().getDefinition(current_block_id).display_name << "\n";
-
 				// use the id to look up in the registry the texture and model it uses
 				BlockModel current_model = BlockRegistry::getInstance().getDefinition(current_block_id).model;
-
-				if (current_model == BlockModel::cube) {
-					//std::cout << " block model: cube\n";
-				}
 
 				// use the model to get the vertex data from the ModelLibrary
 				std::vector<Vertex> model_vertices = ModelLibrary::getInstance().getVertices(current_model);
 
-				// get the texture for the current block
-				chunk_textures.push_back(BlockRegistry::getInstance().getDefinition(current_block_id).texture);
+				// get the uv texture coords of each face of the current block, add them to a vector
+				std::vector<TextureRegion> face_textures;
+				for (int face = 0; face < 6; ++face) {
+					TextureRegion region = BlockRegistry::getInstance().getDefinition(current_block_id).textures[face];
+					face_textures.push_back(region);
+			
+				}
 
-				// idk the best way to move the model_vertices into the chunk_vertices, right now
-				// we don't modify them in any way but soon we will, so it might have to be O(n) 
-				// here regardless
-				for (Vertex& vert : model_vertices) {
+				// process vertices
+				for (int v = 0; v < model_vertices.size(); ++v) {
+					Vertex vert = model_vertices[v];
+
+					// apply position offset
 					vert.position.x += i;
 					vert.position.y += j;
 					vert.position.z += k;
 
+					int face_index = v / 6;    // 6 vertices per face
+					TextureRegion& region = face_textures[face_index];
+
+					// apply texture coordinates
+					vert.tex_coords.x = region.uv_min.x + vert.tex_coords.x * (region.uv_max.x - region.uv_min.x);
+					vert.tex_coords.y = region.uv_min.y + vert.tex_coords.y * (region.uv_max.y - region.uv_min.y);
+
 					chunk_vertices.push_back(vert);
 				}
-				
-				// IMPORTANT: somewhere we have to offset the vertices for each block by its position, right now they are all
-				// at 0,0,0 regardless
 			}
 		}
 	}
 
 	// create the new mesh with the chunks vertices and assign it to the member mesh
-	// use temporary texture vector (default init) right now
-	std::cout << "Chunk vertices: \n";
-	for (auto& vert : chunk_vertices) {
-		//std::cout << vert.position.x << " " << vert.position.y << " " << vert.position.z << "\n";
-	}
-	// almost certain this is the culprit, vao/vbo data is probably being lost after this goes out of scope or smth,
-	// need to make copy/move operators for Mesh
-	//std::cout << "before reassignment vao: " << chunk_mesh.vao.getID() << "\n";
-	//std::cout << "before reassignment vbo: " << chunk_mesh.vbo.getID() << "\n";
-
-	chunk_mesh = std::move(Mesh(chunk_vertices, chunk_textures));
-
-	//std::cout << "after reassignment vao: " << chunk_mesh.vao.getID() << "\n";
-	//std::cout << "after reassignment vbo: " << chunk_mesh.vbo.getID() << "\n";
+	chunk_mesh = std::move(Mesh(chunk_vertices));
 }
 
 void Chunk::printChunkVertices() {

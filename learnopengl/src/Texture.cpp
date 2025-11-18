@@ -1,11 +1,28 @@
 #include "../include/Texture.hpp"
 
+Texture::Texture(GLenum textureType, GLenum slot, GLenum imageFormat, GLenum pixelType) {
+	type = textureType;
+
+	// generate an opengl texture object
+	glGenTextures(1, &ID);
+
+	// activate texture unit before binding texture, as to bind it to the active unit
+	glActiveTexture(slot);
+	glBindTexture(type, ID);
+
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
 Texture::Texture(const char* path, GLenum textureType, GLenum slot, GLenum imageFormat, GLenum pixelType) {
 	type = textureType;
 
 	// generate an opengl texture object
 	glGenTextures(1, &ID);
-	
+
 	// activate texture unit before binding texture, as to bind it to the active unit
 	glActiveTexture(slot);
 	glBindTexture(type, ID);
@@ -16,6 +33,10 @@ Texture::Texture(const char* path, GLenum textureType, GLenum slot, GLenum image
 	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+	loadTexture(path, imageFormat, pixelType);
+}
+
+void Texture::loadTexture(const char* path, GLenum imageFormat, GLenum pixelType) {
 	// load image
 	GLint width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
@@ -48,4 +69,8 @@ void Texture::unbind() {
 
 void Texture::del() {
 	glDeleteTextures(1, &ID);
+}
+
+const GLuint Texture::getID() const {
+	return ID;
 }

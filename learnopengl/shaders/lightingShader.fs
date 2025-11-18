@@ -36,7 +36,8 @@ void main() {
 	vec3 norm = normalize(Normal);
 	vec3 light_dir = normalize(light.position - FragPos);
 	float diff = max(dot(norm, light_dir), 0.0);
-	vec3 diffuse = light.diffuse * (diff * material.diffuse);
+	vec3 texColor = texture(texture1, TexCoord).rgb;
+	vec3 diffuse = light.diffuse * (diff * texColor);
 
 	// specular lighting
 	vec3 view_dir = normalize(view_pos - FragPos);
@@ -45,6 +46,5 @@ void main() {
 	vec3 specular = light.specular * (spec * material.specular);
 
 	// result
-	vec3 result = ambient + diffuse + specular;
-	FragColor = mix(texture(texture1, TexCoord), vec4(result, 1.0), 0.5);
+	FragColor = vec4(ambient + diffuse + specular, 1.0);
 }

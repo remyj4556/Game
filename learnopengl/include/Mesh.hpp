@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Texture.hpp"
+#include "TextureAtlas.hpp"
 #include "Shader.hpp"
 #include "VAO.hpp"
 #include "VBO.hpp"
@@ -13,14 +13,14 @@
 class Mesh {
 	private:
 		std::vector<Vertex> vertices;
-		std::vector<Texture> textures;
+		std::vector<TextureRegion> textures;
 
 	public:
 		VAO vao;
 		VBO vbo;
 
 		Mesh();
-		Mesh(const std::vector<Vertex>& vertices_in, const std::vector<Texture>& textures_in);
+		Mesh(const std::vector<Vertex>& vertices_in);
 		~Mesh();
 
 		// move constructor and move assignment, this allows us to properly handle the vao/vbo especially (via their move assignments)
@@ -34,7 +34,7 @@ class Mesh {
 		Mesh& operator=(const Mesh&) = delete;
 
 		void buildMesh();
-		void draw(Shader& shader);
+		void draw();
 		void printInfo();
 };
 

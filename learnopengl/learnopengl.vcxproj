@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\opengl\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\opengl\Include;C:\Users\remyj\source\repos\Game\learnopengl\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\opengl\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -109,6 +109,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\remyj\source\repos\learnopengl\learnopengl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,7 +143,10 @@
     <ClCompile Include="src\ModelLibrary.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
+    <ClCompile Include="src\stb_image_write.cpp" />
+    <ClCompile Include="src\stb_rect_pack.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\TextureAtlas.cpp" />
     <ClCompile Include="src\VAO.cpp" />
     <ClCompile Include="src\VBO.cpp" />
   </ItemGroup>
@@ -159,7 +163,11 @@
     <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Shader.hpp" />
     <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="include\stb_rect_pack.h" />
     <ClInclude Include="include\Texture.hpp" />
+    <ClInclude Include="include\TextureAtlas.hpp" />
+    <ClInclude Include="include\TextureRegion.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />
