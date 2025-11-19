@@ -6,15 +6,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
-#include "../include/stb_image.h"
 #include "../include/Mesh.hpp"
 #include "../include/Shader.hpp"
-#include "../include/VBO.hpp"
-#include "../include/VAO.hpp"
-#include "../include/EBO.hpp"
 #include "../include/Texture.hpp"
 #include "../include/Camera.hpp"
-#include "../include/Vertex.hpp"
 #include "../include/BlockRegistry.hpp"
 #include "../include/ModelLibrary.hpp"
 #include "../include/BlockDefinition.hpp"
@@ -99,14 +94,35 @@ int main() {
 	block_reg.addDefinition({ 0, "air", BlockModel::cube, {} });    
 	block_reg.addDefinition({ 1, "cobblestone", BlockModel::cube, {atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone")} });
 	block_reg.addDefinition({ 2, "grass", BlockModel::cube, {atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2") } });
+	block_reg.addDefinition({ 3, "red", BlockModel::cube, {atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test")} });
 
 	// create mesh for light cube, independent of chunks
 	Mesh light_mesh(model_lib.getVertices(BlockModel::cube));
 
 	// test chunk creation
 	Chunk chunk1;
-	chunk1.positions[1][1][1] = 1;
-	chunk1.positions[2][1][1] = 2;
+	// fill with air
+	const int CHUNK_SIZE = 32;
+	for (int x = 0; x < CHUNK_SIZE; ++x) {
+		for (int y = 0; y < CHUNK_SIZE; ++y) {
+			for (int z = 0; z < CHUNK_SIZE; ++z) {
+				chunk1.positions[x][y][z] = 0;
+			}
+		}
+	}
+
+	// "place" different blocks
+	chunk1.positions[5][5][5] = 1;
+	chunk1.positions[6][5][5] = 2;
+	chunk1.positions[7][5][5] = 3;
+	
+	for (int x = 0; x < 3; ++x) {
+		for (int y = 0; y < 3; ++y) {
+			for (int z = 0; z < 3; ++z) {
+				chunk1.positions[10 + x][10 + y][10 + z] = 1;
+			}
+		}
+	}
 
 	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
 	chunk1.updateChunkMesh();

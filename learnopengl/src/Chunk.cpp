@@ -13,11 +13,11 @@ void Chunk::updateChunkMesh() {
 	// TEST: maximum number of vertices for a single chunk of cubes -- not sure how this affects performance in practice
 	//chunk_vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 36);
 
-	for (int i = 0; i < CHUNK_SIZE; ++i) {
-		for (int j = 0; j < CHUNK_SIZE; ++j) {
-			for (int k = 0; k < CHUNK_SIZE; ++k) {
+	for (int x = 0; x < CHUNK_SIZE; ++x) {
+		for (int y = 0; y < CHUNK_SIZE; ++y) {
+			for (int z = 0; z < CHUNK_SIZE; ++z) {
 				// get the id of the current block
-				int current_block_id = positions[i][j][k];
+				int current_block_id = positions[x][y][z];
 
 				// skip if air
 				if (current_block_id == 0) {
@@ -30,31 +30,60 @@ void Chunk::updateChunkMesh() {
 				// use the model to get the vertex data from the ModelLibrary
 				std::vector<Vertex> model_vertices = ModelLibrary::getInstance().getVertices(current_model);
 
-				// get the uv texture coords of each face of the current block, add them to a vector
-				std::vector<TextureRegion> face_textures;
+				// iterate over each face of the current block
 				for (int face = 0; face < 6; ++face) {
+					// if current face is obscured by another block, i.e., not air (could be eventually a transparent material, though), then skip adding face
+					bool cull_face = false;
+
+					switch (face) {
+					case 0: // back face (-Z)
+						cull_face = (z - 1 >= 0 && positions[x][y][z - 1] != 0);
+						break;
+
+					case 1: // front face (+Z)
+						cull_face = (z + 1 < CHUNK_SIZE && positions[x][y][z + 1] != 0);
+						break;
+
+					case 2: // left face (-X)
+						cull_face = (x - 1 >= 0 && positions[x - 1][y][z] != 0);
+						break;
+
+					case 3: // right face (+X)
+						cull_face = (x + 1 < CHUNK_SIZE && positions[x + 1][y][z] != 0);
+						break;
+
+					case 4: // bottom face (-Y)
+						cull_face = (y - 1 >= 0 && positions[x][y - 1][z] != 0);
+						break;
+
+					case 5: // top face (+Y)
+						cull_face = (y + 1 < CHUNK_SIZE && positions[x][y + 1][z] != 0);
+						break;
+					}
+
+					if (cull_face) {
+						continue;
+					}
+
+
+					// get uv texture region for current face
 					TextureRegion region = BlockRegistry::getInstance().getDefinition(current_block_id).textures[face];
-					face_textures.push_back(region);
-			
-				}
 
-				// process vertices
-				for (int v = 0; v < model_vertices.size(); ++v) {
-					Vertex vert = model_vertices[v];
+					// get the next 6 (num vertices per face) vertices from the model_vertices
+					for (int vertex = 0; vertex < 6; ++vertex) {
+						Vertex vert = model_vertices[6 * face + vertex];
 
-					// apply position offset
-					vert.position.x += i;
-					vert.position.y += j;
-					vert.position.z += k;
+						// apply position offset
+						vert.position.x += x;
+						vert.position.y += y;
+						vert.position.z += z;
 
-					int face_index = v / 6;    // 6 vertices per face
-					TextureRegion& region = face_textures[face_index];
+						// apply texture coordinates
+						vert.tex_coords.x = region.uv_min.x + vert.tex_coords.x * (region.uv_max.x - region.uv_min.x);
+						vert.tex_coords.y = region.uv_min.y + vert.tex_coords.y * (region.uv_max.y - region.uv_min.y);
 
-					// apply texture coordinates
-					vert.tex_coords.x = region.uv_min.x + vert.tex_coords.x * (region.uv_max.x - region.uv_min.x);
-					vert.tex_coords.y = region.uv_min.y + vert.tex_coords.y * (region.uv_max.y - region.uv_min.y);
-
-					chunk_vertices.push_back(vert);
+						chunk_vertices.push_back(vert);
+					}
 				}
 			}
 		}
