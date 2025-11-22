@@ -2,6 +2,7 @@
 #define MODELLIBRARY_HPP
 
 #include <vector>
+#include <unordered_map>
 
 #include "Vertex.hpp"
 #include "BlockDefinition.hpp"
@@ -11,7 +12,7 @@ class ModelLibrary {
 		// private default constructor for singleton
 		ModelLibrary() {}
 
-		std::vector<Vertex> cube_vertices = {
+		inline static const std::vector<Vertex> cube_vertices = {
 			// Back face
 			{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
 			{{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
@@ -60,6 +61,8 @@ class ModelLibrary {
 			{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
 			{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
 		};
+
+		static const std::unordered_map<BlockModel, std::vector<Vertex>> modelLookup;
 
 	public:
 		// singleton getter

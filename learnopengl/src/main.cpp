@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <vector>
 
 #include "../include/Mesh.hpp"
 #include "../include/Shader.hpp"
@@ -75,29 +74,15 @@ int main() {
 	// shader for lights
 	Shader lightCubeShader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.fs");
 
-
-
-	// the model library contains the actual *definition* of what each block model looks like.
-	// e.g., a cube is simply a cube, a stair might have many different faces, etc.
-	// we use the singleton pattern for a global library, then use getInstance whenever we want it
-	auto& model_lib = ModelLibrary::getInstance();
-
-	// the texture atlas contains the actual texture itself, as well as a hash map for accessing 
-	// the TextureRegion (uv coords) of a given texture based on the name, i.e. "grass_top" -> (0.5,0)
-	// texture atlas testing
+	// create texture atlas
 	TextureAtlas atlas("textures");
 
-	// fill block registry (manually, for now) with the definitions of possible blocks
-	// for textures, we could block_reg.addDefinition({ 3, "dirt", BlockModel::cube, {atlas.getTextureRegion("dirt_top"), atlas.getTextureRegion("dirt_side"), ...} };
-	// for a block with different textures for different faces. 
-	auto& block_reg = BlockRegistry::getInstance();
-	block_reg.addDefinition({ 0, "air", BlockModel::cube, {} });    
-	block_reg.addDefinition({ 1, "cobblestone", BlockModel::cube, {atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone"), atlas.getTextureRegion("cobblestone")} });
-	block_reg.addDefinition({ 2, "grass", BlockModel::cube, {atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2"), atlas.getTextureRegion("test2") } });
-	block_reg.addDefinition({ 3, "red", BlockModel::cube, {atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test"), atlas.getTextureRegion("test")} });
+	// create and fill block registry
+	auto& block_reg = BlockRegistry::getInstance();  
+	block_reg.populateDefinitions("json/blocks.json", atlas);
 
 	// create mesh for light cube, independent of chunks
-	Mesh light_mesh(model_lib.getVertices(BlockModel::cube));
+	Mesh light_mesh(ModelLibrary::getInstance().getVertices(BlockModel::cube));
 
 	// test chunk creation
 	Chunk chunk1;

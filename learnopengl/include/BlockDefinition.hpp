@@ -1,18 +1,25 @@
 #ifndef BLOCKDEFINITION_HPP
 #define BLOCKDEFINITION_HPP
 
-#include "Texture.hpp"
 #include "TextureRegion.hpp"
 #include <string>
+#include <unordered_map>
 
 
 // this enum class allows us to correctly reference the model shape
 // in the model library, from the block registry 
 enum class BlockModel {
 	cube,
-	// stair,
-	// slab, 
+	stair,
+	slab
 	// etc.,
+};
+
+// get a block model from a string
+static const std::unordered_map<std::string, BlockModel> blockModelLookup = {
+	{"cube", BlockModel::cube},
+	{"stair", BlockModel::stair},
+	{"slab", BlockModel::slab}
 };
 
 struct BlockDefinition {

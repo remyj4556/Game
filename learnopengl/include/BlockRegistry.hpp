@@ -3,9 +3,12 @@
 
 #include <string>
 #include <unordered_map>
+#include <fstream>
 
 #include "Vertex.hpp"
 #include "BlockDefinition.hpp"
+#include "json.hpp"
+#include "TextureAtlas.hpp"
 
 class BlockRegistry {
 	private:
@@ -15,6 +18,7 @@ class BlockRegistry {
 	public:
 		void addDefinition(const BlockDefinition& definition);
 		const BlockDefinition& getDefinition(int id);
+		void populateDefinitions(const std::string& path, TextureAtlas& atlas);
 
 		// singleton instance
 		static BlockRegistry& getInstance() {

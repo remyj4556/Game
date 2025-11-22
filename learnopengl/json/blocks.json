@@ -1,0 +1,48 @@
+{
+  "blocks": [
+    {
+      "id": 0,
+      "display_name": "air",
+      "model": "cube",
+      "back_texture": "default",
+      "front_texture": "default",
+      "left_texture": "default",
+      "right_texture": "default",
+      "bottom_texture": "default",
+      "top_texture": "default"
+    },
+    {
+      "id": 1,
+      "display_name": "cobblestone",
+      "model": "cube",
+      "back_texture": "cobblestone",
+      "front_texture": "cobblestone",
+      "left_texture": "cobblestone",
+      "right_texture": "cobblestone",
+      "bottom_texture": "cobblestone",
+      "top_texture": "cobblestone"
+    },
+    {
+      "id": 2,
+      "display_name": "dirt",
+      "model": "cube",
+      "back_texture": "dirt",
+      "front_texture": "dirt",
+      "left_texture": "dirt",
+      "right_texture": "dirt",
+      "bottom_texture": "dirt",
+      "top_texture": "dirt"
+    },
+    {
+      "id": 3,
+      "display_name": "grass",
+      "model": "cube",
+      "back_texture": "dirt",
+      "front_texture": "dirt",
+      "left_texture": "dirt",
+      "right_texture": "dirt",
+      "bottom_texture": "dirt",
+      "top_texture": "grass"
+    }
+  ]
+}

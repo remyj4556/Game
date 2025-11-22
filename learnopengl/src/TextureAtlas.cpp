@@ -67,8 +67,8 @@ TextureAtlas::TextureAtlas(const char* path) {
         region.uv_max.x = (rect.x + rect.w) / float(atlas_width);
         region.uv_max.y = (atlas_height - rect.y) / float(atlas_height);
 
-        std::cout << texture_name << ", u min: " << region.uv_min.x << ", v min: " << region.uv_min.y
-            << ", u max: " << region.uv_max.x << ", v max: " << region.uv_max.y << "\n";
+        //std::cout << texture_name << ", u min: " << region.uv_min.x << ", v min: " << region.uv_min.y
+        //    << ", u max: " << region.uv_max.x << ", v max: " << region.uv_max.y << "\n";
 
         regions[texture_name] = region;
 
@@ -86,7 +86,13 @@ TextureAtlas::~TextureAtlas() {
 }
 
 TextureRegion& TextureAtlas::getTextureRegion(const std::string& texture_name) {
-    return regions.at(texture_name);
+    try {
+        return regions.at(texture_name);
+    }
+    catch (const std::out_of_range& oor) {
+        std::cerr << "error accessing Texture Region for texture: " << texture_name << "\n"
+                  << " - texture: " << texture_name << " does not exist\n";
+    }  
 }
 
 // returns a pair of sbrp_rect objects that contain the data for each texture file in an directory,

@@ -159,6 +159,7 @@
     <ClInclude Include="include\glm\glm.hpp" />
     <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />
     <ClInclude Include="include\glm\gtc\type_ptr.hpp" />
+    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
     <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Shader.hpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="include\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="json\blocks.json" />
     <None Include="shaders\lightCubeShader.fs" />
     <None Include="shaders\lightCubeShader.vs" />
     <None Include="shaders\lightingShader.fs" />

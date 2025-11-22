@@ -122,6 +122,9 @@
     <ClInclude Include="include\stb_image_write.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\lightingShader.fs">
@@ -134,6 +137,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\lightCubeShader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="json\blocks.json">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
