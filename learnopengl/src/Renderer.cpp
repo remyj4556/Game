@@ -11,6 +11,10 @@ Renderer::Renderer(const unsigned int screen_width, const unsigned int screen_he
 	auto& block_reg = BlockRegistry::getInstance();
 	block_reg.populateDefinitions("json/blocks.json", block_atlas);
 
+	// create and fill model library (again don't use singleton eventually, pass to functions that need it)
+	auto& model_lib = ModelLibrary::getInstance();
+	model_lib.populateDefinitions();
+
 	glViewport(0, 0, screen_width, screen_height);
 
 	// enable depth testing

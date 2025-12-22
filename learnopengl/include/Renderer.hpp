@@ -22,6 +22,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "BlockRegistry.hpp"
+#include "ModelLibrary.hpp"
 #include "Mesh.hpp"
 
 class Renderer {
