@@ -15,7 +15,6 @@ Mesh::Mesh(Mesh&& other) noexcept {
 	vao = std::move(other.vao);
 	vbo = std::move(other.vbo);
 	vertices = std::move(other.vertices);
-	textures = std::move(other.textures);
 }
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept {
@@ -23,7 +22,6 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
 		vao = std::move(other.vao);
 		vbo = std::move(other.vbo);
 		vertices = std::move(other.vertices);
-		textures = std::move(other.textures);
 	}
 	return *this;
 }

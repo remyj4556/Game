@@ -2,18 +2,14 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
+#include "../include/Renderer.hpp"
 #include "../include/Mesh.hpp"
-#include "../include/Shader.hpp"
-#include "../include/Texture.hpp"
 #include "../include/Camera.hpp"
-#include "../include/BlockRegistry.hpp"
 #include "../include/ModelLibrary.hpp"
 #include "../include/BlockDefinition.hpp"
 #include "../include/Chunk.hpp"
-#include "../include/TextureAtlas.hpp"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -32,9 +28,6 @@ bool firstMouse = true;
 // delta time 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-// light source position
-glm::vec3 light_pos(0.0f, 5.0f, 0.0f);
 
 
 int main() {
@@ -63,29 +56,20 @@ int main() {
 		return -1;
 	}
 
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	// setup renderer
+	Renderer renderer(SCR_WIDTH, SCR_HEIGHT);
+	
 
-	// enable depth testing
-	glEnable(GL_DEPTH_TEST);
-
-	// create shader object
-	Shader lightingShader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightingShader.fs");
-
-	// shader for lights
-	Shader lightCubeShader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.fs");
-
-	// create texture atlas
-	TextureAtlas atlas("textures");
-
-	// create and fill block registry
-	auto& block_reg = BlockRegistry::getInstance();  
-	block_reg.populateDefinitions("json/blocks.json", atlas);
-
+	// temp --------------------------------------------------------------------
 	// create mesh for light cube, independent of chunks
 	Mesh light_mesh(ModelLibrary::getInstance().getVertices(BlockModel::cube));
+	// light source position
+	glm::vec3 light_pos(0.0f, 5.0f, 0.0f);
 
 	// test chunk creation
 	Chunk chunk1;
+	chunk1.chunk_position = glm::vec3(0, 0, 0);
+
 	// fill with air
 	const int CHUNK_SIZE = 32;
 	for (int x = 0; x < CHUNK_SIZE; ++x) {
@@ -96,7 +80,7 @@ int main() {
 		}
 	}
 
-	// "place" different blocks
+	// place different blocks
 	chunk1.positions[5][5][5] = 1;
 	chunk1.positions[6][5][5] = 2;
 	chunk1.positions[7][5][5] = 3;
@@ -109,8 +93,37 @@ int main() {
 		}
 	}
 
+	for (int x = 0; x < 10; ++x) {
+		for (int z = 0; z < 10; ++z) {
+			chunk1.positions[x][0][z] = 1;
+		}
+	}
+
 	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
 	chunk1.updateChunkMesh();
+
+	// test second chunk creation
+	Chunk chunk2;
+	chunk2.chunk_position = glm::vec3(0, 0, -32);
+
+	// fill with air
+	for (int x = 0; x < CHUNK_SIZE; ++x) {
+		for (int y = 0; y < CHUNK_SIZE; ++y) {
+			for (int z = 0; z < CHUNK_SIZE; ++z) {
+				chunk2.positions[x][y][z] = 0;
+			}
+		}
+	}
+
+	for (int x = 0; x < 32; ++x) {
+		for (int z = 0; z < 32; ++z) {
+			chunk2.positions[x][0][z] = 1;
+		}
+	}
+
+	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
+	chunk2.updateChunkMesh();
+	// -------------------------------------------------------------------------
 
 
 	// render loop
@@ -120,87 +133,27 @@ int main() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		// update cube light source position
+		light_pos = glm::vec3(light_pos.x + 0.5 * sin(glfwGetTime()), light_pos.y + 0.5 * sin(glfwGetTime()), light_pos.z + 0.5 * cos(glfwGetTime()));
+
 		// input
 		processInput(window);
 
 		// rendering
-		glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// clear the depth buffer before each render iteration specifically
+		renderer.beginFrame(camera, light_pos);
 
-		// update cube light source position
-		light_pos = glm::vec3(light_pos.x + 0.25 * sin(glfwGetTime()), light_pos.y, light_pos.z + 0.25 * cos(glfwGetTime()));
-
-		// CUBE ---------------------------------------------------------------------------------------------------------------
-		// activate shader when setting uniforms and drawing objects
-		lightingShader.use();
-
-		// set the light position and view position 
-		lightingShader.setVec3("light.position", light_pos);
-		lightingShader.setVec3("view_pos", camera.position);
-
-		// light properties
-		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glm::vec3 diffuse_color = light_color * glm::vec3(0.5f); // decrease the influence
-		glm::vec3 ambient_color = diffuse_color * glm::vec3(0.2f); // low influence
-
-		lightingShader.setVec3("light.ambient", ambient_color);
-		lightingShader.setVec3("light.diffuse", diffuse_color);
-		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-		// material properties
-		lightingShader.setVec3("material.ambient", 0.8f, 0.8f, 0.8f);
-		lightingShader.setVec3("material.diffuse", 0.8f, 0.8f, 0.8f);
-		lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		lightingShader.setFloat("material.shininess", 32.0f);
-
-		// view/projection matrix transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.getViewMatrix();
-
-		// set uniform(s) for these transformations
-		lightingShader.setMat4("view", view);
-		lightingShader.setMat4("projection", projection);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		lightingShader.setMat4("model", model);
-
-		// draw chunk
-		atlas.atlas->bind();
-		chunk1.chunk_mesh.draw();
+		// CUBE
+		renderer.renderChunk(chunk1);
+		renderer.renderChunk(chunk2);
 		
-		
-		// --------------------------------------------------------------------------------------------------------------------
-		
-		
-		// LIGHT SOURCE -------------------------------------------------------------------------------------------------------
-		// use shader
-		lightCubeShader.use();
-
-		// set uniform(s) for view and projection transformations (reuse same ones for cube)
-		lightCubeShader.setMat4("view", view);
-		lightCubeShader.setMat4("projection", projection);
-
-		// world transformation(s)
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, light_pos);
-		model = glm::scale(model, glm::vec3(0.2f));
-		lightCubeShader.setMat4("model", model);
-
-		// set color (the color of the cube itself) of light 
-		lightCubeShader.setVec3("color", light_color);
-
-		// render the cube
-		light_mesh.draw();
-		// -------------------------------------------------------------------------------------------------------------------- 
+		// LIGHT SOURCE
+		renderer.renderLight(light_mesh, light_pos);
 		
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-	lightingShader.deleteShader();
-	lightCubeShader.deleteShader();
 
 	glfwTerminate(); 
 	return 0;

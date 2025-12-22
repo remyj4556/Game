@@ -2,9 +2,8 @@
 #define MESH_HPP
 
 #include <vector>
+#include <iostream>
 
-#include "TextureAtlas.hpp"
-#include "Shader.hpp"
 #include "VAO.hpp"
 #include "VBO.hpp"
 #include "Vertex.hpp"
@@ -13,7 +12,6 @@
 class Mesh {
 	private:
 		std::vector<Vertex> vertices;
-		std::vector<TextureRegion> textures;
 
 	public:
 		VAO vao;

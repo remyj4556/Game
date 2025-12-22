@@ -1,7 +1,12 @@
 #include "../include/Shader.hpp"
 
+Shader::Shader() {}
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+	// store paths for potential copying
+	vert_path = vertexPath;
+	frag_path = fragmentPath;
+
 	// 1. retrieve the vertex/fragment source code from filepath
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -14,8 +19,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 	try {
 		// open files
-		vertexShaderFile.open(vertexPath);
-		fragmentShaderFile.open(fragmentPath);
+		vertexShaderFile.open(vert_path);
+		fragmentShaderFile.open(frag_path);
 
 		// read files contents into string streams
 		std::stringstream vertexShaderStream, fragmentShaderStream;
@@ -67,6 +72,10 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	// delete shaders as the program is now linked
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+}
+
+Shader::~Shader() {
+	deleteShader();
 }
 
 GLuint Shader::getId() {

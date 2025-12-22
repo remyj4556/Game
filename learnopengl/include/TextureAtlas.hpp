@@ -23,7 +23,11 @@ class TextureAtlas {
 	public:
         // ctor takes a path to a *directory* of textures, and builds them into a single atlas
 		TextureAtlas(const char* path);
+		TextureAtlas();
 		~TextureAtlas();
+
+
+
 		TextureRegion& getTextureRegion(const std::string& texture_name);
 		Texture* atlas;
 };

@@ -1,5 +1,7 @@
 #include "../include/TextureAtlas.hpp"
 
+TextureAtlas::TextureAtlas() {}
+
 TextureAtlas::TextureAtlas(const char* path) {
 
     // can eventually define these dynamically

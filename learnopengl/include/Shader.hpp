@@ -10,19 +10,17 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <utility>
 
 class Shader {
 	public:
 		// constructor reads and builds the shader
 		Shader(const char* vertexPath, const char* fragmentPath);
+		Shader();
+		~Shader();
 
-		// getter
 		GLuint getId();
-		
-		// use the shader
 		void use();
-
-		// delete the shader
 		void deleteShader();
 
 		// utility uniform functions
@@ -42,6 +40,8 @@ class Shader {
 	private:
 		// shader program id
 		GLuint ID;
+		const char* vert_path;
+		const char* frag_path;
 
 		void checkCompileErrors(GLuint id, const std::string& type) const;
 };
