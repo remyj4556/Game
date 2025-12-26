@@ -6,6 +6,7 @@
 #include "BlockDefinition.hpp"
 #include "ModelLibrary.hpp"
 #include "Vertex.hpp"
+#include "GeometryVertex.hpp"
 #include "TextureRegion.hpp"
 
 #include <iostream>

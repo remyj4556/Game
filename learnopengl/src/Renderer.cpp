@@ -3,8 +3,8 @@
 Renderer::Renderer(const unsigned int screen_width, const unsigned int screen_height) :
 	screen_width(screen_width),
 	screen_height(screen_height),
-	block_shader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightingShader.fs"),
-	light_shader("C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/learnopengl/learnopengl/shaders/lightCubeShader.fs"),
+	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
+	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs"),
 	block_atlas("textures")
 {
 	// create and fill block registry (don't use singleton eventually)
@@ -38,7 +38,7 @@ void Renderer::beginFrame(Camera& camera, glm::vec3& light_pos) {
 	block_shader.setVec3("light.position", light_pos);
 	block_shader.setVec3("view_pos", camera.position);
 	
-	// TODO: eventually move material properties OUT of Renderer entirely
+	// TODO: eventually move all material properties OUT of Renderer entirely --> when light sources become real blocks and not "debug lights"
 	// light properties
 	glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 diffuse_color = light_color * glm::vec3(0.5f); // decrease the influence
@@ -47,12 +47,6 @@ void Renderer::beginFrame(Camera& camera, glm::vec3& light_pos) {
 	block_shader.setVec3("light.ambient", ambient_color);
 	block_shader.setVec3("light.diffuse", diffuse_color);
 	block_shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-	// material properties
-	block_shader.setVec3("material.ambient", 0.8f, 0.8f, 0.8f);
-	block_shader.setVec3("material.diffuse", 0.8f, 0.8f, 0.8f);
-	block_shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-	block_shader.setFloat("material.shininess", 32.0f);
 }
 
 void Renderer::renderChunk(Chunk& chunk) {
@@ -60,7 +54,10 @@ void Renderer::renderChunk(Chunk& chunk) {
 	block_shader.setMat4("view", view);
 	block_shader.setMat4("projection", projection);
 
-	// TODO: this (translate) will change eventually based on chunk position in world
+	// ensure sampler is set to texture unit 0
+	block_shader.setInt("texture1", 0);
+
+	// translate chunk model matrix based on position in world
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, chunk.chunk_position);
 	block_shader.setMat4("model", model);

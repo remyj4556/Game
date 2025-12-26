@@ -34,9 +34,11 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 		// convert stream into string
 		vertexCode = vertexShaderStream.str();
 		fragmentCode = fragmentShaderStream.str();
+
 	}
 	catch(std::ifstream::failure &e) {
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+		std::cout << "Exception message: " << e.what() << std::endl;
 	}
 	const char* vertexShaderCode = vertexCode.c_str();
 	const char* fragmentShaderCode = fragmentCode.c_str();
@@ -145,6 +147,7 @@ void Shader::checkCompileErrors(GLuint id, const std::string& type) const {
 		if (!success) {
 			glGetShaderInfoLog(id, 1024, NULL, infoLog);
 			std::cout << "ERROR::SHADER::" << type << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+			throw std::runtime_error(std::string("Shader compilation failed (") + type + "): " + infoLog);
 		}
 	}
 	else {
@@ -152,6 +155,7 @@ void Shader::checkCompileErrors(GLuint id, const std::string& type) const {
 		if (!success) {
 			glGetProgramInfoLog(id, 1024, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			throw std::runtime_error(std::string("Shader program linking failed: ") + infoLog);
 		}
 	}
 }

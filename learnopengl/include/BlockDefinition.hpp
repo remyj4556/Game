@@ -16,11 +16,11 @@ enum class BlockModel {
 };
 
 struct MaterialProperties {
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-	float shininess;
-	bool is_transparent;
+	glm::vec3 ambient = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 diffuse = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 specular = { 0.0f, 0.0f, 0.0f };
+	float shininess = 1.0f;
+	bool is_transparent = false;
 };
 
 // get a block model from a string

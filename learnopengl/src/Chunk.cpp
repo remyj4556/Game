@@ -24,11 +24,14 @@ void Chunk::updateChunkMesh() {
 					continue;
 				}
 
-				// use the id to look up in the registry the texture and model it uses
+				// use the id to look up in the registry the model it uses
 				BlockModel current_model = BlockRegistry::getInstance().getDefinition(current_block_id).model;
 
+				// get the material definition of the current block
+				MaterialProperties current_material = BlockRegistry::getInstance().getDefinition(current_block_id).material;
+
 				// use the model to get the vertex data from the ModelLibrary
-				std::vector<Vertex> model_vertices = ModelLibrary::getInstance().getVertices(current_model);
+				std::vector<GeometryVertex> model_vertices = ModelLibrary::getInstance().getVertices(current_model);
 
 				// iterate over each face of the current block
 				for (int face = 0; face < 6; ++face) {
@@ -71,24 +74,30 @@ void Chunk::updateChunkMesh() {
 
 					// get the next 6 (num vertices per face) vertices from the model_vertices
 					for (int vertex = 0; vertex < 6; ++vertex) {
-						Vertex vert = model_vertices[6 * face + vertex];
+						GeometryVertex geo_vert = model_vertices[6 * face + vertex];
+						Vertex vert;
 
 						// apply position offset
-						vert.position.x += x;
-						vert.position.y += y;
-						vert.position.z += z;
+						vert.position = geo_vert.position + glm::vec3(x, y, z);
+
+						// assign normal
+						vert.normal = geo_vert.normal;
 
 						// apply texture coordinates
-						vert.tex_coords.x = region.uv_min.x + vert.tex_coords.x * (region.uv_max.x - region.uv_min.x);
-						vert.tex_coords.y = region.uv_min.y + vert.tex_coords.y * (region.uv_max.y - region.uv_min.y);
+						vert.tex_coords.x = region.uv_min.x + geo_vert.tex_coords.x * (region.uv_max.x - region.uv_min.x);
+						vert.tex_coords.y = region.uv_min.y + geo_vert.tex_coords.y * (region.uv_max.y - region.uv_min.y);
 
+						// add material properties
+						vert.shininess = current_material.shininess;
+						vert.specular_strength = (current_material.specular.r + current_material.specular.g + current_material.specular.b) / 3;
+						
 						chunk_vertices.push_back(vert);
 					}
 				}
 			}
 		}
 	}
-
+	
 	// create the new mesh with the chunks vertices and assign it to the member mesh
 	chunk_mesh = std::move(Mesh(chunk_vertices));
 }

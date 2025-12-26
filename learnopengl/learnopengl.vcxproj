@@ -158,6 +158,7 @@
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
     <ClInclude Include="include\EBO.hpp" />
+    <ClInclude Include="include\GeometryVertex.hpp" />
     <ClInclude Include="include\glm\glm.hpp" />
     <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />
     <ClInclude Include="include\glm\gtc\type_ptr.hpp" />

@@ -4,16 +4,16 @@
 #include <vector>
 #include <unordered_map>
 
-#include "Vertex.hpp"
+#include "GeometryVertex.hpp"
 #include "BlockDefinition.hpp"
 
 class ModelLibrary {
 	private:
 		// private default constructor for singleton
 		ModelLibrary() {}
-		std::unordered_map<BlockModel, std::vector<Vertex>> model_defs;
+		std::unordered_map<BlockModel, std::vector<GeometryVertex>> model_defs;
 
-		inline static const std::vector<Vertex> cube_vertices = {
+		inline static const std::vector<GeometryVertex> cube_vertices = {
 			// Back face
 			{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
 			{{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
@@ -70,7 +70,7 @@ class ModelLibrary {
 			return instance;
 		}
 
-		const std::vector<Vertex>& getVertices(BlockModel model_type);
+		const std::vector<GeometryVertex>& getVertices(BlockModel model_type);
 		void populateDefinitions();
 };
 

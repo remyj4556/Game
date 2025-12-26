@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 
 class Shader {
 	public:

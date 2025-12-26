@@ -37,6 +37,8 @@ void Mesh::buildMesh() {
 	int layout_loc_pos = 0;
 	int layout_loc_norm = 1;
 	int layout_loc_tex = 2;
+	int layout_loc_shininess = 3;
+	int layout_loc_specular = 4;
 
 	// position attribute
 	vao.linkAttrib(vbo, layout_loc_pos, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
@@ -44,6 +46,10 @@ void Mesh::buildMesh() {
 	vao.linkAttrib(vbo, layout_loc_norm, 3, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 	// texture attribute
 	vao.linkAttrib(vbo, layout_loc_tex, 2, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, tex_coords));
+	// shininess attribute
+	vao.linkAttrib(vbo, layout_loc_shininess, 1, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, shininess));
+	// specular attribute
+	vao.linkAttrib(vbo, layout_loc_specular, 1, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, specular_strength));
 
 	// 4. unbind for safety
 	vbo.unbind();

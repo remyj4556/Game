@@ -80,7 +80,7 @@ TextureAtlas::TextureAtlas(const char* path) {
     int result = stbi_write_png("atlas.png", atlas_width, atlas_height, atlas_channels, pixels.data(), atlas_width * atlas_channels);
 
     // assign member texture to be this atlas
-    atlas = new Texture("atlas.png", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE);
+    atlas = new Texture("atlas.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 }
 
 TextureAtlas::~TextureAtlas() {

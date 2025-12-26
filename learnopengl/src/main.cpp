@@ -58,13 +58,26 @@ int main() {
 
 	// setup renderer
 	Renderer renderer(SCR_WIDTH, SCR_HEIGHT);
+
 	
 
 	// temp --------------------------------------------------------------------
 	// create mesh for light cube, independent of chunks
-	Mesh light_mesh(ModelLibrary::getInstance().getVertices(BlockModel::cube));
+	std::vector<GeometryVertex> light_geo_verts = ModelLibrary::getInstance().getVertices(BlockModel::cube);
+	std::vector<Vertex> light_verts;
+	for (GeometryVertex& geo_vert : light_geo_verts) {
+		Vertex vert;
+		vert.normal = geo_vert.normal;
+		vert.position = geo_vert.position;
+		vert.tex_coords = geo_vert.tex_coords;
+		vert.shininess = 0.0f;
+		vert.specular_strength = 0.0f;
+		light_verts.push_back(vert);
+	}
+	Mesh light_mesh(light_verts);
+
 	// light source position
-	glm::vec3 light_pos(0.0f, 5.0f, 0.0f);
+	glm::vec3 light_pos(0.0f, 0.0f, 0.0f);
 
 	// test chunk creation
 	Chunk chunk1;
@@ -88,7 +101,7 @@ int main() {
 	for (int x = 0; x < 3; ++x) {
 		for (int y = 0; y < 3; ++y) {
 			for (int z = 0; z < 3; ++z) {
-				chunk1.positions[10 + x][10 + y][10 + z] = 1;
+				chunk1.positions[10 + x][10 + y][10 + z] = 4;
 			}
 		}
 	}
@@ -134,7 +147,7 @@ int main() {
 		lastFrame = currentFrame;
 
 		// update cube light source position
-		light_pos = glm::vec3(light_pos.x + 0.5 * sin(glfwGetTime()), light_pos.y + 0.5 * sin(glfwGetTime()), light_pos.z + 0.5 * cos(glfwGetTime()));
+		light_pos = glm::vec3(camera.position.x + 100 * cos(glfwGetTime()), camera.position.y + 100 * sin(glfwGetTime()), camera.position.z);
 
 		// input
 		processInput(window);

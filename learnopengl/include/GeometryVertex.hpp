@@ -1,14 +1,12 @@
-#ifndef VERTEX_HPP
-#define VERTEX_HPP
+#ifndef GEOMETRYVERTEX_HPP
+#define GEOMETRYVERTEX_HPP
 
 #include <glm/glm.hpp>
 
-struct Vertex {
+struct GeometryVertex {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 tex_coords;
-	float shininess;
-	float specular_strength;
 };
 
 #endif
