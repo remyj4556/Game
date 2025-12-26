@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <fstream>
 
-#include "Vertex.hpp"
 #include "BlockDefinition.hpp"
 #include "json.hpp"
 #include "TextureAtlas.hpp"

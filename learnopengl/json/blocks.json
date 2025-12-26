@@ -9,7 +9,12 @@
       "left_texture": "default",
       "right_texture": "default",
       "bottom_texture": "default",
-      "top_texture": "default"
+      "top_texture": "default",
+      "material": {
+        "specular": [ 0.0, 0.0, 0.0 ],
+        "shininess": 0.0,
+        "transparent": true
+      }
     },
     {
       "id": 1,
@@ -20,7 +25,12 @@
       "left_texture": "cobblestone",
       "right_texture": "cobblestone",
       "bottom_texture": "cobblestone",
-      "top_texture": "cobblestone"
+      "top_texture": "cobblestone",
+      "material": {
+        "specular": [ 0.1, 0.1, 0.1 ],
+        "shininess": 8.0,
+        "transparent": false
+      }
     },
     {
       "id": 2,
@@ -31,7 +41,12 @@
       "left_texture": "dirt",
       "right_texture": "dirt",
       "bottom_texture": "dirt",
-      "top_texture": "dirt"
+      "top_texture": "dirt",
+      "material": {
+        "specular": [ 0.1, 0.1, 0.1 ],
+        "shininess": 4.0,
+        "transparent": false
+      }
     },
     {
       "id": 3,
@@ -42,7 +57,28 @@
       "left_texture": "dirt",
       "right_texture": "dirt",
       "bottom_texture": "dirt",
-      "top_texture": "grass"
+      "top_texture": "grass",
+      "material": {
+        "specular": [ 0.1, 0.1, 0.1 ],
+        "shininess": 4.0,
+        "transparent": false
+      }
+    },
+    {
+      "id": 4,
+      "display_name": "iron_block",
+      "model": "cube",
+      "back_texture": "iron_block",
+      "front_texture": "iron_block",
+      "left_texture": "iron_block",
+      "right_texture": "iron_block",
+      "bottom_texture": "iron_block",
+      "top_texture": "iron_block",
+      "material": {
+        "specular": [ 0.8, 0.8, 0.8 ],
+        "shininess": 64.0,
+        "transparent": false
+      }
     }
   ]
 }

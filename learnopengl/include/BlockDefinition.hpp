@@ -15,6 +15,14 @@ enum class BlockModel {
 	// etc.,
 };
 
+struct MaterialProperties {
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	float shininess;
+	bool is_transparent;
+};
+
 // get a block model from a string
 static const std::unordered_map<std::string, BlockModel> blockModelLookup = {
 	{"cube", BlockModel::cube},
@@ -27,6 +35,7 @@ struct BlockDefinition {
 	std::string display_name;
 	BlockModel model = BlockModel::cube;
 	TextureRegion textures[6];
+	MaterialProperties material;
 };
 
 #endif

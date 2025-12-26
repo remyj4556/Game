@@ -5,8 +5,8 @@ TextureAtlas::TextureAtlas() {}
 TextureAtlas::TextureAtlas(const char* path) {
 
     // can eventually define these dynamically
-    const int atlas_width = 32;
-    const int atlas_height = 32;
+    const int atlas_width = 64;
+    const int atlas_height = 64;
     const int atlas_channels = 4;  // RGBA
 
     auto output = buildRectangles(path);
