@@ -48,15 +48,14 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_di
 
 vec3 calculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir, vec3 tex_color) {
     vec3 to_light = light.position - frag_pos;
-    float distance = length(to_light);
-    
-    // check for out of range light
-    if (distance > light.radius) return vec3(0.0);
-    
+    float dist2 = dot(to_light, to_light);
+    float radius2 = light.radius * light.radius;
+
     vec3 light_dir = normalize(to_light);
-    
-    // attenuation
-    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+
+    // attenuation (light falloff)
+    float attenuation = clamp(1.0 - dist2 / radius2, 0.0, 1.0);
+    attenuation *= attenuation;
     attenuation *= light.intensity;
     
     // diffuse
@@ -67,6 +66,7 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
     vec3 half_dir = normalize(light_dir + view_dir);
     float spec = pow(max(dot(normal, half_dir), 0.0), Shininess);
     vec3 specular = light.color * spec * SpecStrength;
+
     
     return (diffuse + specular) * attenuation;
 }
