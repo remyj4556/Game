@@ -41,8 +41,8 @@ void Renderer::beginFrame(Camera& camera, glm::vec3& light_pos) {
 	// TODO: eventually move all material properties OUT of Renderer entirely --> when light sources become real blocks and not "debug lights"
 	// light properties
 	glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 diffuse_color = light_color * glm::vec3(0.5f); // decrease the influence
-	glm::vec3 ambient_color = diffuse_color * glm::vec3(0.2f); // low influence
+	glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
+	glm::vec3 ambient_color = diffuse_color * glm::vec3(0.1f); // low influence
 
 	block_shader.setVec3("light.ambient", ambient_color);
 	block_shader.setVec3("light.diffuse", diffuse_color);

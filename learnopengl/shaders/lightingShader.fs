@@ -32,14 +32,22 @@ void main() {
 	// diffuse lighting
 	vec3 norm = normalize(Normal);
 	vec3 light_dir = normalize(light.position - FragPos);
-	float diff = max(dot(norm, light_dir), 0.0);
+
+	float sun_intensity = 1.0f;
+	float sky_intensity = 1.0f;
+	float sky_factor = 0.5 + 0.5 * norm.y;
+
+	float diff = sun_intensity * max(dot(norm, light_dir), 0.0) + sky_intensity * sky_factor;
 	vec3 diffuse = light.diffuse * diff * tex_color;
 
 	// specular lighting
 	vec3 view_dir = normalize(view_pos - FragPos);
-	vec3 reflect_dir = reflect(-light_dir, norm);
-	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), Shininess);
+	vec3 half_dir = normalize(light_dir + view_dir);
+	float spec = pow(max(dot(norm, half_dir), 0.0), Shininess);
+
+	// energy conservation - as specular increases, diffuse decreases
 	vec3 specular = light.specular * spec * SpecStrength;
+	diffuse = diffuse * (1.0 - SpecStrength * 0.5);
 
 	// result
 	FragColor = vec4(ambient + diffuse + specular, 1.0);

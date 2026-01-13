@@ -77,7 +77,7 @@ int main() {
 	Mesh light_mesh(light_verts);
 
 	// light source position
-	glm::vec3 light_pos(0.0f, 0.0f, 0.0f);
+	glm::vec3 light_pos(10.0f, 30.0f, -10.0f);
 
 	// test chunk creation
 	Chunk chunk1;
@@ -147,7 +147,8 @@ int main() {
 		lastFrame = currentFrame;
 
 		// update cube light source position
-		light_pos = glm::vec3(camera.position.x + 100 * cos(glfwGetTime()), camera.position.y + 100 * sin(glfwGetTime()), camera.position.z);
+		//light_pos = glm::vec3(camera.position.x + 100 * cos(glfwGetTime()), camera.position.y + 100 * sin(glfwGetTime()), camera.position.z);
+		light_pos = glm::vec3(camera.position.x, camera.position.y + 1, camera.position.z);
 
 		// input
 		processInput(window);
