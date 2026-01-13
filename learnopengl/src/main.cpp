@@ -9,10 +9,11 @@
 #include "../include/ModelLibrary.hpp"
 #include "../include/BlockDefinition.hpp"
 #include "../include/Chunk.hpp"
+#include "../include/LightManager.hpp"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, LightManager& light_manager);
 void mouseCallback(GLFWwindow* window, double x_pos_in, double y_pos_in);
 void scrollCallback(GLFWwindow* window, double x_offset, double y_offset);
 
@@ -59,6 +60,9 @@ int main() {
 	// setup renderer
 	Renderer renderer(SCR_WIDTH, SCR_HEIGHT);
 
+	// setup light manager
+	LightManager light_manager;
+	light_manager.enablePlayerLight(false);
 	
 
 	// temp --------------------------------------------------------------------
@@ -75,9 +79,6 @@ int main() {
 		light_verts.push_back(vert);
 	}
 	Mesh light_mesh(light_verts);
-
-	// light source position
-	glm::vec3 light_pos(10.0f, 30.0f, -10.0f);
 
 	// test chunk creation
 	Chunk chunk1;
@@ -147,22 +148,22 @@ int main() {
 		lastFrame = currentFrame;
 
 		// update cube light source position
-		//light_pos = glm::vec3(camera.position.x + 100 * cos(glfwGetTime()), camera.position.y + 100 * sin(glfwGetTime()), camera.position.z);
-		light_pos = glm::vec3(camera.position.x, camera.position.y + 1, camera.position.z);
+		light_manager.setPlayerLightPosition(camera.position);
 
 		// input
-		processInput(window);
+		processInput(window, light_manager);
 
 		// rendering
-		renderer.beginFrame(camera, light_pos);
+		renderer.beginFrame(camera, light_manager);
 
 		// CUBE
 		renderer.renderChunk(chunk1);
 		renderer.renderChunk(chunk2);
 		
 		// LIGHT SOURCE
-		renderer.renderLight(light_mesh, light_pos);
-		
+		if (light_manager.getPlayerLight().enabled) {
+			renderer.renderDebugLight(light_mesh, light_manager.getPlayerLight().position + glm::vec3(1.0f, 0.0f, 0.0f));
+		}
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
@@ -177,10 +178,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window) {
+// TODO: temporarily pass light_manager for torch enable/disable keybind, eventually
+// change to class member
+void processInput(GLFWwindow* window, LightManager &light_manager) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float cameraSpeed = 10.0f * deltaTime;
+	const float camera_speed = 500 * deltaTime;
+	camera.movement_speed = camera_speed;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.processKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -193,6 +197,12 @@ void processInput(GLFWwindow* window) {
 		camera.processKeyboard(UP, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		camera.processKeyboard(DOWN, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+		if (light_manager.getPlayerLight().enabled)
+			light_manager.enablePlayerLight(false);
+		else
+			light_manager.enablePlayerLight(true);
+	}
 }
 
 void mouseCallback(GLFWwindow* window, double x_pos_in, double y_pos_in) {

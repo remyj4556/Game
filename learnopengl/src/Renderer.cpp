@@ -23,7 +23,7 @@ Renderer::Renderer(const unsigned int screen_width, const unsigned int screen_he
 
 Renderer::~Renderer() {}
 
-void Renderer::beginFrame(Camera& camera, glm::vec3& light_pos) {
+void Renderer::beginFrame(Camera& camera, LightManager &light_manager) {
 	glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// clear the depth buffer before each render iteration specifically
 
@@ -31,32 +31,36 @@ void Renderer::beginFrame(Camera& camera, glm::vec3& light_pos) {
 	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, 100.0f);
 	view = camera.getViewMatrix();
 
-	// set up lighting shader with lighting info (TODO: make lighting manager for several lights)
 	block_shader.use();
 
-	// set the light position and view position 
-	block_shader.setVec3("light.position", light_pos);
+	// set camera
+	block_shader.setMat4("view", view);
+	block_shader.setMat4("projection", projection);
 	block_shader.setVec3("view_pos", camera.position);
 	
-	// TODO: eventually move all material properties OUT of Renderer entirely --> when light sources become real blocks and not "debug lights"
-	// light properties
-	glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
-	glm::vec3 ambient_color = diffuse_color * glm::vec3(0.1f); // low influence
+	// set sun lighting
+	const DirectionalLight& sun = light_manager.getSun();
+	block_shader.setVec3("sun.direction", sun.direction);
+	block_shader.setVec3("sun.ambient", sun.ambient);
+	block_shader.setVec3("sun.diffuse", sun.diffuse);
+	block_shader.setVec3("sun.specular", sun.specular);
+	block_shader.setBool("sun.enabled", sun.enabled);
 
-	block_shader.setVec3("light.ambient", ambient_color);
-	block_shader.setVec3("light.diffuse", diffuse_color);
-	block_shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+	// TODO: set moon lighting
+
+	// set player light if enabled
+	const PointLight& player_light = light_manager.getPlayerLight();
+	block_shader.setBool("player_light.enabled", player_light.enabled);
+	if (player_light.enabled) {
+		block_shader.setVec3("player_light.position", player_light.position);
+		block_shader.setVec3("player_light.color", player_light.color);
+		block_shader.setFloat("player_light.intensity", player_light.intensity);
+		block_shader.setFloat("player_light.radius", player_light.radius);
+	}
+
 }
 
 void Renderer::renderChunk(Chunk& chunk) {
-	// set uniform(s) for these transformations
-	block_shader.setMat4("view", view);
-	block_shader.setMat4("projection", projection);
-
-	// ensure sampler is set to texture unit 0
-	block_shader.setInt("texture1", 0);
-
 	// translate chunk model matrix based on position in world
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, chunk.chunk_position);
@@ -68,7 +72,7 @@ void Renderer::renderChunk(Chunk& chunk) {
 }
 
 // temporarily take in light mesh, idk how to render more than one light rn anyways
-void Renderer::renderLight(Mesh& light_mesh, glm::vec3& light_pos) {
+void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 	// use shader
 	light_shader.use();
 

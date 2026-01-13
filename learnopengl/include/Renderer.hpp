@@ -9,12 +9,12 @@
 //		renderer.endFrame();
 //		...
 
-// renderer stores the global rendering state as well, like:
-//	- projection matrix
-//	- view matrix
+// TODO: renderer should not eventually store the global rendering state, like
 //  - texture atlases
 //  - shaders
+//  - light manager
 //  - ...
+// these should belong to a ResourceManager, owned by a Game class
 
 #include "Camera.hpp"
 #include "Chunk.hpp"
@@ -22,6 +22,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "BlockRegistry.hpp"
+#include "LightManager.hpp"
 #include "ModelLibrary.hpp"
 #include "Mesh.hpp"
 
@@ -30,7 +31,6 @@ class Renderer {
 		const unsigned int screen_width;
 		const unsigned int screen_height;
 
-		// im gonna assume the lack of texture here is from the way we default construct, then assign (without proper assignment operators) the three members below
 		Shader block_shader;
 		Shader light_shader;
 		TextureAtlas block_atlas;
@@ -43,10 +43,13 @@ class Renderer {
 		Renderer(const unsigned int screen_width, const unsigned int screen_height);
 		~Renderer();
 
-		void beginFrame(Camera& camera, glm::vec3& light_pos);
+		void beginFrame(Camera& camera, LightManager &light_manager);
 		void renderChunk(Chunk& chunk);
-		void renderLight(Mesh& light_mesh, glm::vec3& light_pos);
 		void endFrame();
+
+		// visualized debug dynamic light
+		void renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos);
+		
 
 };
 
