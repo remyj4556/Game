@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 #include "../include/Renderer.hpp"
 #include "../include/Mesh.hpp"
@@ -63,7 +64,7 @@ int main() {
 	// setup light manager
 	LightManager light_manager;
 	light_manager.enablePlayerLight(false);
-	
+
 
 	// temp --------------------------------------------------------------------
 	// create mesh for light cube, independent of chunks
@@ -80,64 +81,61 @@ int main() {
 	}
 	Mesh light_mesh(light_verts);
 
-	// test chunk creation
-	Chunk chunk1;
-	chunk1.chunk_position = glm::vec3(0, 0, 0);
 
-	// fill with air
+	// TODO: testing chunk dynamic building (NOTE: using int for map right now. we have single dimension right now)
+	int num_chunks = 10;
 	const int CHUNK_SIZE = 32;
-	for (int x = 0; x < CHUNK_SIZE; ++x) {
-		for (int y = 0; y < CHUNK_SIZE; ++y) {
-			for (int z = 0; z < CHUNK_SIZE; ++z) {
-				chunk1.positions[x][y][z] = 0;
+	std::unordered_map<int, Chunk*> chunk_map;
+
+	for (int i = 0; i < num_chunks; ++i) {
+		// test chunk creation
+		//Chunk chunk1;
+		//chunk1.chunk_position = glm::vec3(0, 0, 0);
+
+		// create new chunk at location 0 + i (x coord, test for now). TODO: i think we should use "chunk coords" not in terms of block coordinates. i.e, shouldn't
+		// need to multiply by 32 here
+		int pos = 0 + 32 * i;
+		Chunk* chunk1 = new Chunk;
+		chunk1->chunk_position = glm::vec3(pos, 0, 0);
+
+		// fill with air 
+		/*
+		for (int x = 0; x < CHUNK_SIZE; ++x) {
+			for (int y = 0; y < CHUNK_SIZE; ++y) {
+				for (int z = 0; z < CHUNK_SIZE; ++z) {
+					chunk1->positions[x][y][z] = 0;
+				}
+			}
+		}*/
+
+		// place different blocks
+		chunk1->positions[5][5][5] = 1;
+		chunk1->positions[6][5][5] = 2;
+		chunk1->positions[7][5][5] = 3;
+
+		for (int x = 0; x < 3; ++x) {
+			for (int y = 0; y < 3; ++y) {
+				for (int z = 0; z < 3; ++z) {
+					chunk1->positions[10 + x][10 + y][10 + z] = 4;
+				}
 			}
 		}
-	}
 
-	// place different blocks
-	chunk1.positions[5][5][5] = 1;
-	chunk1.positions[6][5][5] = 2;
-	chunk1.positions[7][5][5] = 3;
-	
-	for (int x = 0; x < 3; ++x) {
-		for (int y = 0; y < 3; ++y) {
-			for (int z = 0; z < 3; ++z) {
-				chunk1.positions[10 + x][10 + y][10 + z] = 4;
+		for (int x = 0; x < 10; ++x) {
+			for (int z = 0; z < 10; ++z) {
+				chunk1->positions[x][0][z] = 3;
 			}
 		}
+
+		chunk_map[pos] = chunk1;
 	}
 
-	for (int x = 0; x < 10; ++x) {
-		for (int z = 0; z < 10; ++z) {
-			chunk1.positions[x][0][z] = 1;
-		}
+
+	// create the meshes (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
+	for (auto& chunk : chunk_map) {
+		std::cout << chunk.second->chunk_position.x << std::endl;
+		chunk.second->updateChunkMesh();
 	}
-
-	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
-	chunk1.updateChunkMesh();
-
-	// test second chunk creation
-	Chunk chunk2;
-	chunk2.chunk_position = glm::vec3(0, 0, -32);
-
-	// fill with air
-	for (int x = 0; x < CHUNK_SIZE; ++x) {
-		for (int y = 0; y < CHUNK_SIZE; ++y) {
-			for (int z = 0; z < CHUNK_SIZE; ++z) {
-				chunk2.positions[x][y][z] = 0;
-			}
-		}
-	}
-
-	for (int x = 0; x < 32; ++x) {
-		for (int z = 0; z < 32; ++z) {
-			chunk2.positions[x][0][z] = 1;
-		}
-	}
-
-	// create the mesh (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
-	chunk2.updateChunkMesh();
-	// -------------------------------------------------------------------------
 
 
 	// render loop
@@ -157,9 +155,12 @@ int main() {
 		renderer.beginFrame(camera, light_manager);
 
 		// CUBE
-		renderer.renderChunk(chunk1);
-		renderer.renderChunk(chunk2);
-		
+		// testing chunk map
+		for (auto& chunk : chunk_map) {
+			renderer.renderChunk(*(chunk.second));
+		}
+
+
 		// LIGHT SOURCE
 		if (light_manager.getPlayerLight().enabled) {
 			renderer.renderDebugLight(light_mesh, light_manager.getPlayerLight().position + glm::vec3(1.0f, 0.0f, 0.0f));
@@ -170,7 +171,7 @@ int main() {
 		glfwPollEvents();
 	}
 
-	glfwTerminate(); 
+	glfwTerminate();
 	return 0;
 }
 
@@ -180,7 +181,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 
 // TODO: temporarily pass light_manager for torch enable/disable keybind, eventually
 // change to class member
-void processInput(GLFWwindow* window, LightManager &light_manager) {
+void processInput(GLFWwindow* window, LightManager& light_manager) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	const float camera_speed = 500 * deltaTime;
