@@ -54,7 +54,7 @@ int main() {
 	Mesh light_mesh(light_verts);
 	*/
 
-	Game game(window, SCR_WIDTH, SCR_HEIGHT);
+	Game game(window);
 
 	// attach game to the window so callbacks can find it
 	glfwSetWindowUserPointer(window, &game);

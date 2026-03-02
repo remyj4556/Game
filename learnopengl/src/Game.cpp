@@ -1,6 +1,8 @@
 #include "../include/Game.hpp"
 
-Game::Game(GLFWwindow* window, int width, int height) : window(window), screen_height(height), screen_width(width), renderer(width, height), camera(glm::vec3(0.0f, 0.0f, 5.0f)) {}
+Game::Game(GLFWwindow* window) : window(window), renderer(window), camera(glm::vec3(0.0f, 0.0f, 5.0f)) {
+	glfwGetWindowSize(window, &screen_width, &screen_height);
+}
 
 void Game::run() {
 	// TODO: temporary "world gen"

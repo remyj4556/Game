@@ -25,11 +25,12 @@
 #include "LightManager.hpp"
 #include "ModelLibrary.hpp"
 #include "Mesh.hpp"
+#include "GLFW/glfw3.h"
 
 class Renderer {
 	private:
-		const unsigned int screen_width;
-		const unsigned int screen_height;
+		int screen_width;
+		int screen_height;
 
 		Shader block_shader;
 		Shader light_shader;
@@ -40,7 +41,7 @@ class Renderer {
 		
 
 	public:
-		Renderer(const unsigned int screen_width, const unsigned int screen_height);
+		Renderer(GLFWwindow *window);
 		~Renderer();
 
 		void beginFrame(Camera& camera, LightManager &light_manager);

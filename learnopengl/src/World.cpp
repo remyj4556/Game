@@ -1,4 +1,12 @@
 #include "../include/World.hpp"
+#include "../include/ChunkMesher.hpp"
+#include "../include/Chunk.hpp"
+#include "../include/ChunkCoordinates.hpp"
+#include "../include/Mesh.hpp"
+#include "../include/Camera.hpp"
+
+#include <iostream>
+#include <vector>
 
 void World::genTestChunk() {
 	// TODO: testing dynamic chunk generation 
@@ -44,7 +52,8 @@ void World::genTestChunk() {
 	// create the meshes (note: we would typically create this mesh then continually update it in the game loop whenever blocks are changed/broken/placed)
 	for (auto& chunk : coords_to_chunk) {
 		std::cout << chunk.second->chunk_position.x << std::endl;
-		chunk.second->updateChunkMesh();
+		MeshData mesh_data = chunk_mesher.build(*(chunk.second));
+		chunk.second->chunk_mesh = Mesh(mesh_data.vertices);
 	}
 }
 

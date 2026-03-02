@@ -32,7 +32,7 @@ class Game {
 		
 
 	public:
-		explicit Game(GLFWwindow* window, int width, int height);
+		explicit Game(GLFWwindow* window);
 		void run();
 
 		// callback dispatchers 

@@ -29,7 +29,6 @@ class Chunk {
 		// TODO: eventually don't store mesh at all, put them in map keyed by coordinates
 		Mesh chunk_mesh;
 
-		void updateChunkMesh();
 		void printChunkVertices();
 		static int getChunkSize();
 };

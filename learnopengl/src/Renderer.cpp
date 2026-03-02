@@ -1,17 +1,18 @@
 #include "../include/Renderer.hpp"
 
-Renderer::Renderer(const unsigned int screen_width, const unsigned int screen_height) :
-	screen_width(screen_width),
-	screen_height(screen_height),
+Renderer::Renderer(GLFWwindow* window) :
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
 	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs"),
 	block_atlas("textures")
 {
-	// create and fill block registry (don't use singleton eventually)
+	glfwGetWindowSize(window, &screen_width, &screen_height);
+
+	// TODO: these below should go in ResourceManager and get passed where needed as ResourceContext's, NO singletons
+	// create and fill block registry 
 	auto& block_reg = BlockRegistry::getInstance();
 	block_reg.populateDefinitions("json/blocks.json", block_atlas);
 
-	// create and fill model library (again don't use singleton eventually, pass to functions that need it)
+	// create and fill model library
 	auto& model_lib = ModelLibrary::getInstance();
 	model_lib.populateDefinitions();
 
