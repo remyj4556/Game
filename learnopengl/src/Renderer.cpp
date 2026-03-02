@@ -63,7 +63,16 @@ void Renderer::beginFrame(Camera& camera, LightManager &light_manager) {
 void Renderer::renderChunk(Chunk& chunk) {
 	// translate chunk model matrix based on position in world
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, chunk.chunk_position);
+
+	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at (32, 32, 32)
+	Coordinates chunk_pos = chunk.chunk_position; 
+	int chunk_size = chunk.getChunkSize();
+
+	chunk_pos.x *= chunk_size;
+	chunk_pos.y *= chunk_size;
+	chunk_pos.z *= chunk_size;
+
+	model = glm::translate(model, glm::vec3(chunk_pos.x, chunk_pos.y, chunk_pos.z));
 	block_shader.setMat4("model", model);
 
 	// draw chunk

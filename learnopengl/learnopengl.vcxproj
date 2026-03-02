@@ -137,7 +137,9 @@
     <ClCompile Include="src\BlockRegistry.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\ChunkCoordinates.cpp" />
     <ClCompile Include="src\EBO.cpp" />
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\LightManager.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -152,13 +154,16 @@
     <ClCompile Include="src\TextureAtlas.cpp" />
     <ClCompile Include="src\VAO.cpp" />
     <ClCompile Include="src\VBO.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BlockDefinition.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
+    <ClInclude Include="include\ChunkCoordinates.hpp" />
     <ClInclude Include="include\EBO.hpp" />
+    <ClInclude Include="include\Game.hpp" />
     <ClInclude Include="include\GeometryVertex.hpp" />
     <ClInclude Include="include\glm\glm.hpp" />
     <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />
@@ -178,6 +183,7 @@
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />
+    <ClInclude Include="include\World.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="json\blocks.json" />
