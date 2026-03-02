@@ -1,5 +1,8 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
+#include "../include/BlockRegistry.hpp"
+#include "../include/TextureRegion.hpp"
+#include "../include/ModelLibrary.hpp"
 
 // TODO: do NOT use singletons here. pass in a context for necessary resources 
 MeshData ChunkMesher::build(Chunk &chunk /*, ResourceContext ctx*/) {

@@ -5,9 +5,9 @@
 
 class Coordinates {
 	public:
-		int32_t x;
-		int32_t y;
-		int32_t z;
+		int32_t x = 0;
+		int32_t y = 0;
+		int32_t z = 0;
 
 		bool operator==(const Coordinates &other) const {
 			return x == other.x && y == other.y && z == other.z;

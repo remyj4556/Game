@@ -3,15 +3,6 @@
 
 #include "Mesh.hpp"
 #include "ChunkCoordinates.hpp"
-#include "BlockRegistry.hpp"
-#include "BlockDefinition.hpp"
-#include "ModelLibrary.hpp"
-#include "Vertex.hpp"
-#include "GeometryVertex.hpp"
-#include "TextureRegion.hpp"
-
-#include <iostream>
-#include <glm/glm.hpp>
 
 
 class Chunk {
@@ -19,7 +10,10 @@ class Chunk {
 		static constexpr int CHUNK_SIZE = 32;
 
 	public:
-		int positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];  // TODO: change to single array, or packed int
+		Chunk();
+		Chunk(Coordinates coordinates);
+
+		int positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
 
 		Coordinates chunk_position;
 
@@ -28,6 +22,9 @@ class Chunk {
 		// have different materials (sampled in the shader), for, say, reflectivity of metal vs. wood
 		// TODO: eventually don't store mesh at all, put them in map keyed by coordinates
 		Mesh chunk_mesh;
+
+		// dirty flag signals if the chunk has been altered
+		bool dirty;
 
 		void printChunkVertices();
 		static int getChunkSize();

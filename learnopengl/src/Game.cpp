@@ -5,8 +5,8 @@ Game::Game(GLFWwindow* window) : window(window), renderer(window), camera(glm::v
 }
 
 void Game::run() {
-	// TODO: temporary "world gen"
-	world.genTestChunk();
+	StreamTarget target;
+	target.load_radius = 5;
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -21,8 +21,9 @@ void Game::run() {
 		// input
 		processInput();
 
-		// update world 
-		// world.update()
+		// update world (creates new chunks, handles block placing, etc.)
+		target.pos = camera.position;
+		world.update(target);
 
 		// rendering
 		renderer.beginFrame(camera, light_manager);

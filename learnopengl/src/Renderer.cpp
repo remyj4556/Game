@@ -29,7 +29,7 @@ void Renderer::beginFrame(Camera& camera, LightManager &light_manager) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// clear the depth buffer before each render iteration specifically
 
 	// view/projection matrix transformations
-	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, 100.0f);
+	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, 1000.0f);
 	view = camera.getViewMatrix();
 
 	block_shader.use();
