@@ -9,32 +9,25 @@
 //		renderer.endFrame();
 //		...
 
-// TODO: renderer should not eventually store the global rendering state, like
-//  - texture atlases
-//  - shaders
-//  - light manager
-//  - ...
-// these should belong to a ResourceManager, owned by a Game class
-
 #include "Camera.hpp"
 #include "Chunk.hpp"
 #include "Shader.hpp"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include "BlockRegistry.hpp"
 #include "LightManager.hpp"
-#include "ModelLibrary.hpp"
 #include "Mesh.hpp"
 #include "GLFW/glfw3.h"
+#include "TextureAtlas.hpp"
 
 class Renderer {
 	private:
 		int screen_width;
 		int screen_height;
 
+		float render_distance = 1000.0f;
+
 		Shader block_shader;
 		Shader light_shader;
-		TextureAtlas block_atlas;
 
 		glm::mat4 projection;
 		glm::mat4 view;
@@ -44,7 +37,7 @@ class Renderer {
 		Renderer(GLFWwindow *window);
 		~Renderer();
 
-		void beginFrame(Camera& camera, LightManager &light_manager);
+		void beginFrame(Camera& camera, LightManager &light_manager, const TextureAtlas *block_atlas);
 		void renderChunk(Chunk& chunk);
 		void endFrame();
 

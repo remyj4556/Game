@@ -147,6 +147,7 @@
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ModelLibrary.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
+    <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\stb_image_write.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BlockDefinition.hpp" />
+    <ClInclude Include="include\BlockMeshingContext.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="include\Mesh.hpp" />
     <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Renderer.hpp" />
+    <ClInclude Include="include\ResourceManager.hpp" />
     <ClInclude Include="include\Shader.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\stb_image_write.h" />

@@ -9,8 +9,6 @@
 
 class ModelLibrary {
 	private:
-		// private default constructor for singleton
-		ModelLibrary() {}
 		std::unordered_map<BlockModel, std::vector<GeometryVertex>> model_defs;
 
 		inline static const std::vector<GeometryVertex> cube_vertices = {
@@ -64,13 +62,9 @@ class ModelLibrary {
 		};
 
 	public:
-		// singleton getter
-		static ModelLibrary& getInstance() {
-			static ModelLibrary instance;
-			return instance;
-		}
+		ModelLibrary();
 
-		const std::vector<GeometryVertex>& getVertices(BlockModel model_type);
+		const std::vector<GeometryVertex>& getVertices(BlockModel model_type) const;
 		void populateDefinitions();
 };
 

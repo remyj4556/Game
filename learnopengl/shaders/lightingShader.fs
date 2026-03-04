@@ -21,7 +21,6 @@ in vec3 FragPos;
 in vec2 TexCoord;
 in float Shininess;
 in float SpecStrength;
-in vec3 BlockLight;
 
 out vec4 FragColor;
 
@@ -88,6 +87,6 @@ void main() {
         result += calculatePointLight(player_light, norm, FragPos, view_dir, tex_color);
     }
 
-    result += BlockLight * tex_color;
+    result += 0.2 * tex_color;
     FragColor = vec4(result, 1.0);
 }

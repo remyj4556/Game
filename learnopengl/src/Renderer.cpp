@@ -1,20 +1,17 @@
 #include "../include/Renderer.hpp"
+#include "../include/ChunkCoordinates.hpp"
+#include "../include/Chunk.hpp"
+#include "../include/Camera.hpp"
+#include "../include/LightManager.hpp"
+#include "../include/Mesh.hpp"
+#include "../include/TextureAtlas.hpp"
+
 
 Renderer::Renderer(GLFWwindow* window) :
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
-	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs"),
-	block_atlas("textures")
+	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs")
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
-
-	// TODO: these below should go in ResourceManager and get passed where needed as ResourceContext's, NO singletons
-	// create and fill block registry 
-	auto& block_reg = BlockRegistry::getInstance();
-	block_reg.populateDefinitions("json/blocks.json", block_atlas);
-
-	// create and fill model library
-	auto& model_lib = ModelLibrary::getInstance();
-	model_lib.populateDefinitions();
 
 	glViewport(0, 0, screen_width, screen_height);
 
@@ -24,12 +21,12 @@ Renderer::Renderer(GLFWwindow* window) :
 
 Renderer::~Renderer() {}
 
-void Renderer::beginFrame(Camera& camera, LightManager &light_manager) {
+void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const TextureAtlas *block_atlas) {
 	glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// clear the depth buffer before each render iteration specifically
 
 	// view/projection matrix transformations
-	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, 1000.0f);
+	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, render_distance);
 	view = camera.getViewMatrix();
 
 	block_shader.use();
@@ -59,13 +56,15 @@ void Renderer::beginFrame(Camera& camera, LightManager &light_manager) {
 		block_shader.setFloat("player_light.radius", player_light.radius);
 	}
 
+	// bind texture atlas once per frame
+	block_atlas->atlas->bind();
 }
 
 void Renderer::renderChunk(Chunk& chunk) {
 	// translate chunk model matrix based on position in world
 	glm::mat4 model = glm::mat4(1.0f);
 
-	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at (32, 32, 32)
+	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at block position (32, 32, 32))
 	Coordinates chunk_pos = chunk.chunk_position; 
 	int chunk_size = chunk.getChunkSize();
 
@@ -77,7 +76,6 @@ void Renderer::renderChunk(Chunk& chunk) {
 	block_shader.setMat4("model", model);
 
 	// draw chunk
-	block_atlas.atlas->bind();
 	chunk.chunk_mesh.draw();
 }
 

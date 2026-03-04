@@ -58,7 +58,6 @@ int main() {
 
 	// attach game to the window so callbacks can find it
 	glfwSetWindowUserPointer(window, &game);
-
 	glfwSetFramebufferSizeCallback(window, Game::framebufferSizeCallbackDispatch);
 	glfwSetCursorPosCallback(window, Game::mouseCallbackDispatch);
 	glfwSetScrollCallback(window, Game::scrollCallbackDispatch);

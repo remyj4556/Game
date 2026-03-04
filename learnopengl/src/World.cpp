@@ -5,8 +5,9 @@
 #include "../include/Mesh.hpp"
 #include "../include/Camera.hpp"
 
-#include <iostream>
 #include <vector>
+
+World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(&context) {}
 
 std::vector<Chunk*> World::getVisibleChunks(Camera &camera) {
 	std::vector<Chunk*> visible_chunks;
@@ -67,9 +68,7 @@ void World::update(StreamTarget target) {
 	
 	for (auto& chunk : coords_to_chunk) {
 		if (chunk.second->dirty) {
-			// std::cout << chunk.second->chunk_position.x << std::endl;
-
-			MeshData mesh_data = chunk_mesher.build(*(chunk.second));
+			MeshData mesh_data = chunk_mesher.build(*(chunk.second), *context);
 			chunk.second->chunk_mesh = Mesh(mesh_data.vertices);
 			chunk.second->dirty = false;
 		}

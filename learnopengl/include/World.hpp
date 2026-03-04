@@ -5,6 +5,7 @@
 #include "ChunkMesher.hpp"
 #include "ChunkCoordinates.hpp"
 #include "Camera.hpp"
+#include "BlockMeshingContext.hpp"
 #include <unordered_map>
 #include <vector>
 
@@ -15,14 +16,17 @@ struct StreamTarget {
 
 class World {
 	private:
-		ChunkMesher chunk_mesher;
-		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> coords_to_chunk;
-		void genTerrain(StreamTarget target);
-
 		Coordinates last_streamed_chunk_coord;
 		int last_radius;
 
+		ChunkMesher chunk_mesher;
+		const BlockMeshingContext* context;
+		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> coords_to_chunk;
+		void genTerrain(StreamTarget target);
+
+
 	public:
+		World(BlockMeshingContext context);
 		std::vector<Chunk*> getVisibleChunks(Camera &camera);
 		void update(StreamTarget target);
 };

@@ -1,5 +1,10 @@
 #include "../include/BlockRegistry.hpp"
+#include "../include/BlockDefinition.hpp"
+#include "../include/TextureAtlas.hpp"
+#include "../include/json.hpp"
 #include <iostream>
+#include <string>
+#include <fstream>
 
 BlockRegistry::BlockRegistry() {}
 
@@ -7,8 +12,8 @@ void BlockRegistry::addDefinition(const BlockDefinition& definition) {
 	block_defs[definition.id] = definition;
 }
 
-const BlockDefinition& BlockRegistry::getDefinition(int id) {
-	return block_defs[id];
+const BlockDefinition& BlockRegistry::getDefinition(int id) const {
+	return block_defs.at(id);
 }
 
 void BlockRegistry::populateDefinitions(const std::string& path, TextureAtlas & atlas) {

@@ -7,6 +7,7 @@
 #include "World.hpp"
 #include "Renderer.hpp"
 #include "Camera.hpp"
+#include "ResourceManager.hpp"
 
 
 class Game {
@@ -17,17 +18,17 @@ class Game {
 
 		// camera
 		Camera camera;
-		float last_x = screen_width / 2.0f;
-		float last_y = screen_height / 2.0f;
-		bool firstMouse = true;
+		float last_x;
+		float last_y;
+		bool first_mouse;
 
 		// delta time 
-		float deltaTime = 0.0f;
-		float lastFrame = 0.0f;
+		float delta_time;
+		float last_frame;
 
+		ResourceManager resource_manager;
 		World world;
-		// ResourceManager resource_manager;
-		LightManager light_manager; // TODO: goes into ResourceManager (along with other stuff) eventually.
+		LightManager light_manager; 
 		Renderer renderer;
 		
 

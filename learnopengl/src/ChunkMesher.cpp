@@ -1,11 +1,13 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
-#include "../include/BlockRegistry.hpp"
 #include "../include/TextureRegion.hpp"
-#include "../include/ModelLibrary.hpp"
+#include "../include/Vertex.hpp"
+#include "../include/BlockMeshingContext.hpp"
 
-// TODO: do NOT use singletons here. pass in a context for necessary resources 
-MeshData ChunkMesher::build(Chunk &chunk /*, ResourceContext ctx*/) {
+#include <vector>
+
+ 
+MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
 	// create local vector to store vertices for chunk, this is all the vertices from an entire chunk
 	std::vector<Vertex> chunk_vertices;
 
@@ -25,13 +27,13 @@ MeshData ChunkMesher::build(Chunk &chunk /*, ResourceContext ctx*/) {
 				}
 
 				// use the id to look up in the registry the model it uses
-				BlockModel current_model = BlockRegistry::getInstance().getDefinition(current_block_id).model;
+				auto current_model = context.block_registry.getDefinition(current_block_id).model;
 
 				// get the material definition of the current block
-				MaterialProperties current_material = BlockRegistry::getInstance().getDefinition(current_block_id).material;
+				auto current_material = context.block_registry.getDefinition(current_block_id).material;
 
 				// use the model to get the vertex data from the ModelLibrary
-				std::vector<GeometryVertex> model_vertices = ModelLibrary::getInstance().getVertices(current_model);
+				std::vector<GeometryVertex> model_vertices = context.model_library.getVertices(current_model);
 
 				// iterate over each face of the current block
 				for (int face = 0; face < 6; ++face) {
@@ -70,7 +72,7 @@ MeshData ChunkMesher::build(Chunk &chunk /*, ResourceContext ctx*/) {
 
 
 					// get uv texture region for current face
-					TextureRegion region = BlockRegistry::getInstance().getDefinition(current_block_id).textures[face];
+					TextureRegion region = context.block_registry.getDefinition(current_block_id).textures[face];
 
 					// get the next 6 (num vertices per face) vertices from the model_vertices
 					for (int vertex = 0; vertex < 6; ++vertex) {

@@ -39,6 +39,7 @@ void Mesh::buildMesh() {
 	int layout_loc_tex = 2;
 	int layout_loc_shininess = 3;
 	int layout_loc_specular = 4;
+	int layout_loc_blocklight = 5;
 
 	// position attribute
 	vao.linkAttrib(vbo, layout_loc_pos, 3, GL_FLOAT, sizeof(Vertex), (void*)0);

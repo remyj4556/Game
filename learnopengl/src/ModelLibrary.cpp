@@ -1,6 +1,8 @@
 #include "../include/ModelLibrary.hpp"
 
-const std::vector<GeometryVertex>& ModelLibrary::getVertices(BlockModel model_type) {
+ModelLibrary::ModelLibrary() {}
+
+const std::vector<GeometryVertex>& ModelLibrary::getVertices(BlockModel model_type) const {
 	return model_defs.at(model_type);
 }
 

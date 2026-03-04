@@ -1,19 +1,23 @@
 #include "../include/Game.hpp"
 
-Game::Game(GLFWwindow* window) : window(window), renderer(window), camera(glm::vec3(0.0f, 0.0f, 5.0f)) {
+Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 5.0f)), first_mouse(true), 
+delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window) 
+{
 	glfwGetWindowSize(window, &screen_width, &screen_height);
+	last_x = screen_width / 2.0f;
+	last_y = screen_height / 2.0f;
 }
 
 void Game::run() {
 	StreamTarget target;
-	target.load_radius = 5;
+	target.load_radius = 5; // TODO: remove magic number
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
-		// calculate new deltaTime
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		// calculate new delta_time
+		float current_frame = glfwGetTime();
+		delta_time = current_frame - last_frame;
+		last_frame = current_frame;
 
 		// update cube light source position
 		//light_manager.setPlayerLightPosition(camera.position);
@@ -26,7 +30,7 @@ void Game::run() {
 		world.update(target);
 
 		// rendering
-		renderer.beginFrame(camera, light_manager);
+		renderer.beginFrame(camera, light_manager, resource_manager.getTextureAtlas());
 
 		for (Chunk* chunk : world.getVisibleChunks(camera)) {
 			renderer.renderChunk(*chunk);
@@ -47,20 +51,20 @@ void Game::run() {
 void Game::processInput() {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float camera_speed = 500 * deltaTime;
+	const float camera_speed = 5000 * delta_time;
 	camera.movement_speed = camera_speed;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.processKeyboard(FORWARD, deltaTime);
+		camera.processKeyboard(FORWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.processKeyboard(BACKWARD, deltaTime);
+		camera.processKeyboard(BACKWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.processKeyboard(LEFT, deltaTime);
+		camera.processKeyboard(LEFT, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(RIGHT, deltaTime);
+		camera.processKeyboard(RIGHT, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		camera.processKeyboard(UP, deltaTime);
+		camera.processKeyboard(UP, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		camera.processKeyboard(DOWN, deltaTime);
+		camera.processKeyboard(DOWN, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
 		if (light_manager.getPlayerLight().enabled)
 			light_manager.enablePlayerLight(false);
@@ -94,10 +98,10 @@ void Game::onMouseMove(double x_pos_in, double y_pos_in) {
 	float x_pos = static_cast<float>(x_pos_in);
 	float y_pos = static_cast<float>(y_pos_in);
 
-	if (firstMouse) {
+	if (first_mouse) {
 		last_x = x_pos;
 		last_y = y_pos;
-		firstMouse = false;
+		first_mouse = false;
 	}
 
 	float x_offset = x_pos - last_x;

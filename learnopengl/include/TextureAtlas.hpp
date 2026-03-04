@@ -26,8 +26,6 @@ class TextureAtlas {
 		TextureAtlas();
 		~TextureAtlas();
 
-
-
 		TextureRegion& getTextureRegion(const std::string& texture_name);
 		Texture* atlas;
 };

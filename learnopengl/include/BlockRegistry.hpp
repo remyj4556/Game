@@ -11,19 +11,13 @@
 
 class BlockRegistry {
 	private:
-		BlockRegistry();
 		std::unordered_map<int, BlockDefinition> block_defs;
 
 	public:
+		BlockRegistry();
 		void addDefinition(const BlockDefinition& definition);
-		const BlockDefinition& getDefinition(int id);
+		const BlockDefinition& getDefinition(int id) const;
 		void populateDefinitions(const std::string& path, TextureAtlas& atlas);
-
-		// singleton instance
-		static BlockRegistry& getInstance() {
-			static BlockRegistry instance;
-			return instance;
-		}
 };
 
 
