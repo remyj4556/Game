@@ -10,7 +10,7 @@ delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContex
 
 void Game::run() {
 	StreamTarget target;
-	target.load_radius = 5; // TODO: remove magic number
+	target.load_radius = 2; // TODO: remove magic number
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {

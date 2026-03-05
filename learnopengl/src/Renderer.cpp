@@ -8,6 +8,7 @@
 
 
 Renderer::Renderer(GLFWwindow* window) :
+	// TODO: look into shader buffer or something else other than hardcoding them in here
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
 	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs")
 {

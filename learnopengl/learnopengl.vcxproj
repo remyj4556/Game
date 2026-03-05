@@ -167,6 +167,7 @@
     <ClInclude Include="include\ChunkCoordinates.hpp" />
     <ClInclude Include="include\ChunkMesher.hpp" />
     <ClInclude Include="include\EBO.hpp" />
+    <ClInclude Include="include\FastNoiseLite.h" />
     <ClInclude Include="include\Game.hpp" />
     <ClInclude Include="include\GeometryVertex.hpp" />
     <ClInclude Include="include\glm\glm.hpp" />
