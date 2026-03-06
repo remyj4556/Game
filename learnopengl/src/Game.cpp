@@ -32,7 +32,7 @@ void Game::run() {
 		// rendering
 		renderer.beginFrame(camera, light_manager, resource_manager.getTextureAtlas());
 
-		for (Chunk* chunk : world.getVisibleChunks(camera)) {
+		for (Chunk* chunk : world.getVisibleChunks(target)) {
 			renderer.renderChunk(*chunk);
 		}
 

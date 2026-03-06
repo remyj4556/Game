@@ -13,12 +13,28 @@ World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 
 	noise.SetFrequency(0.02);
 }
 
-std::vector<Chunk*> World::getVisibleChunks(Camera &camera) {
+// TODO: test this function when implementing block placement. should not update meshes of chunks that are
+// outside target.load_radius
+std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 	std::vector<Chunk*> visible_chunks;
 
-	// TODO: this just returns *all* chunks right now. not exactly efficient
+	int chunk_size = Chunk::getChunkSize();
+
+	// this returns all chunks that are within the target's load radius
 	for (auto& chunk : coords_to_chunk) {
-		visible_chunks.push_back(chunk.second);
+		int chunk_x = chunk.second->chunk_position.x * chunk_size;
+		int chunk_y = chunk.second->chunk_position.y * chunk_size;
+		int chunk_z = chunk.second->chunk_position.z * chunk_size;
+
+		if (chunk_x > target.pos.x + target.load_radius ||
+			chunk_x < target.pos.x - target.load_radius ||
+			chunk_y > target.pos.y + target.load_radius ||
+			chunk_y < target.pos.y - target.load_radius ||
+			chunk_z > target.pos.z + target.load_radius ||
+			chunk_z < target.pos.z - target.load_radius) {
+
+			visible_chunks.push_back(chunk.second);
+		}
 	}
 
 	return visible_chunks;
@@ -40,7 +56,7 @@ void World::streamTerrain(StreamTarget target) {
 	last_streamed_chunk_coord = current_chunk_coord;
 	last_radius = target.load_radius;
 
-	// create new chunk(s) at/around that position
+	// 
 	for (int x = -target.load_radius; x < target.load_radius; ++x) {
 		for (int z = -target.load_radius; z < target.load_radius; ++z) {
 			for (int y = -target.load_radius; y < target.load_radius; ++y) {
@@ -50,18 +66,19 @@ void World::streamTerrain(StreamTarget target) {
 				chunk_coord.y = current_chunk_coord.y + y;
 				chunk_coord.z = current_chunk_coord.z + z;
 
+				// skip if chunk is already generated
 				if (coords_to_chunk.contains(chunk_coord)) {
 					continue;
 				}
 
-				// add new chunk to hashmap
-				coords_to_chunk[chunk_coord] = genChunk(chunk_coord, 1);
+				// otherwise add chunk to queue
+				queued_chunks.push(chunk_coord);
 			}
 		}
 	}
 }
 
-Chunk* World::genChunk(Coordinates coordinates, int seed) {
+Chunk* World::genChunk(Coordinates coordinates) {
 	Chunk* chunk = new Chunk(coordinates);
 	int chunk_size = Chunk::getChunkSize();
 
@@ -85,12 +102,23 @@ Chunk* World::genChunk(Coordinates coordinates, int seed) {
 
 void World::update(StreamTarget target) {
 	streamTerrain(target);
+
+	// generate some number (say, 4 right now) of chunks per frame
+	for (int i = 0; i < 4; ++i) {
+		if (queued_chunks.empty()) {
+			break;
+		}
+
+		// add new chunk to hashmap
+		coords_to_chunk[queued_chunks.front()] = genChunk(queued_chunks.front());
+		queued_chunks.pop();
+	}
 	
-	for (auto& chunk : coords_to_chunk) {
-		if (chunk.second->dirty) {
-			MeshData mesh_data = chunk_mesher.build(*(chunk.second), *context);
-			chunk.second->chunk_mesh = Mesh(mesh_data.vertices);
-			chunk.second->dirty = false;
+	for (Chunk* chunk : getVisibleChunks(target)) {
+		if (chunk->dirty) {
+			MeshData mesh_data = chunk_mesher.build(*chunk, *context);
+			chunk->chunk_mesh = Mesh(mesh_data.vertices);
+			chunk->dirty = false;
 		}
 	}
 }

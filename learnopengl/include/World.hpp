@@ -8,6 +8,7 @@
 #include "BlockMeshingContext.hpp"
 #include "FastNoiseLite.h"
 #include <unordered_map>
+#include <queue>
 #include <vector>
 
 struct StreamTarget {
@@ -28,11 +29,12 @@ class World {
 		// TODO: wherever we use Chunk* use unique_ptr, for mem leaks and whatnot
 		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> coords_to_chunk;
 		void streamTerrain(StreamTarget target);
-		Chunk* genChunk(Coordinates coordinates, int seed);
+		Chunk* genChunk(Coordinates coordinates);
+		std::queue<Coordinates> queued_chunks;
 
 	public:
 		World(BlockMeshingContext context);
-		std::vector<Chunk*> getVisibleChunks(Camera &camera);
+		std::vector<Chunk*> getVisibleChunks(StreamTarget target);
 		void update(StreamTarget target);
 };
 
