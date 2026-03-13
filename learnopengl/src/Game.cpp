@@ -1,6 +1,6 @@
 #include "../include/Game.hpp"
 
-Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 5.0f)), first_mouse(true), 
+Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 0.0f)), first_mouse(true), 
 delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window) 
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
@@ -10,7 +10,7 @@ delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContex
 
 void Game::run() {
 	StreamTarget target;
-	target.load_radius = 2; // TODO: remove magic number
+	target.load_radius = 5; // TODO: remove magic number
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {

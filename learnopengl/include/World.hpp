@@ -27,10 +27,15 @@ class World {
 		ChunkMesher chunk_mesher;
 		const BlockMeshingContext* context;
 		// TODO: wherever we use Chunk* use unique_ptr, for mem leaks and whatnot
+		// Note: this should contain all *loaded* chunks, not all previously *generated* chunks. Some may have been loaded previously, and should not be generated again.
 		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> coords_to_chunk;
 		void streamTerrain(StreamTarget target);
 		Chunk* genChunk(Coordinates coordinates);
-		std::queue<Coordinates> queued_chunks;
+		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
+
+		//std::queue<Coordinates> queued_chunks;
+		std::priority_queue<ChunkGenRequest, std::vector<ChunkGenRequest>, std::greater<ChunkGenRequest>> queued_chunks;
+
 
 	public:
 		World(BlockMeshingContext context);

@@ -56,7 +56,7 @@ void World::streamTerrain(StreamTarget target) {
 	last_streamed_chunk_coord = current_chunk_coord;
 	last_radius = target.load_radius;
 
-	// 
+
 	for (int x = -target.load_radius; x < target.load_radius; ++x) {
 		for (int z = -target.load_radius; z < target.load_radius; ++z) {
 			for (int y = -target.load_radius; y < target.load_radius; ++y) {
@@ -66,13 +66,23 @@ void World::streamTerrain(StreamTarget target) {
 				chunk_coord.y = current_chunk_coord.y + y;
 				chunk_coord.z = current_chunk_coord.z + z;
 
-				// skip if chunk is already generated
+				// skip if chunk is already loaded
 				if (coords_to_chunk.contains(chunk_coord)) {
 					continue;
 				}
 
-				// otherwise add chunk to queue
-				queued_chunks.push(chunk_coord);
+				// otherwise add chunk to queue to load/generate
+				queued_chunks.push(
+									{ chunk_coord, 
+					                  squaredDistance(
+										  {
+										   chunk_coord.x * chunk_size,
+										   chunk_coord.y * chunk_size,
+										   chunk_coord.z * chunk_size
+										  }, 
+								          target.pos)
+								    }
+				                  );
 			}
 		}
 	}
@@ -103,15 +113,36 @@ Chunk* World::genChunk(Coordinates coordinates) {
 void World::update(StreamTarget target) {
 	streamTerrain(target);
 
+	std::cout << queued_chunks.size() << "\n";
+
 	// generate some number (say, 4 right now) of chunks per frame
 	for (int i = 0; i < 4; ++i) {
 		if (queued_chunks.empty()) {
 			break;
 		}
 
-		// add new chunk to hashmap
-		coords_to_chunk[queued_chunks.front()] = genChunk(queued_chunks.front());
+		// skip chunk if out of target's render distance
+		float current_distance = squaredDistance({ queued_chunks.top().coordinates.x * Chunk::getChunkSize(),
+												   queued_chunks.top().coordinates.y * Chunk::getChunkSize(),
+											       queued_chunks.top().coordinates.z * Chunk::getChunkSize()}, 
+												   target.pos);
+
+		int load_radius_blocks = target.load_radius * Chunk::getChunkSize();
+		if (current_distance > (load_radius_blocks * load_radius_blocks)) {
+			queued_chunks.pop();
+			continue;
+		}
+
+		// skip chunk if already loaded
+		if (coords_to_chunk.contains(queued_chunks.top().coordinates)) {
+			queued_chunks.pop();
+			continue;
+		}
+
+		// generate chunk
+		coords_to_chunk[queued_chunks.top().coordinates] = genChunk(queued_chunks.top().coordinates);
 		queued_chunks.pop();
+		
 	}
 	
 	for (Chunk* chunk : getVisibleChunks(target)) {
@@ -121,5 +152,14 @@ void World::update(StreamTarget target) {
 			chunk->dirty = false;
 		}
 	}
+}
+
+
+float World::squaredDistance(glm::vec3 a, glm::vec3 b) const {
+	float dx = a.x - b.x;
+	float dy = a.y - b.y;
+	float dz = a.z - b.z;
+
+	return (dx * dx) + (dy * dy) + (dz * dz);
 }
 
