@@ -93,10 +93,10 @@ Chunk* World::genChunk(Coordinates coordinates) {
 	int chunk_size = Chunk::getChunkSize();
 
 	for (int x = 0; x < chunk_size; ++x) {
-		for (int y = 0; y < chunk_size; y++) {
-			for (int z = 0; z < chunk_size; z++) {
-				int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
+		for (int z = 0; z < chunk_size; z++) {
+			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 30;
 
+			for (int y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
 					chunk->positions[x][y][z] = 1;
 				}
