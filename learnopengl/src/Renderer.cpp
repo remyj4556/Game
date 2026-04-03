@@ -15,9 +15,12 @@ Renderer::Renderer(GLFWwindow* window) :
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 
 	glViewport(0, 0, screen_width, screen_height);
-
+	
 	// enable depth testing
 	glEnable(GL_DEPTH_TEST);
+
+	//glfwWindowHint(GLFW_SAMPLES, 4);
+	//glEnable(GL_MULTISAMPLE);
 }
 
 Renderer::~Renderer() {}

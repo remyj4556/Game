@@ -4,16 +4,17 @@
 #include "Chunk.hpp"
 #include "ChunkMesher.hpp"
 #include "ChunkCoordinates.hpp"
-#include "Camera.hpp"
 #include "BlockMeshingContext.hpp"
 #include "FastNoiseLite.h"
+#include "Block.hpp"
 #include <unordered_map>
 #include <queue>
+#include <unordered_set>
 #include <vector>
 
 struct StreamTarget {
-	glm::vec3 pos;
-	int load_radius;
+	glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
+	int load_radius = 0;
 };
 
 class World {
@@ -25,16 +26,23 @@ class World {
 		FastNoiseLite noise;
 
 		ChunkMesher chunk_mesher;
-		const BlockMeshingContext* context;
-		// TODO: wherever we use Chunk* use unique_ptr, for mem leaks and whatnot
-		// Note: this should contain all *loaded* chunks, not all previously *generated* chunks. Some may have been loaded previously, and should not be generated again.
-		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> coords_to_chunk;
+		const BlockMeshingContext context;
+		
 		void streamTerrain(StreamTarget target);
 		Chunk* genChunk(Coordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
+		Block blockAtWorldPos();
 
-		//std::queue<Coordinates> queued_chunks;
+		// queued chunk state
 		std::priority_queue<ChunkGenRequest, std::vector<ChunkGenRequest>, std::greater<ChunkGenRequest>> queued_chunks;
+		std::unordered_set<Coordinates, CoordinatesHash> queued_chunks_set;
+		
+		// generated chunks
+		// TODO: wherever we use Chunk* use unique_ptr, for mem leaks and whatnot
+		// Note: this should contain all *loaded* chunks, not all previously *generated* chunks. Some may have been loaded previously, and should not be generated again.
+		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> loaded_chunks;
+		
+		
 
 
 	public:

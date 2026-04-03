@@ -8,6 +8,7 @@
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "ResourceManager.hpp"
+#include "LightManager.hpp"
 
 
 class Game {

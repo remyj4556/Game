@@ -2,6 +2,7 @@
 #define BLOCKDEFINITION_HPP
 
 #include "TextureRegion.hpp"
+#include "Block.hpp"
 #include <string>
 #include <unordered_map>
 
@@ -31,7 +32,7 @@ static const std::unordered_map<std::string, BlockModel> blockModelLookup = {
 };
 
 struct BlockDefinition {
-	int id = -1;
+	block_id_type id;
 	std::string display_name;
 	BlockModel model = BlockModel::cube;
 	TextureRegion textures[6];

@@ -3,20 +3,20 @@
 
 #include <string>
 #include <unordered_map>
-#include <fstream>
+#include <cstdint>
 
+#include "Block.hpp"
 #include "BlockDefinition.hpp"
-#include "json.hpp"
 #include "TextureAtlas.hpp"
 
 class BlockRegistry {
 	private:
-		std::unordered_map<int, BlockDefinition> block_defs;
+		std::unordered_map<block_id_type, BlockDefinition> block_defs;
 
 	public:
 		BlockRegistry();
 		void addDefinition(const BlockDefinition& definition);
-		const BlockDefinition& getDefinition(int id) const;
+		const BlockDefinition& getDefinition(block_id_type id) const;
 		void populateDefinitions(const std::string& path, TextureAtlas& atlas);
 };
 

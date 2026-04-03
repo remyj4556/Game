@@ -3,6 +3,7 @@
 #include "../include/TextureAtlas.hpp"
 #include "../include/json.hpp"
 #include <iostream>
+
 #include <string>
 #include <fstream>
 
@@ -12,7 +13,7 @@ void BlockRegistry::addDefinition(const BlockDefinition& definition) {
 	block_defs[definition.id] = definition;
 }
 
-const BlockDefinition& BlockRegistry::getDefinition(int id) const {
+const BlockDefinition& BlockRegistry::getDefinition(block_id_type id) const {
 	return block_defs.at(id);
 }
 

@@ -2,13 +2,13 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/ChunkCoordinates.hpp"
+#include "../include/BlockRegistry.hpp"
 #include "../include/Mesh.hpp"
-#include "../include/Camera.hpp"
 
 #include <vector>
 #include <cmath>
 
-World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(&context) {
+World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	noise.SetFrequency(0.02);
 }
@@ -21,7 +21,7 @@ std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 	int chunk_size = Chunk::getChunkSize();
 
 	// this returns all chunks that are within the target's load radius
-	for (auto& chunk : coords_to_chunk) {
+	for (auto& chunk : loaded_chunks) {
 		int chunk_x = chunk.second->chunk_position.x * chunk_size;
 		int chunk_y = chunk.second->chunk_position.y * chunk_size;
 		int chunk_z = chunk.second->chunk_position.z * chunk_size;
@@ -57,32 +57,39 @@ void World::streamTerrain(StreamTarget target) {
 	last_radius = target.load_radius;
 
 
-	for (int x = -target.load_radius; x < target.load_radius; ++x) {
-		for (int z = -target.load_radius; z < target.load_radius; ++z) {
-			for (int y = -target.load_radius; y < target.load_radius; ++y) {
+	for (int x = -target.load_radius; x <= target.load_radius; ++x) {
+		for (int z = -target.load_radius; z <= target.load_radius; ++z) {
+			for (int y = -target.load_radius; y <= target.load_radius; ++y) {
 				// get coordinates of surrounding chunks
 				Coordinates chunk_coord;
 				chunk_coord.x = current_chunk_coord.x + x;
 				chunk_coord.y = current_chunk_coord.y + y;
 				chunk_coord.z = current_chunk_coord.z + z;
 
+				// skip "corners" to load a sphere
+				if ((x * x + y * y + z * z) > (target.load_radius * target.load_radius)) {
+					continue;
+				}
+
 				// skip if chunk is already loaded
-				if (coords_to_chunk.contains(chunk_coord)) {
+				if (loaded_chunks.contains(chunk_coord)) {
+					//std::cout << "chunk at: " << chunk_coord << " is already loaded\n";
+					continue;
+				} 
+
+				// skip if already in set of queued chunks to generate
+				if (queued_chunks_set.contains(chunk_coord)) {
 					continue;
 				}
 
 				// otherwise add chunk to queue to load/generate
-				queued_chunks.push(
-									{ chunk_coord, 
-					                  squaredDistance(
-										  {
-										   chunk_coord.x * chunk_size,
-										   chunk_coord.y * chunk_size,
-										   chunk_coord.z * chunk_size
-										  }, 
-								          target.pos)
-								    }
-				                  );
+				
+
+				if (!loaded_chunks.contains(chunk_coord) && !queued_chunks_set.contains(chunk_coord)) {
+					//std::cout << "QUEUING: " << chunk_coord << "\n";
+					queued_chunks.push({ chunk_coord, squaredDistance({ chunk_coord.x * chunk_size, chunk_coord.y * chunk_size, chunk_coord.z * chunk_size }, target.pos) });
+					queued_chunks_set.insert(chunk_coord);
+				}
 			}
 		}
 	}
@@ -94,14 +101,14 @@ Chunk* World::genChunk(Coordinates coordinates) {
 
 	for (int x = 0; x < chunk_size; ++x) {
 		for (int z = 0; z < chunk_size; z++) {
-			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 30;
+			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
 
 			for (int y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
-					chunk->positions[x][y][z] = 1;
+					chunk->positions[x][y][z].id = 1;
 				}
 				if ((coordinates.y * chunk_size + y) == height) {
-					chunk->positions[x][y][z] = 3;
+					chunk->positions[x][y][z].id = 3;
 				}
 			}
 		}
@@ -113,7 +120,7 @@ Chunk* World::genChunk(Coordinates coordinates) {
 void World::update(StreamTarget target) {
 	streamTerrain(target);
 
-	std::cout << queued_chunks.size() << "\n";
+	std::cout << queued_chunks.size() << " " << loaded_chunks.size() << "\n";
 
 	// generate some number (say, 4 right now) of chunks per frame
 	for (int i = 0; i < 4; ++i) {
@@ -121,33 +128,27 @@ void World::update(StreamTarget target) {
 			break;
 		}
 
-		// skip chunk if out of target's render distance
-		float current_distance = squaredDistance({ queued_chunks.top().coordinates.x * Chunk::getChunkSize(),
-												   queued_chunks.top().coordinates.y * Chunk::getChunkSize(),
-											       queued_chunks.top().coordinates.z * Chunk::getChunkSize()}, 
-												   target.pos);
+		int chunk_size = Chunk::getChunkSize();
+		ChunkGenRequest top = queued_chunks.top();
 
-		int load_radius_blocks = target.load_radius * Chunk::getChunkSize();
-		if (current_distance > (load_radius_blocks * load_radius_blocks)) {
-			queued_chunks.pop();
-			continue;
-		}
+		queued_chunks.pop();
 
 		// skip chunk if already loaded
-		if (coords_to_chunk.contains(queued_chunks.top().coordinates)) {
-			queued_chunks.pop();
+		if (loaded_chunks.contains(top.coordinates)) {
+			queued_chunks_set.erase(top.coordinates);
 			continue;
 		}
 
 		// generate chunk
-		coords_to_chunk[queued_chunks.top().coordinates] = genChunk(queued_chunks.top().coordinates);
-		queued_chunks.pop();
-		
+		loaded_chunks[top.coordinates] = genChunk(top.coordinates);
+		queued_chunks_set.erase(top.coordinates);
 	}
 	
+
+	// assign a budget per frame here, that only pulls from *loaded* chunks
 	for (Chunk* chunk : getVisibleChunks(target)) {
-		if (chunk->dirty) {
-			MeshData mesh_data = chunk_mesher.build(*chunk, *context);
+		if (chunk->dirty) { // check if chunk is actually generated here
+			MeshData mesh_data = chunk_mesher.build(*chunk, context);
 			chunk->chunk_mesh = Mesh(mesh_data.vertices);
 			chunk->dirty = false;
 		}

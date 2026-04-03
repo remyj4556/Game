@@ -3,6 +3,7 @@
 
 #include "Mesh.hpp"
 #include "ChunkCoordinates.hpp"
+#include "Block.hpp"
 
 
 class Chunk {
@@ -13,7 +14,7 @@ class Chunk {
 		Chunk();
 		Chunk(Coordinates coordinates);
 
-		int positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
+		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
 
 		Coordinates chunk_position;
 

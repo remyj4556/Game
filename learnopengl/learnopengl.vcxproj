@@ -159,6 +159,7 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Block.hpp" />
     <ClInclude Include="include\BlockDefinition.hpp" />
     <ClInclude Include="include\BlockMeshingContext.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />

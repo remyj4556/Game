@@ -1,4 +1,6 @@
 #include "../include/Game.hpp"
+#include "../include/World.hpp"
+
 
 Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 0.0f)), first_mouse(true), 
 delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window) 
@@ -10,7 +12,30 @@ delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContex
 
 void Game::run() {
 	StreamTarget target;
-	target.load_radius = 5; // TODO: remove magic number
+	target.load_radius = 4; // TODO: remove magic number
+
+
+	// setup light manager
+	//LightManager light_manager;
+	//light_manager.enablePlayerLight(false);
+
+
+	// temp --------------------------------------------------------------------
+	// create mesh for light cube, independent of chunks
+	/*
+	std::vector<GeometryVertex> light_geo_verts = ModelLibrary::getInstance().getVertices(BlockModel::cube);
+	std::vector<Vertex> light_verts;
+	for (GeometryVertex& geo_vert : light_geo_verts) {
+		Vertex vert;
+		vert.normal = geo_vert.normal;
+		vert.position = geo_vert.position;
+		vert.tex_coords = geo_vert.tex_coords;
+		vert.shininess = 0.0f;
+		vert.specular_strength = 0.0f;
+		light_verts.push_back(vert);
+	}
+	Mesh light_mesh(light_verts);
+	*/
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -51,7 +76,7 @@ void Game::run() {
 void Game::processInput() {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float camera_speed = 5000 * delta_time;
+	const float camera_speed = 10;
 	camera.movement_speed = camera_speed;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.processKeyboard(FORWARD, delta_time);

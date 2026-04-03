@@ -2,6 +2,7 @@
 #define CHUNKCOORDINATES_HPP
 
 #include <cstdint>
+#include <iostream>
 
 class Coordinates {
 	public:
@@ -12,7 +13,11 @@ class Coordinates {
 		bool operator==(const Coordinates &other) const {
 			return x == other.x && y == other.y && z == other.z;
 		}
+
+		friend std::ostream& operator<<(std::ostream& os, const Coordinates& coordinates);
 };
+
+
 
 static struct CoordinatesHash {
 	size_t operator()(const Coordinates& c) const noexcept {
