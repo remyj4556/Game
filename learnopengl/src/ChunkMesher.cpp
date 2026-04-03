@@ -21,7 +21,7 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
 		for (int y = 0; y < chunk_size; ++y) {
 			for (int z = 0; z < chunk_size; ++z) {
 				// get the id of the current block
-				block_id_type current_block_id = chunk.positions[x][y][z].id;
+				block_id_type current_block_id = chunk.getBlock(LocalCoordinates(x, y, z)).id;
 
 				// skip if air
 				if (current_block_id == 0) {
@@ -44,27 +44,27 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
 
 					switch (face) {
 					case 0: // back face (-Z)
-						cull_face = (z - 1 >= 0 && chunk.positions[x][y][z - 1].id != 0);
+						cull_face = (z - 1 >= 0 && chunk.getBlock(LocalCoordinates(x, y, z - 1)).id != 0);
 						break;
 
 					case 1: // front face (+Z)
-						cull_face = (z + 1 < chunk_size && chunk.positions[x][y][z + 1].id != 0);
+						cull_face = (z + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x, y, z + 1)).id != 0);
 						break;
 
 					case 2: // left face (-X)
-						cull_face = (x - 1 >= 0 && chunk.positions[x - 1][y][z].id != 0);
+						cull_face = (x - 1 >= 0 && chunk.getBlock(LocalCoordinates(x - 1, y, z)).id != 0);
 						break;
 
 					case 3: // right face (+X)
-						cull_face = (x + 1 < chunk_size && chunk.positions[x + 1][y][z].id != 0);
+						cull_face = (x + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x + 1, y, z)).id != 0);
 						break;
 
 					case 4: // bottom face (-Y)
-						cull_face = (y - 1 >= 0 && chunk.positions[x][y - 1][z].id != 0);
+						cull_face = (y - 1 >= 0 && chunk.getBlock(LocalCoordinates(x, y - 1, z)).id != 0);
 						break;
 
 					case 5: // top face (+Y)
-						cull_face = (y + 1 < chunk_size && chunk.positions[x][y + 1][z].id != 0);
+						cull_face = (y + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x, y + 1, z)).id != 0);
 						break;
 					}
 

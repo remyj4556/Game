@@ -2,6 +2,7 @@
 #define WORLDCOORDINATES_HPP
 
 #include <cstdint>
+#include <iostream>
 
 class WorldCoordinates {
 	public:

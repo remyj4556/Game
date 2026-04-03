@@ -4,23 +4,23 @@
 #include <cstdint>
 #include <iostream>
 
-class Coordinates {
+class ChunkCoordinates {
 	public:
 		int32_t x = 0;
 		int32_t y = 0;
 		int32_t z = 0;
 
-		bool operator==(const Coordinates &other) const {
+		bool operator==(const ChunkCoordinates &other) const {
 			return x == other.x && y == other.y && z == other.z;
 		}
 
-		friend std::ostream& operator<<(std::ostream& os, const Coordinates& coordinates);
+		friend std::ostream& operator<<(std::ostream& os, const ChunkCoordinates& coordinates);
 };
 
 
 
 static struct CoordinatesHash {
-	size_t operator()(const Coordinates& c) const noexcept {
+	size_t operator()(const ChunkCoordinates& c) const noexcept {
 		// 64-bit mix; works fine even if int32 inputs
 		uint64_t x = (uint32_t)c.x;
 		uint64_t y = (uint32_t)c.y;

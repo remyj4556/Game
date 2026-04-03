@@ -5,7 +5,7 @@
 Chunk::Chunk() :chunk_position({0,0,0}), chunk_mesh(Mesh()), dirty(true) {
 }
 
-Chunk::Chunk(Coordinates coordinates) : chunk_position(coordinates), chunk_mesh(Mesh()), dirty(true) {
+Chunk::Chunk(ChunkCoordinates coordinates) : chunk_position(coordinates), chunk_mesh(Mesh()), dirty(true) {
 }
 
 void Chunk::printChunkVertices() {
@@ -14,4 +14,16 @@ void Chunk::printChunkVertices() {
 
 int Chunk::getChunkSize() {
 	return CHUNK_SIZE;
+}
+
+const Block Chunk::getBlock(LocalCoordinates coordinates) const {
+	return positions[coordinates.x][coordinates.y][coordinates.z];
+}
+
+void Chunk::setBlock(LocalCoordinates coordinates, Block block) {
+	positions[coordinates.x][coordinates.y][coordinates.z] = block;
+}
+
+const ChunkCoordinates Chunk::getChunkPosition() const {
+	return chunk_position;
 }

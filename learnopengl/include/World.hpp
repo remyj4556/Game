@@ -19,7 +19,7 @@ struct StreamTarget {
 };
 
 struct ChunkGenRequest {
-	Coordinates coordinates;
+	ChunkCoordinates coordinates;
 	float dist_to_target;
 
 	bool operator>(const ChunkGenRequest& other) const {
@@ -30,7 +30,7 @@ struct ChunkGenRequest {
 class World {
 	private:
 
-		Coordinates last_streamed_chunk_coord;
+		ChunkCoordinates last_streamed_chunk_coord;
 		int last_radius;
 
 		// TODO: i think we *might* want a separate terrain generator class, right now i'll do this stuff here
@@ -40,26 +40,27 @@ class World {
 		const BlockMeshingContext context;
 		
 		void streamTerrain(StreamTarget target);
-		Chunk* genChunk(Coordinates coordinates);
+		Chunk* genChunk(ChunkCoordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
-		Block blockAtWorldPos(WorldCoordinates coordinates);
+		Block blockAtWorldPos(WorldCoordinates world_coords);
 
 		// queued chunk state
 		std::priority_queue<ChunkGenRequest, std::vector<ChunkGenRequest>, std::greater<ChunkGenRequest>> queued_chunks;
-		std::unordered_set<Coordinates, CoordinatesHash> queued_chunks_set;
+		std::unordered_set<ChunkCoordinates, CoordinatesHash> queued_chunks_set;
 		
 		// generated chunks
 		// TODO: wherever we use Chunk* use unique_ptr, for mem leaks and whatnot
 		// Note: this should contain all *loaded* chunks, not all previously *generated* chunks. Some may have been loaded previously, and should not be generated again.
-		std::unordered_map<Coordinates, Chunk*, CoordinatesHash> loaded_chunks;
+		std::unordered_map<ChunkCoordinates, Chunk*, CoordinatesHash> loaded_chunks;
 		
 		
-
 
 	public:
 		World(BlockMeshingContext context);
 		std::vector<Chunk*> getVisibleChunks(StreamTarget target);
 		void update(StreamTarget target);
+		WorldCoordinates chunkToWorld(ChunkCoordinates chunk_coords);
+		ChunkCoordinates worldToChunk(WorldCoordinates world_coords);
 };
 
 #endif

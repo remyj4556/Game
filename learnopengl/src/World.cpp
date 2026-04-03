@@ -14,6 +14,39 @@ World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 
 	noise.SetFrequency(0.02);
 }
 
+WorldCoordinates World::chunkToWorld(ChunkCoordinates chunk_coords) {
+	int chunk_size = Chunk::getChunkSize();
+
+	WorldCoordinates c;
+	c.x = chunk_coords.x * chunk_size;
+	c.y = chunk_coords.y * chunk_size;
+	c.z = chunk_coords.z * chunk_size;
+
+	return c;
+}
+
+ChunkCoordinates World::worldToChunk(WorldCoordinates world_coords) {
+	int chunk_size = Chunk::getChunkSize();
+
+	ChunkCoordinates c;
+	c.x = std::floor(static_cast<double>(world_coords.x) / chunk_size);
+	c.y = std::floor(static_cast<double>(world_coords.y) / chunk_size);
+	c.z = std::floor(static_cast<double>(world_coords.z) / chunk_size);
+
+	return c;
+}
+
+Block World::blockAtWorldPos(WorldCoordinates world_coords) {
+	int chunk_size = Chunk::getChunkSize();
+
+	ChunkCoordinates chunk_coords = worldToChunk(world_coords);
+	uint8_t local_x = world_coords.x - chunk_coords.x * chunk_size;
+	uint8_t local_y = world_coords.y - chunk_coords.y * chunk_size;
+	uint8_t local_z = world_coords.z - chunk_coords.z * chunk_size;
+
+	return loaded_chunks.at(chunk_coords)->getBlock({ local_x, local_y, local_z });
+}
+
 // TODO: test this function when implementing block placement. should not update meshes of chunks that are
 // outside target.load_radius
 std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
@@ -23,16 +56,14 @@ std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 
 	// this returns all chunks that are within the target's load radius
 	for (auto& chunk : loaded_chunks) {
-		int chunk_x = chunk.second->chunk_position.x * chunk_size;
-		int chunk_y = chunk.second->chunk_position.y * chunk_size;
-		int chunk_z = chunk.second->chunk_position.z * chunk_size;
+		WorldCoordinates world_coords = chunkToWorld(chunk.second->getChunkPosition());
 
-		if (chunk_x > target.pos.x + target.load_radius ||
-			chunk_x < target.pos.x - target.load_radius ||
-			chunk_y > target.pos.y + target.load_radius ||
-			chunk_y < target.pos.y - target.load_radius ||
-			chunk_z > target.pos.z + target.load_radius ||
-			chunk_z < target.pos.z - target.load_radius) {
+		if (world_coords.x > target.pos.x + target.load_radius ||
+			world_coords.x < target.pos.x - target.load_radius ||
+			world_coords.y > target.pos.y + target.load_radius ||
+			world_coords.y < target.pos.y - target.load_radius ||
+			world_coords.z > target.pos.z + target.load_radius ||
+			world_coords.z < target.pos.z - target.load_radius) {
 
 			visible_chunks.push_back(chunk.second);
 		}
@@ -45,7 +76,7 @@ void World::streamTerrain(StreamTarget target) {
 	int chunk_size = Chunk::getChunkSize();
 
 	// get target position
-	Coordinates current_chunk_coord;
+	ChunkCoordinates current_chunk_coord;
 	current_chunk_coord.x = std::floor(static_cast<double>(target.pos.x) / chunk_size);
 	current_chunk_coord.y = std::floor(static_cast<double>(target.pos.y) / chunk_size);
 	current_chunk_coord.z = std::floor(static_cast<double>(target.pos.z) / chunk_size);
@@ -62,7 +93,7 @@ void World::streamTerrain(StreamTarget target) {
 		for (int z = -target.load_radius; z <= target.load_radius; ++z) {
 			for (int y = -target.load_radius; y <= target.load_radius; ++y) {
 				// get coordinates of surrounding chunks
-				Coordinates chunk_coord;
+				ChunkCoordinates chunk_coord;
 				chunk_coord.x = current_chunk_coord.x + x;
 				chunk_coord.y = current_chunk_coord.y + y;
 				chunk_coord.z = current_chunk_coord.z + z;
@@ -96,20 +127,20 @@ void World::streamTerrain(StreamTarget target) {
 	}
 }
 
-Chunk* World::genChunk(Coordinates coordinates) {
+Chunk* World::genChunk(ChunkCoordinates coordinates) {
 	Chunk* chunk = new Chunk(coordinates);
 	int chunk_size = Chunk::getChunkSize();
 
-	for (int x = 0; x < chunk_size; ++x) {
-		for (int z = 0; z < chunk_size; z++) {
+	for (uint8_t x = 0; x < chunk_size; ++x) {
+		for (uint8_t z = 0; z < chunk_size; z++) {
 			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
 
-			for (int y = 0; y < chunk_size; y++) {
+			for (uint8_t y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
-					chunk->positions[x][y][z].id = 1;
+					chunk->setBlock(LocalCoordinates(x,y,z), Block(1));
 				}
 				if ((coordinates.y * chunk_size + y) == height) {
-					chunk->positions[x][y][z].id = 3;
+					chunk->setBlock(LocalCoordinates(x, y, z), Block(3));
 				}
 			}
 		}

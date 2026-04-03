@@ -69,7 +69,7 @@ void Renderer::renderChunk(Chunk& chunk) {
 	glm::mat4 model = glm::mat4(1.0f);
 
 	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at block position (32, 32, 32))
-	Coordinates chunk_pos = chunk.chunk_position; 
+	ChunkCoordinates chunk_pos = chunk.getChunkPosition(); 
 	int chunk_size = chunk.getChunkSize();
 
 	chunk_pos.x *= chunk_size;

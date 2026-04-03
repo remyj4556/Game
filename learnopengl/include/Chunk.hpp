@@ -5,18 +5,23 @@
 #include "ChunkCoordinates.hpp"
 #include "Block.hpp"
 
+#include <cstdint>
+
+struct LocalCoordinates {
+	uint8_t x;
+	uint8_t y;
+	uint8_t z;
+};
 
 class Chunk {
 	private:
 		static constexpr int CHUNK_SIZE = 32;
+		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
+		ChunkCoordinates chunk_position;
 
 	public:
 		Chunk();
-		Chunk(Coordinates coordinates);
-
-		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
-
-		Coordinates chunk_position;
+		Chunk(ChunkCoordinates coordinates);
 
 		// TODO: change the single chunk_mesh into opaque_mesh, transparent_mesh, cutout_mesh, etc.
 		// these are rendered separately in the render loop, and within the meshes we can still
@@ -26,6 +31,12 @@ class Chunk {
 
 		// dirty flag signals if the chunk has been altered
 		bool dirty;
+
+		// block access
+		const Block getBlock(LocalCoordinates coordinates) const;
+		void setBlock(LocalCoordinates coordinates, Block block);
+
+		const ChunkCoordinates getChunkPosition() const;
 
 		void printChunkVertices();
 		static int getChunkSize();
