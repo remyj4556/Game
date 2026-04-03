@@ -2,6 +2,7 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/ChunkCoordinates.hpp"
+#include "../include/WorldCoordinates.hpp"
 #include "../include/BlockRegistry.hpp"
 #include "../include/Mesh.hpp"
 

@@ -33,14 +33,5 @@ static struct CoordinatesHash {
 	}
 };
 
-struct ChunkGenRequest {
-	Coordinates coordinates;
-	float dist_to_target;
-
-	bool operator>(const ChunkGenRequest& other) const {
-		return dist_to_target > other.dist_to_target;
-	}
-};
-
 
 #endif

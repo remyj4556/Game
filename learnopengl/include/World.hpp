@@ -4,6 +4,7 @@
 #include "Chunk.hpp"
 #include "ChunkMesher.hpp"
 #include "ChunkCoordinates.hpp"
+#include "WorldCoordinates.hpp"
 #include "BlockMeshingContext.hpp"
 #include "FastNoiseLite.h"
 #include "Block.hpp"
@@ -17,8 +18,18 @@ struct StreamTarget {
 	int load_radius = 0;
 };
 
+struct ChunkGenRequest {
+	Coordinates coordinates;
+	float dist_to_target;
+
+	bool operator>(const ChunkGenRequest& other) const {
+		return dist_to_target > other.dist_to_target;
+	}
+};
+
 class World {
 	private:
+
 		Coordinates last_streamed_chunk_coord;
 		int last_radius;
 
@@ -31,7 +42,7 @@ class World {
 		void streamTerrain(StreamTarget target);
 		Chunk* genChunk(Coordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
-		Block blockAtWorldPos();
+		Block blockAtWorldPos(WorldCoordinates coordinates);
 
 		// queued chunk state
 		std::priority_queue<ChunkGenRequest, std::vector<ChunkGenRequest>, std::greater<ChunkGenRequest>> queued_chunks;
