@@ -5,6 +5,7 @@
 #include "ChunkMesher.hpp"
 #include "ChunkCoordinates.hpp"
 #include "WorldCoordinates.hpp"
+#include "LocalCoordinates.hpp"
 #include "BlockMeshingContext.hpp"
 #include "FastNoiseLite.h"
 #include "Block.hpp"
@@ -61,6 +62,7 @@ class World {
 		void update(StreamTarget target);
 		WorldCoordinates chunkToWorld(ChunkCoordinates chunk_coords);
 		ChunkCoordinates worldToChunk(WorldCoordinates world_coords);
+		WorldCoordinates localToWorld(ChunkCoordinates chunk_coords, LocalCoordinates local_coords);
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "../include/Chunk.hpp"
 #include "../include/ChunkCoordinates.hpp"
+#include "../include/LocalCoordinates.hpp"
 #include "../include/Mesh.hpp"
 
 Chunk::Chunk() :chunk_position({0,0,0}), chunk_mesh(Mesh()), dirty(true) {

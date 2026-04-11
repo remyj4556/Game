@@ -87,6 +87,9 @@
     <ClCompile Include="src\WorldCoordinates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LocalCoordinates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EBO.hpp">
@@ -186,6 +189,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\WorldCoordinates.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LocalCoordinates.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

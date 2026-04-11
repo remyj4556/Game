@@ -3,20 +3,16 @@
 
 #include "Mesh.hpp"
 #include "ChunkCoordinates.hpp"
+#include "LocalCoordinates.hpp"
 #include "Block.hpp"
 
 #include <cstdint>
 
-struct LocalCoordinates {
-	uint8_t x;
-	uint8_t y;
-	uint8_t z;
-};
 
 class Chunk {
 	private:
 		static constexpr int CHUNK_SIZE = 32;
-		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to single array, or packed int
+		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to one dimensional array, or packed int
 		ChunkCoordinates chunk_position;
 
 	public:

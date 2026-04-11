@@ -24,6 +24,7 @@
     <ProjectGuid>{df53be7e-c29f-45c8-8def-ba6ddea1e68b}</ProjectGuid>
     <RootNamespace>learnopengl</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>VoxelEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,6 +144,7 @@
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\LightManager.cpp" />
+    <ClCompile Include="src\LocalCoordinates.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ModelLibrary.cpp" />
@@ -177,6 +179,7 @@
     <ClInclude Include="include\glm\gtc\type_ptr.hpp" />
     <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\LightManager.hpp" />
+    <ClInclude Include="include\LocalCoordinates.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
     <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Renderer.hpp" />

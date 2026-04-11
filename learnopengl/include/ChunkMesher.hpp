@@ -1,10 +1,13 @@
 #ifndef CHUNKMESHER_HPP
 #define CHUNKMESHER_HPP
 
+#include <functional>
 #include <vector>
 #include "Vertex.hpp"
 #include "Chunk.hpp"
+#include "Block.hpp"
 #include "BlockMeshingContext.hpp"
+#include "WorldCoordinates.hpp"
 
 struct MeshData {
 	std::vector<Vertex> vertices;
@@ -15,7 +18,7 @@ struct MeshData {
 // TODO: this will need to eventually have neighboring chunks passed in, to cull chunk borders
 class ChunkMesher {
 	public:
-		MeshData build(Chunk &chunk, BlockMeshingContext context);
+		MeshData build(Chunk &chunk, BlockMeshingContext context, std::function<Block(WorldCoordinates)> blockAtWorldPos);
 };
 
 #endif

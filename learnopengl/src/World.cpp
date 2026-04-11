@@ -3,11 +3,12 @@
 #include "../include/Chunk.hpp"
 #include "../include/ChunkCoordinates.hpp"
 #include "../include/WorldCoordinates.hpp"
-#include "../include/BlockRegistry.hpp"
+#include "../include/LocalCoordinates.hpp"
 #include "../include/Mesh.hpp"
 
 #include <vector>
 #include <cmath>
+#include <cstdint>
 
 World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -36,6 +37,16 @@ ChunkCoordinates World::worldToChunk(WorldCoordinates world_coords) {
 	return c;
 }
 
+WorldCoordinates World::localToWorld(ChunkCoordinates chunk_coords, LocalCoordinates local_coords) {
+	WorldCoordinates world_coords = chunkToWorld(chunk_coords);
+
+	world_coords.x += local_coords.x;
+	world_coords.y += local_coords.y;
+	world_coords.z += local_coords.z;
+
+	return world_coords;
+}
+
 Block World::blockAtWorldPos(WorldCoordinates world_coords) {
 	int chunk_size = Chunk::getChunkSize();
 
@@ -44,6 +55,11 @@ Block World::blockAtWorldPos(WorldCoordinates world_coords) {
 	uint8_t local_y = world_coords.y - chunk_coords.y * chunk_size;
 	uint8_t local_z = world_coords.z - chunk_coords.z * chunk_size;
 
+	if (!loaded_chunks.contains(chunk_coords)) {
+		Block air = { 0 };
+		return air;
+	}
+	
 	return loaded_chunks.at(chunk_coords)->getBlock({ local_x, local_y, local_z });
 }
 
@@ -64,7 +80,7 @@ std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 			world_coords.y < target.pos.y - target.load_radius ||
 			world_coords.z > target.pos.z + target.load_radius ||
 			world_coords.z < target.pos.z - target.load_radius) {
-
+			
 			visible_chunks.push_back(chunk.second);
 		}
 	}
@@ -103,20 +119,7 @@ void World::streamTerrain(StreamTarget target) {
 					continue;
 				}
 
-				// skip if chunk is already loaded
-				if (loaded_chunks.contains(chunk_coord)) {
-					//std::cout << "chunk at: " << chunk_coord << " is already loaded\n";
-					continue;
-				} 
-
-				// skip if already in set of queued chunks to generate
-				if (queued_chunks_set.contains(chunk_coord)) {
-					continue;
-				}
-
-				// otherwise add chunk to queue to load/generate
-				
-
+				// add chunk to queue to load/generate
 				if (!loaded_chunks.contains(chunk_coord) && !queued_chunks_set.contains(chunk_coord)) {
 					//std::cout << "QUEUING: " << chunk_coord << "\n";
 					queued_chunks.push({ chunk_coord, squaredDistance({ chunk_coord.x * chunk_size, chunk_coord.y * chunk_size, chunk_coord.z * chunk_size }, target.pos) });
@@ -174,15 +177,37 @@ void World::update(StreamTarget target) {
 		// generate chunk
 		loaded_chunks[top.coordinates] = genChunk(top.coordinates);
 		queued_chunks_set.erase(top.coordinates);
+
+		// mark chunk neighbors as dirty to remesh, as chunk border now contains non-air blocks
+		/*
+		if (loaded_chunks.contains({ top.coordinates.x + 1, top.coordinates.y, top.coordinates.z }))
+			loaded_chunks[{top.coordinates.x + 1, top.coordinates.y, top.coordinates.z}]->dirty = true;
+
+		if (loaded_chunks.contains({ top.coordinates.x - 1, top.coordinates.y, top.coordinates.z }))		
+			loaded_chunks[{top.coordinates.x - 1, top.coordinates.y, top.coordinates.z}]->dirty = true;
+
+		if (loaded_chunks.contains({ top.coordinates.x, top.coordinates.y + 1, top.coordinates.z }))
+			loaded_chunks[{top.coordinates.x, top.coordinates.y + 1, top.coordinates.z}]->dirty = true;
+
+		if (loaded_chunks.contains({ top.coordinates.x, top.coordinates.y - 1, top.coordinates.z }))
+			loaded_chunks[{top.coordinates.x, top.coordinates.y - 1, top.coordinates.z}]->dirty = true;
+
+		if (loaded_chunks.contains({ top.coordinates.x, top.coordinates.y, top.coordinates.z + 1}))
+			loaded_chunks[{top.coordinates.x, top.coordinates.y, top.coordinates.z + 1}]->dirty = true;
+
+		if (loaded_chunks.contains({ top.coordinates.x, top.coordinates.y, top.coordinates.z - 1 }))
+			loaded_chunks[{top.coordinates.x, top.coordinates.y, top.coordinates.z - 1}]->dirty = true;
+
+		*/
 	}
 	
 
-	// assign a budget per frame here, that only pulls from *loaded* chunks
+	// TODO: assign a budget per frame here as well
 	for (Chunk* chunk : getVisibleChunks(target)) {
-		if (chunk->dirty) { // check if chunk is actually generated here
-			MeshData mesh_data = chunk_mesher.build(*chunk, context);
+		if (chunk->dirty) {
+			MeshData mesh_data = chunk_mesher.build(*chunk, context, [this](WorldCoordinates world_coords) { return this->blockAtWorldPos(world_coords); });
 			chunk->chunk_mesh = Mesh(mesh_data.vertices);
-			chunk->dirty = false;
+			chunk->dirty = true;
 		}
 	}
 }

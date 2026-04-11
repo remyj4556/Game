@@ -3,19 +3,22 @@
 #include "../include/TextureRegion.hpp"
 #include "../include/Vertex.hpp"
 #include "../include/BlockMeshingContext.hpp"
+#include "../include/WorldCoordinates.hpp"
+#include "../include/LocalCoordinates.hpp"
+#include "../include/GeometryVertex.hpp"
 #include "../include/Block.hpp"
 
 #include <vector>
 #include <cstdint>
+#include <functional>
 
  
-MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
+MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::function<Block(WorldCoordinates)> blockAtWorldPos) {
 	// create local vector to store vertices for chunk, this is all the vertices from an entire chunk
 	std::vector<Vertex> chunk_vertices;
-
-	// TEST: maximum number of vertices for a single chunk of cubes -- not sure how this affects performance in practice
-	//chunk_vertices.reserve(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE * 36);
+	
 	int chunk_size = Chunk::getChunkSize();
+	
 
 	for (int x = 0; x < chunk_size; ++x) {
 		for (int y = 0; y < chunk_size; ++y) {
@@ -37,6 +40,9 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
 				// use the model to get the vertex data from the ModelLibrary
 				std::vector<GeometryVertex> model_vertices = context.model_library.getVertices(current_model);
 
+				// block world position
+				WorldCoordinates current_world_pos = { chunk.getChunkPosition().x * chunk_size + x, chunk.getChunkPosition().y * chunk_size + y, chunk.getChunkPosition().z * chunk_size + z };
+
 				// iterate over each face of the current block
 				for (int face = 0; face < 6; ++face) {
 					// if current face is obscured by another block, i.e., not air (could be eventually a transparent material, though), then skip adding face
@@ -44,27 +50,63 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context) {
 
 					switch (face) {
 					case 0: // back face (-Z)
-						cull_face = (z - 1 >= 0 && chunk.getBlock(LocalCoordinates(x, y, z - 1)).id != 0);
+						if (z - 1 >= 0) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x, y, z - 1)).id != 0);
+						}
+						else {
+							//cull_face = (blockAtWorldPos({current_world_pos.x, current_world_pos.y, current_world_pos.z - 1}).id != 0);
+						}
+
 						break;
 
 					case 1: // front face (+Z)
-						cull_face = (z + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x, y, z + 1)).id != 0);
+						if (z + 1 < chunk_size) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x, y, z + 1)).id != 0);;
+						}
+						else {
+							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y, current_world_pos.z + 1}).id != 0);
+						}
+
 						break;
 
 					case 2: // left face (-X)
-						cull_face = (x - 1 >= 0 && chunk.getBlock(LocalCoordinates(x - 1, y, z)).id != 0);
+						if (x - 1 >= 0) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x - 1, y, z)).id != 0);
+						}
+						else {
+							//cull_face = (blockAtWorldPos({ current_world_pos.x - 1, current_world_pos.y, current_world_pos.z }).id != 0);
+						}
+
 						break;
 
 					case 3: // right face (+X)
-						cull_face = (x + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x + 1, y, z)).id != 0);
+						if (x + 1 < chunk_size) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x + 1, y, z)).id != 0);
+						}
+						else {
+							//cull_face = (blockAtWorldPos({ current_world_pos.x + 1, current_world_pos.y, current_world_pos.z }).id != 0);
+						}
+
 						break;
 
 					case 4: // bottom face (-Y)
-						cull_face = (y - 1 >= 0 && chunk.getBlock(LocalCoordinates(x, y - 1, z)).id != 0);
+						if (y - 1 >= 0) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x, y - 1, z)).id != 0);
+						}
+						else {
+							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y - 1, current_world_pos.z }).id != 0);
+						}
+
 						break;
 
 					case 5: // top face (+Y)
-						cull_face = (y + 1 < chunk_size && chunk.getBlock(LocalCoordinates(x, y + 1, z)).id != 0);
+						if (y + 1 < chunk_size) {
+							cull_face = (chunk.getBlock(LocalCoordinates(x, y + 1, z)).id != 0);
+						}
+						else {
+							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y + 1, current_world_pos.z }).id != 0);
+						}
+
 						break;
 					}
 
