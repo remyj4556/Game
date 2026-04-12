@@ -4,11 +4,14 @@
 #include "../include/ChunkCoordinates.hpp"
 #include "../include/WorldCoordinates.hpp"
 #include "../include/LocalCoordinates.hpp"
+#include "../include/Block.hpp"
 #include "../include/Mesh.hpp"
 
 #include <vector>
 #include <cmath>
+#include <chrono>
 #include <cstdint>
+#include <iostream>
 
 World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -119,6 +122,19 @@ void World::streamTerrain(StreamTarget target) {
 					continue;
 				}
 
+
+				// skip if chunk is already loaded
+				if (loaded_chunks.contains(chunk_coord)) {
+					//std::cout << "chunk at: " << chunk_coord << " is already loaded\n";
+					continue;
+				}
+
+				// skip if already in set of queued chunks to generate
+				if (queued_chunks_set.contains(chunk_coord)) {
+					continue;
+				}
+
+
 				// add chunk to queue to load/generate
 				if (!loaded_chunks.contains(chunk_coord) && !queued_chunks_set.contains(chunk_coord)) {
 					//std::cout << "QUEUING: " << chunk_coord << "\n";
@@ -153,9 +169,19 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 }
 
 void World::update(StreamTarget target) {
+	// profiling ---------
+	if (num_meshed % 100 < 25) {
+		std::cout << "Avg mesh time: " << total_mesh_time / num_meshed << "ms\n";
+	}
+	if (num_generated % 100 < 25) {
+		std::cout << "Avg gen time: " << total_gen_time / num_generated << "ms\n";
+	}
+
+
+	// -------------------
 	streamTerrain(target);
 
-	std::cout << queued_chunks.size() << " " << loaded_chunks.size() << "\n";
+	// std::cout << queued_chunks.size() << " " << loaded_chunks.size() << "\n";
 
 	// generate some number (say, 4 right now) of chunks per frame
 	for (int i = 0; i < 4; ++i) {
@@ -175,11 +201,17 @@ void World::update(StreamTarget target) {
 		}
 
 		// generate chunk
+		auto gen_start = std::chrono::high_resolution_clock::now();
 		loaded_chunks[top.coordinates] = genChunk(top.coordinates);
+		auto gen_end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration<double, std::milli>(gen_end - gen_start);
+		total_gen_time += duration;
+		num_generated++;
+
 		queued_chunks_set.erase(top.coordinates);
 
 		// mark chunk neighbors as dirty to remesh, as chunk border now contains non-air blocks
-		/*
+		
 		if (loaded_chunks.contains({ top.coordinates.x + 1, top.coordinates.y, top.coordinates.z }))
 			loaded_chunks[{top.coordinates.x + 1, top.coordinates.y, top.coordinates.z}]->dirty = true;
 
@@ -197,19 +229,54 @@ void World::update(StreamTarget target) {
 
 		if (loaded_chunks.contains({ top.coordinates.x, top.coordinates.y, top.coordinates.z - 1 }))
 			loaded_chunks[{top.coordinates.x, top.coordinates.y, top.coordinates.z - 1}]->dirty = true;
-
-		*/
 	}
 	
 
 	// TODO: assign a budget per frame here as well
 	for (Chunk* chunk : getVisibleChunks(target)) {
-		if (chunk->dirty) {
-			MeshData mesh_data = chunk_mesher.build(*chunk, context, [this](WorldCoordinates world_coords) { return this->blockAtWorldPos(world_coords); });
-			chunk->chunk_mesh = Mesh(mesh_data.vertices);
-			chunk->dirty = true;
+		for (int i = 0; i < 40; ++i) {
+			if (chunk->dirty) {
+				auto mesh_start = std::chrono::high_resolution_clock::now();
+
+				ChunkMesher::MeshData mesh_data = chunk_mesher.build(getSurroundingChunks(chunk), context);
+				chunk->chunk_mesh = Mesh(mesh_data.vertices);
+				chunk->dirty = false;
+
+				auto mesh_end = std::chrono::high_resolution_clock::now();
+				auto duration = std::chrono::duration<double, std::milli>(mesh_end - mesh_start);
+				total_mesh_time += duration;
+				num_meshed++;
+			}
+
 		}
+		
 	}
+}
+
+ChunkGroup World::getSurroundingChunks(Chunk* chunk) {
+	ChunkGroup group;
+	group.main = chunk;
+
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x - 1, chunk->getChunkPosition().y, chunk->getChunkPosition().z })) {
+		group.left = loaded_chunks[{chunk->getChunkPosition().x - 1, chunk->getChunkPosition().y, chunk->getChunkPosition().z}];
+	}
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x + 1, chunk->getChunkPosition().y, chunk->getChunkPosition().z })) {
+		group.right = loaded_chunks[{chunk->getChunkPosition().x + 1, chunk->getChunkPosition().y, chunk->getChunkPosition().z}];
+	}
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x, chunk->getChunkPosition().y - 1, chunk->getChunkPosition().z })) {
+		group.bottom = loaded_chunks[{chunk->getChunkPosition().x, chunk->getChunkPosition().y - 1, chunk->getChunkPosition().z}];
+	}
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x, chunk->getChunkPosition().y + 1, chunk->getChunkPosition().z })) {
+		group.top = loaded_chunks[{chunk->getChunkPosition().x, chunk->getChunkPosition().y + 1, chunk->getChunkPosition().z}];
+	}
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x, chunk->getChunkPosition().y, chunk->getChunkPosition().z - 1 })) {
+		group.back = loaded_chunks[{chunk->getChunkPosition().x, chunk->getChunkPosition().y, chunk->getChunkPosition().z - 1 }];
+	}
+	if (loaded_chunks.contains({ chunk->getChunkPosition().x, chunk->getChunkPosition().y, chunk->getChunkPosition().z + 1 })) {
+		group.front = loaded_chunks[{chunk->getChunkPosition().x, chunk->getChunkPosition().y, chunk->getChunkPosition().z + 1 }];
+	}
+
+	return group;
 }
 
 

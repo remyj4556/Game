@@ -22,7 +22,6 @@ class Chunk {
 		// TODO: change the single chunk_mesh into opaque_mesh, transparent_mesh, cutout_mesh, etc.
 		// these are rendered separately in the render loop, and within the meshes we can still
 		// have different materials (sampled in the shader), for, say, reflectivity of metal vs. wood
-		// TODO: eventually don't store mesh at all, put them in map keyed by coordinates
 		Mesh chunk_mesh;
 
 		// dirty flag signals if the chunk has been altered

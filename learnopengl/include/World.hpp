@@ -44,6 +44,7 @@ class World {
 		Chunk* genChunk(ChunkCoordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
 		Block blockAtWorldPos(WorldCoordinates world_coords);
+		ChunkGroup getSurroundingChunks(Chunk* chunk);
 
 		// queued chunk state
 		std::priority_queue<ChunkGenRequest, std::vector<ChunkGenRequest>, std::greater<ChunkGenRequest>> queued_chunks;
@@ -54,6 +55,11 @@ class World {
 		// Note: this should contain all *loaded* chunks, not all previously *generated* chunks. Some may have been loaded previously, and should not be generated again.
 		std::unordered_map<ChunkCoordinates, Chunk*, CoordinatesHash> loaded_chunks;
 		
+		// for profiling
+		int num_generated = 0;
+		int num_meshed = 0;
+		std::chrono::duration<double, std::milli> total_gen_time;
+		std::chrono::duration<double, std::milli> total_mesh_time;
 		
 
 	public:

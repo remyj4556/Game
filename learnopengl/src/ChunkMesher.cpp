@@ -9,11 +9,9 @@
 #include "../include/Block.hpp"
 
 #include <vector>
-#include <cstdint>
-#include <functional>
 
- 
-MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::function<Block(WorldCoordinates)> blockAtWorldPos) {
+
+ChunkMesher::MeshData ChunkMesher::build(ChunkGroup chunks, BlockMeshingContext context) {
 	// create local vector to store vertices for chunk, this is all the vertices from an entire chunk
 	std::vector<Vertex> chunk_vertices;
 	
@@ -24,7 +22,7 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::func
 		for (int y = 0; y < chunk_size; ++y) {
 			for (int z = 0; z < chunk_size; ++z) {
 				// get the id of the current block
-				block_id_type current_block_id = chunk.getBlock(LocalCoordinates(x, y, z)).id;
+				block_id_type current_block_id = chunks.blockAtLocalPos(x, y, z).id;
 
 				// skip if air
 				if (current_block_id == 0) {
@@ -40,9 +38,6 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::func
 				// use the model to get the vertex data from the ModelLibrary
 				std::vector<GeometryVertex> model_vertices = context.model_library.getVertices(current_model);
 
-				// block world position
-				WorldCoordinates current_world_pos = { chunk.getChunkPosition().x * chunk_size + x, chunk.getChunkPosition().y * chunk_size + y, chunk.getChunkPosition().z * chunk_size + z };
-
 				// iterate over each face of the current block
 				for (int face = 0; face < 6; ++face) {
 					// if current face is obscured by another block, i.e., not air (could be eventually a transparent material, though), then skip adding face
@@ -50,62 +45,32 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::func
 
 					switch (face) {
 					case 0: // back face (-Z)
-						if (z - 1 >= 0) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x, y, z - 1)).id != 0);
-						}
-						else {
-							//cull_face = (blockAtWorldPos({current_world_pos.x, current_world_pos.y, current_world_pos.z - 1}).id != 0);
-						}
-
+						cull_face = (chunks.blockAtLocalPos(x, y, z - 1).id != 0);
+		
 						break;
 
 					case 1: // front face (+Z)
-						if (z + 1 < chunk_size) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x, y, z + 1)).id != 0);;
-						}
-						else {
-							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y, current_world_pos.z + 1}).id != 0);
-						}
+						cull_face = (chunks.blockAtLocalPos(x, y, z + 1).id != 0);
 
 						break;
 
 					case 2: // left face (-X)
-						if (x - 1 >= 0) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x - 1, y, z)).id != 0);
-						}
-						else {
-							//cull_face = (blockAtWorldPos({ current_world_pos.x - 1, current_world_pos.y, current_world_pos.z }).id != 0);
-						}
+						cull_face = (chunks.blockAtLocalPos(x - 1, y, z).id != 0);
 
 						break;
 
 					case 3: // right face (+X)
-						if (x + 1 < chunk_size) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x + 1, y, z)).id != 0);
-						}
-						else {
-							//cull_face = (blockAtWorldPos({ current_world_pos.x + 1, current_world_pos.y, current_world_pos.z }).id != 0);
-						}
+						cull_face = (chunks.blockAtLocalPos(x + 1, y, z).id != 0);
 
 						break;
 
 					case 4: // bottom face (-Y)
-						if (y - 1 >= 0) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x, y - 1, z)).id != 0);
-						}
-						else {
-							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y - 1, current_world_pos.z }).id != 0);
-						}
+						cull_face = (chunks.blockAtLocalPos(x, y - 1, z).id != 0);
 
 						break;
 
 					case 5: // top face (+Y)
-						if (y + 1 < chunk_size) {
-							cull_face = (chunk.getBlock(LocalCoordinates(x, y + 1, z)).id != 0);
-						}
-						else {
-							//cull_face = (blockAtWorldPos({ current_world_pos.x, current_world_pos.y + 1, current_world_pos.z }).id != 0);
-						}
+						cull_face = (chunks.blockAtLocalPos(x, y + 1, z).id != 0);
 
 						break;
 					}
@@ -144,7 +109,7 @@ MeshData ChunkMesher::build(Chunk &chunk, BlockMeshingContext context, std::func
 		}
 	}
 
-	MeshData mesh_data;
+	ChunkMesher::MeshData mesh_data;
 	mesh_data.vertices = chunk_vertices;
 	return mesh_data;
 }
