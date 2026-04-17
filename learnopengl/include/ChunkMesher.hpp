@@ -23,10 +23,8 @@ class ChunkGroup {
 
 		ChunkGroup() : main(nullptr), left(nullptr), right(nullptr), bottom(nullptr), top(nullptr), back(nullptr), front(nullptr) {}
 
-		// TODO: may need to work on coordinate system here. Local chunk coordinates are naturally unsigned, but we allow negatives for this function to access outside of the chunk and into neighbors
 		const Block blockAtLocalPos(int x, int y, int z) const {
 			int chunk_size = Chunk::getChunkSize();
-			
 			
 			Chunk* target = main;
 
@@ -61,11 +59,11 @@ class ChunkGroup {
 			if (!target)
 				return Block{ 0 };
 			
-			return target->getBlock({ static_cast<uint8_t>(x), static_cast<uint8_t>(y), static_cast<uint8_t>(z) });
+			return target->getBlockFast(x, y, z);
 		
 
 			// inside main chunk
-			return main->getBlock({ uint8_t(x), uint8_t(y), uint8_t(z) });
+			return main->getBlockFast(x, y, z);
 		}
 
 };
@@ -79,7 +77,7 @@ class ChunkMesher {
 			//std::vector<uint32_t> indices;
 		};
 
-		MeshData build(ChunkGroup chunks, BlockMeshingContext context);
+		MeshData buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context);
 };
 
 #endif

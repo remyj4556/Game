@@ -7,12 +7,13 @@
 #include "Block.hpp"
 
 #include <cstdint>
+#include <array>
 
 
 class Chunk {
 	private:
-		static constexpr int CHUNK_SIZE = 32;
-		Block positions[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };  // TODO: change to one dimensional array, or packed int
+		static constexpr int CHUNK_SIZE = 64;
+		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks; 
 		ChunkCoordinates chunk_position;
 
 	public:
@@ -30,6 +31,12 @@ class Chunk {
 		// block access
 		const Block getBlock(LocalCoordinates coordinates) const;
 		void setBlock(LocalCoordinates coordinates, Block block);
+		inline int index(int x, int y, int z) const {
+			return x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE));
+		}
+		inline Block getBlockFast(int x, int y, int z) const {
+			return blocks[x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE))];
+		}
 
 		const ChunkCoordinates getChunkPosition() const;
 

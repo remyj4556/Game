@@ -147,6 +147,8 @@ void World::streamTerrain(StreamTarget target) {
 }
 
 Chunk* World::genChunk(ChunkCoordinates coordinates) {
+	auto gen_start = std::chrono::high_resolution_clock::now();
+
 	Chunk* chunk = new Chunk(coordinates);
 	int chunk_size = Chunk::getChunkSize();
 
@@ -164,6 +166,11 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 			}
 		}
 	}
+
+	auto gen_end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration<double, std::milli>(gen_end - gen_start);
+	total_gen_time += duration;
+	num_generated++;
 	
 	return chunk;
 }
@@ -201,17 +208,10 @@ void World::update(StreamTarget target) {
 		}
 
 		// generate chunk
-		auto gen_start = std::chrono::high_resolution_clock::now();
 		loaded_chunks[top.coordinates] = genChunk(top.coordinates);
-		auto gen_end = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration<double, std::milli>(gen_end - gen_start);
-		total_gen_time += duration;
-		num_generated++;
-
 		queued_chunks_set.erase(top.coordinates);
 
 		// mark chunk neighbors as dirty to remesh, as chunk border now contains non-air blocks
-		
 		if (loaded_chunks.contains({ top.coordinates.x + 1, top.coordinates.y, top.coordinates.z }))
 			loaded_chunks[{top.coordinates.x + 1, top.coordinates.y, top.coordinates.z}]->dirty = true;
 
@@ -238,7 +238,7 @@ void World::update(StreamTarget target) {
 			if (chunk->dirty) {
 				auto mesh_start = std::chrono::high_resolution_clock::now();
 
-				ChunkMesher::MeshData mesh_data = chunk_mesher.build(getSurroundingChunks(chunk), context);
+				ChunkMesher::MeshData mesh_data = chunk_mesher.buildNaiveMesh(getSurroundingChunks(chunk), context);
 				chunk->chunk_mesh = Mesh(mesh_data.vertices);
 				chunk->dirty = false;
 

@@ -18,11 +18,11 @@ int Chunk::getChunkSize() {
 }
 
 const Block Chunk::getBlock(LocalCoordinates coordinates) const {
-	return positions[coordinates.x][coordinates.y][coordinates.z];
+	return blocks[index(coordinates.x, coordinates.y, coordinates.z)];
 }
 
 void Chunk::setBlock(LocalCoordinates coordinates, Block block) {
-	positions[coordinates.x][coordinates.y][coordinates.z] = block;
+	blocks[index(coordinates.x, coordinates.y, coordinates.z)] = block;
 }
 
 const ChunkCoordinates Chunk::getChunkPosition() const {
