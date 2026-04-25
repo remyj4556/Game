@@ -16,12 +16,11 @@ struct PointLight {
     bool enabled;
 };
 
-in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoord;
 in float Shininess;
 in float SpecStrength;
-in int FaceId;
+flat in uint FaceId;
 
 out vec4 FragColor;
 
@@ -30,6 +29,15 @@ uniform PointLight player_light;
 uniform vec3 view_pos; 
 uniform sampler2D texture1; // Diffuse Texture (albedo)
 // can add another texture here for Specular Texture
+
+const vec3 normals[6] = vec3[](
+    vec3(0,0,-1),
+    vec3(0,0,1),
+    vec3(-1,0,0),
+    vec3(1,0,0),
+    vec3(0,-1,0),
+    vec3(0,1,0)
+);
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, vec3 tex_color) {
 	vec3 light_dir = normalize(-light.direction);
@@ -74,9 +82,8 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
 
 void main() {
 	// get base color from albedo texture
-    // TODO: TexCoord is fetched from uploaded BlockRegistry in VertexShader, here we lookup in uploaded TextureAtlas / Buffer somehow
 	vec3 tex_color  = texture(texture1, TexCoord).rgb;
-	vec3 norm = normalize(Normal);
+	vec3 norm = normalize(normals[FaceId]);
 	vec3 view_dir = normalize(view_pos - FragPos);
 
 	vec3 result = vec3(0.0);

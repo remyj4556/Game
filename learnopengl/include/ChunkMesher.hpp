@@ -6,10 +6,7 @@
 #include "Chunk.hpp"
 #include "Block.hpp"
 #include "BlockMeshingContext.hpp"
-#include "LocalCoordinates.hpp"
-#include "WorldCoordinates.hpp"
 
-#include <cstdint>
 #include <utility>
 
 class ChunkGroup {

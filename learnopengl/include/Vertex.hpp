@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <Block.hpp>
 
+// this will need to be bit packed for maximum memory efficiency. OpenGL does not like 
 struct Vertex {
 	glm::vec3 position;
 	block_id_type id = -1;
