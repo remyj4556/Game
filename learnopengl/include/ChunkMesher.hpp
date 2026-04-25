@@ -10,6 +10,7 @@
 #include "WorldCoordinates.hpp"
 
 #include <cstdint>
+#include <utility>
 
 class ChunkGroup {
 	public:
@@ -60,24 +61,59 @@ class ChunkGroup {
 				return Block{ 0 };
 			
 			return target->getBlockFast(x, y, z);
-		
-
-			// inside main chunk
-			return main->getBlockFast(x, y, z);
 		}
 
 };
 
 // Chunk Mesher basically acts as just a utility function, taking in a Chunk and creating its mesh.
-// TODO: this will need to eventually have neighboring chunks passed in, to cull chunk borders
 class ChunkMesher {
-	public:
-		struct MeshData {
-			std::vector<Vertex> vertices;
-			//std::vector<uint32_t> indices;
+	private:
+		enum class Direction {
+			Back,
+			Front,
+			Left,
+			Right,
+			Bottom,
+			Top,
 		};
 
-		MeshData buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context);
+		glm::vec3 directions[6] = { {0,0,-1}, {0,0,1}, {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0} };
+
+		GLuint indices[6] = { 0, 2, 1, 0, 3, 2 };
+
+		// TODO: make proper static member and define in ctor
+		glm::vec3 face_vertices[6][4] = {
+			// 0: Back (-Z)
+			{ {0,0,0}, {1,0,0}, {1,1,0}, {0,1,0} },
+
+			// 1: Front (+Z)
+			{ {1,0,1}, {0,0,1}, {0,1,1}, {1,1,1} },
+
+			// 2: Left (-X)
+			{ {0,0,1}, {0,0,0}, {0,1,0}, {0,1,1} },
+
+			// 3: Right (+X)
+			{ {1,0,0}, {1,0,1}, {1,1,1}, {1,1,0} },
+
+			// 4: Bottom (-Y)
+			{ {0,0,1}, {1,0,1}, {1,0,0}, {0,0,0} },
+
+			// 5: Top (+Y)
+			{ {0,1,0}, {1,1,0}, {1,1,1}, {0,1,1} }
+		};
+
+		// LL - LR - TR - TL vertex order
+		glm::vec2 face_local_uvs[4] = {
+			{0, 0},
+			{1, 0},
+			{1, 1},
+			{0, 1}
+		};
+
+		void addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices) const;
+
+	public:
+		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context);
 };
 
 #endif

@@ -12,7 +12,7 @@
 
 class Chunk {
 	private:
-		static constexpr int CHUNK_SIZE = 64;
+		static constexpr int CHUNK_SIZE = 32;
 		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks; 
 		ChunkCoordinates chunk_position;
 

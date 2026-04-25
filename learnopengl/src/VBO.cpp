@@ -8,6 +8,18 @@ VBO::~VBO() {
 	del();
 }
 
+VBO::VBO(GLfloat vertices[], GLsizeiptr size, GLenum type) {
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, size, vertices, type);
+}
+
+VBO::VBO(std::vector<Vertex> &vertices, GLenum type) {
+	glGenBuffers(1, &ID);
+	glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), type);
+}
+
 VBO::VBO(VBO&& other) noexcept : ID(other.ID) {
 	other.ID = 0;
 }
@@ -22,18 +34,6 @@ VBO& VBO::operator=(VBO&& other) noexcept {
 		other.ID = 0;
 	}
 	return *this;
-}
-
-VBO::VBO(GLfloat vertices[], GLsizeiptr size, GLenum type) {
-	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, size, vertices, type);
-}
-
-VBO::VBO(std::vector<Vertex> &vertices, GLenum type) {
-	glGenBuffers(1, &ID);
-	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), type);
 }
 
 void VBO::bind() {
@@ -51,7 +51,7 @@ void VBO::del() {
 	}
 }
 
-const GLuint VBO::getID() {
+const GLuint VBO::getID() const {
 	return ID;
 }
 

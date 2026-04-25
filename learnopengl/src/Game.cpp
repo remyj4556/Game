@@ -44,8 +44,8 @@ void Game::run() {
 		delta_time = current_frame - last_frame;
 		last_frame = current_frame;
 
-		// update cube light source position
-		//light_manager.setPlayerLightPosition(camera.position);
+		// update light source position
+		light_manager.setPlayerLightPosition(camera.position);
 
 		// input
 		processInput();
@@ -61,6 +61,7 @@ void Game::run() {
 			renderer.renderChunk(*chunk);
 		}
 
+		std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << "\n";
 
 		// LIGHT SOURCE
 		//if (light_manager.getPlayerLight().enabled) {

@@ -2,13 +2,13 @@
 #define VERTEX_HPP
 
 #include <glm/glm.hpp>
+#include <Block.hpp>
 
 struct Vertex {
 	glm::vec3 position;
-	glm::vec3 normal;
-	glm::vec2 tex_coords;
-	float shininess;
-	float specular_strength;
+	block_id_type id = -1;
+	uint8_t face = -1;
+	glm::vec2 local_uv; 
 };
 
 #endif

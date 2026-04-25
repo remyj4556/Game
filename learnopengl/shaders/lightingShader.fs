@@ -21,6 +21,7 @@ in vec3 FragPos;
 in vec2 TexCoord;
 in float Shininess;
 in float SpecStrength;
+in int FaceId;
 
 out vec4 FragColor;
 
@@ -73,12 +74,13 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
 
 void main() {
 	// get base color from albedo texture
+    // TODO: TexCoord is fetched from uploaded BlockRegistry in VertexShader, here we lookup in uploaded TextureAtlas / Buffer somehow
 	vec3 tex_color  = texture(texture1, TexCoord).rgb;
 	vec3 norm = normalize(Normal);
 	vec3 view_dir = normalize(view_pos - FragPos);
 
 	vec3 result = vec3(0.0);
-
+    
 	if (sun.enabled) {
         result += calculateDirectionalLight(sun, norm, view_dir, tex_color);
     }
@@ -88,5 +90,6 @@ void main() {
     }
 
     result += 0.2 * tex_color;
+    
     FragColor = vec4(result, 1.0);
 }

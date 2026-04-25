@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cstdint>
 #include <iostream>
+#include <utility>
 
 World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -151,11 +152,13 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 
 	Chunk* chunk = new Chunk(coordinates);
 	int chunk_size = Chunk::getChunkSize();
-
+	
 	for (uint8_t x = 0; x < chunk_size; ++x) {
 		for (uint8_t z = 0; z < chunk_size; z++) {
 			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
 
+			//chunk->setBlock(LocalCoordinates(x, 0, z), Block(3));
+			
 			for (uint8_t y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
 					chunk->setBlock(LocalCoordinates(x,y,z), Block(1));
@@ -164,6 +167,7 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 					chunk->setBlock(LocalCoordinates(x, y, z), Block(3));
 				}
 			}
+		
 		}
 	}
 
@@ -178,10 +182,10 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 void World::update(StreamTarget target) {
 	// profiling ---------
 	if (num_meshed % 100 < 25) {
-		std::cout << "Avg mesh time: " << total_mesh_time / num_meshed << "ms\n";
+		//std::cout << "Avg mesh time: " << total_mesh_time / num_meshed << "ms\n";
 	}
 	if (num_generated % 100 < 25) {
-		std::cout << "Avg gen time: " << total_gen_time / num_generated << "ms\n";
+		//std::cout << "Avg gen time: " << total_gen_time / num_generated << "ms\n";
 	}
 
 
@@ -238,8 +242,8 @@ void World::update(StreamTarget target) {
 			if (chunk->dirty) {
 				auto mesh_start = std::chrono::high_resolution_clock::now();
 
-				ChunkMesher::MeshData mesh_data = chunk_mesher.buildNaiveMesh(getSurroundingChunks(chunk), context);
-				chunk->chunk_mesh = Mesh(mesh_data.vertices);
+				std::pair<std::vector<Vertex>, std::vector<GLuint>> mesh_data = chunk_mesher.buildNaiveMesh(getSurroundingChunks(chunk), context);
+				chunk->chunk_mesh = Mesh(mesh_data.first, mesh_data.second);
 				chunk->dirty = false;
 
 				auto mesh_end = std::chrono::high_resolution_clock::now();

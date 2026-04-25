@@ -17,7 +17,7 @@ LightManager::LightManager() {
 
 	// initialize player light (disabled on start)
 	player_light.position = glm::vec3(0.0f);
-	player_light.color = glm::vec3(1.0f, 0.7f, 0.4f);  // Warm lantern
+	player_light.color = glm::vec3(1.0f, 0.7f, 0.4f); 
 	player_light.intensity = 1.5f;
 	player_light.radius = 8.0f;
 	player_light.enabled = false;

@@ -6,19 +6,22 @@
 
 #include "VAO.hpp"
 #include "VBO.hpp"
+#include "EBO.hpp"
 #include "Vertex.hpp"
 
 
 class Mesh {
 	private:
 		std::vector<Vertex> vertices;
+		std::vector<GLuint> indices;
 
 	public:
 		VAO vao;
 		VBO vbo;
+		EBO ebo;
 
 		Mesh();
-		Mesh(const std::vector<Vertex>& vertices_in);
+		Mesh(const std::vector<Vertex>& vertices_in, const std::vector<GLuint>& indices_in);
 		~Mesh();
 
 		// move constructor and move assignment, this allows us to properly handle the vao/vbo especially (via their move assignments)

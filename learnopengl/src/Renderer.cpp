@@ -19,6 +19,8 @@ Renderer::Renderer(GLFWwindow* window) :
 	// enable depth testing
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_CULL_FACE);
+
 	//glfwWindowHint(GLFW_SAMPLES, 4);
 	//glEnable(GL_MULTISAMPLE);
 }

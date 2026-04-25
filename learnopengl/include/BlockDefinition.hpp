@@ -12,9 +12,10 @@
 enum class BlockModel {
 	cube,
 	stair,
-	slab
+	slab,
 	// etc.,
 };
+constexpr int BlockModelCount = 3;
 
 struct MaterialProperties {
 	glm::vec3 ambient = { 0.0f, 0.0f, 0.0f };

@@ -25,11 +25,12 @@ class VBO {
 		void bind();
 		void unbind();
 		void del();
-		const GLuint getID();
+		const GLuint getID() const;
 
 	private:
 		GLuint ID = 0;
 };
+
 
 
 
