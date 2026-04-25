@@ -26,7 +26,7 @@ void main() {
 	uv.y += 0.75;
 	TexCoord = uv;
 	
-	// TODO: get these from BlockRegistry probably
+	// TODO: get these from BlockRegistry probably too
 	Shininess = 4.0f;
 	SpecStrength = 0.1f;
 

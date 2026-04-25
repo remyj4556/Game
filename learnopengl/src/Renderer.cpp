@@ -6,7 +6,6 @@
 #include "../include/Mesh.hpp"
 #include "../include/TextureAtlas.hpp"
 
-
 Renderer::Renderer(GLFWwindow* window) :
 	// TODO: look into shader buffer or something else other than hardcoding them in here
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
@@ -29,7 +28,7 @@ Renderer::~Renderer() {}
 
 void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const TextureAtlas *block_atlas) {
 	glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// clear the depth buffer before each render iteration specifically
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// view/projection matrix transformations
 	projection = glm::perspective(glm::radians(camera.fov), (float)screen_width / (float)screen_height, 0.1f, render_distance);

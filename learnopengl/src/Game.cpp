@@ -1,6 +1,8 @@
 #include "../include/Game.hpp"
 #include "../include/World.hpp"
-
+#include <../include/imgui/imgui.h>
+#include <../include/imgui/imgui_impl_glfw.h>
+#include <../include/imgui/imgui_impl_opengl3.h>
 
 Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 0.0f)), first_mouse(true), 
 delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window) 
@@ -39,6 +41,11 @@ void Game::run() {
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
+		// TODO: cleanup/move ImGui code
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		// calculate new delta_time
 		float current_frame = glfwGetTime();
 		delta_time = current_frame - last_frame;
@@ -57,16 +64,24 @@ void Game::run() {
 		// rendering
 		renderer.beginFrame(camera, light_manager, resource_manager.getTextureAtlas());
 
+
 		for (Chunk* chunk : world.getVisibleChunks(target)) {
 			renderer.renderChunk(*chunk);
 		}
-
-		std::cout << "pos: " << camera.position.x << " " << camera.position.y << " " << camera.position.z << "\n";
 
 		// LIGHT SOURCE
 		//if (light_manager.getPlayerLight().enabled) {
 		//	renderer.renderDebugLight(light_mesh, light_manager.getPlayerLight().position + glm::vec3(1.0f, 0.0f, 0.0f));
 		//}
+
+		// imgui window with info
+		ImGui::SetNextWindowPos(ImVec2(50, 150), ImGuiCond_Once);
+		ImGui::Begin("Camera Position");
+		ImGui::Text("%i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);

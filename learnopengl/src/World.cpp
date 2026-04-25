@@ -13,6 +13,9 @@
 #include <cstdint>
 #include <iostream>
 #include <utility>
+#include <../include/imgui/imgui.h>
+#include <../include/imgui/imgui_impl_glfw.h>
+#include <../include/imgui/imgui_impl_opengl3.h>
 
 World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -138,7 +141,6 @@ void World::streamTerrain(StreamTarget target) {
 
 				// add chunk to queue to load/generate
 				if (!loaded_chunks.contains(chunk_coord) && !queued_chunks_set.contains(chunk_coord)) {
-					//std::cout << "QUEUING: " << chunk_coord << "\n";
 					queued_chunks.push({ chunk_coord, squaredDistance({ chunk_coord.x * chunk_size, chunk_coord.y * chunk_size, chunk_coord.z * chunk_size }, target.pos) });
 					queued_chunks_set.insert(chunk_coord);
 				}
@@ -157,8 +159,6 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 		for (uint8_t z = 0; z < chunk_size; z++) {
 			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
 
-			//chunk->setBlock(LocalCoordinates(x, 0, z), Block(3));
-			
 			for (uint8_t y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
 					chunk->setBlock(LocalCoordinates(x,y,z), Block(1));
@@ -181,12 +181,11 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 
 void World::update(StreamTarget target) {
 	// profiling ---------
-	if (num_meshed % 100 < 25) {
-		//std::cout << "Avg mesh time: " << total_mesh_time / num_meshed << "ms\n";
-	}
-	if (num_generated % 100 < 25) {
-		//std::cout << "Avg gen time: " << total_gen_time / num_generated << "ms\n";
-	}
+	ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
+	ImGui::Begin("Render Info");
+	ImGui::Text("Avg Mesh Time: %f", total_mesh_time / num_meshed);
+	ImGui::Text("Avg Gen Time: %f", total_gen_time / num_generated);
+	ImGui::End();
 
 
 	// -------------------
