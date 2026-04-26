@@ -10,6 +10,9 @@ delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContex
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 	last_x = screen_width / 2.0f;
 	last_y = screen_height / 2.0f;
+
+	auto gpu_defs = resource_manager.fetchGPUBlockDefinitions();
+	renderer.uploadGPUBlockDefinitions(gpu_defs);
 }
 
 void Game::run() {
@@ -39,6 +42,11 @@ void Game::run() {
 	Mesh light_mesh(light_verts);
 	*/
 
+	const int num_frames_averaged = 60;
+	float fps_arr[num_frames_averaged] = { 0 };
+	float fps = 0;
+	int count = 0;
+
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
 		// TODO: cleanup/move ImGui code
@@ -50,6 +58,20 @@ void Game::run() {
 		float current_frame = glfwGetTime();
 		delta_time = current_frame - last_frame;
 		last_frame = current_frame;
+
+		// average fps calculation
+		fps_arr[count++] = 1 / delta_time;
+		if (count >= num_frames_averaged) {
+			count = 0;
+			fps = 0;
+			
+			// get average
+			for (int i = 0; i < num_frames_averaged; ++i) {
+				fps += fps_arr[i];
+			}
+			fps /= num_frames_averaged;
+		}
+		
 
 		// update light source position
 		light_manager.setPlayerLightPosition(camera.position);
@@ -74,14 +96,16 @@ void Game::run() {
 		//	renderer.renderDebugLight(light_mesh, light_manager.getPlayerLight().position + glm::vec3(1.0f, 0.0f, 0.0f));
 		//}
 
-		// imgui window with info
+		// imgui windows with info ------------------------------------------
 		ImGui::SetNextWindowPos(ImVec2(50, 150), ImGuiCond_Once);
-		ImGui::Begin("Camera Position");
-		ImGui::Text("%i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
+		ImGui::Begin("Info", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Text("Position: %i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
+		ImGui::Text("FPS: %i", (int)fps);
 		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// ------------------------------------------------------------------
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
@@ -111,6 +135,14 @@ void Game::processInput() {
 			light_manager.enablePlayerLight(false);
 		else
 			light_manager.enablePlayerLight(true);
+	}
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+		if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
 	}
 }
 

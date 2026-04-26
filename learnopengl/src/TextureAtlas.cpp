@@ -1,10 +1,15 @@
 #include "../include/TextureAtlas.hpp"
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <cstdint>
+#include "../include/stb_image_write.h"
+#include "../include/Texture.hpp"
 
 TextureAtlas::TextureAtlas() {}
 
 TextureAtlas::TextureAtlas(const char* path) {
-
-    // can eventually define these dynamically
+    // TODO: can eventually define these dynamically
     const int atlas_width = 64;
     const int atlas_height = 64;
     const int atlas_channels = 4;  // RGBA
@@ -22,7 +27,7 @@ TextureAtlas::TextureAtlas(const char* path) {
     // pack the rectangles
     stbrp_pack_rects(&context, rects.data(), rects.size());
 
-    // want to combine all image data in a pixel buffer with their offsets, then write once to the texture atlas
+    // combine all image data in a pixel buffer with their offsets, then write once to the texture atlas
     std::vector<uint8_t> pixels;
     pixels.assign(static_cast<size_t>(atlas_width * atlas_height * atlas_channels), 0);
 
@@ -63,17 +68,13 @@ TextureAtlas::TextureAtlas(const char* path) {
         std::filesystem::path image_path(current_path);
         std::string texture_name = image_path.stem().string();
         
-        TextureRegion region;
-        region.uv_min.x = rect.x / float(atlas_width);
-        region.uv_min.y = (atlas_height - (rect.y + rect.h)) / float(atlas_height);
-        region.uv_max.x = (rect.x + rect.w) / float(atlas_width);
-        region.uv_max.y = (atlas_height - rect.y) / float(atlas_height);
-
-        //std::cout << texture_name << ", u min: " << region.uv_min.x << ", v min: " << region.uv_min.y
-        //    << ", u max: " << region.uv_max.x << ", v max: " << region.uv_max.y << "\n";
+        glm::vec4 region;
+        region.x = rect.x / float(atlas_width);
+        region.y = (atlas_height - (rect.y + rect.h)) / float(atlas_height);
+        region.z = (rect.x + rect.w) / float(atlas_width);
+        region.w = (atlas_height - rect.y) / float(atlas_height);
 
         regions[texture_name] = region;
-
     }
 
     // write image into atlas
@@ -87,7 +88,7 @@ TextureAtlas::~TextureAtlas() {
     delete atlas;
 }
 
-TextureRegion& TextureAtlas::getTextureRegion(const std::string& texture_name) {
+glm::vec4& TextureAtlas::getTextureRegion(const std::string& texture_name) {
     try {
         return regions.at(texture_name);
     }

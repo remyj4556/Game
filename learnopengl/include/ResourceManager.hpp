@@ -5,6 +5,8 @@
 #include "ModelLibrary.hpp"
 #include "TextureAtlas.hpp"
 #include "BlockMeshingContext.hpp"
+#include "GPUBlockDefinition.hpp"
+#include <vector>
 
 class ResourceManager {
 	private:
@@ -14,6 +16,7 @@ class ResourceManager {
 
 	public:
 		ResourceManager();
+		std::vector<GPUBlockDefinition> fetchGPUBlockDefinitions() const;
 		BlockMeshingContext getBlockMeshingContext() const;
 		const TextureAtlas* getTextureAtlas() const;
 };

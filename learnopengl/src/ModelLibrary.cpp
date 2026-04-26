@@ -1,14 +1,13 @@
 #include "../include/ModelLibrary.hpp"
-#include "../include/BlockDefinition.hpp"
 
 ModelLibrary::ModelLibrary() {}
 
-const ModelLibrary::Model& ModelLibrary::getModel(BlockModel model_type) const {
+const ModelLibrary::Model& ModelLibrary::getModel(ModelTypes model_type) const {
 	return models[static_cast<size_t>(model_type)];
 }
 
 void ModelLibrary::populateDefinitions() {
-    models[static_cast<size_t>(BlockModel::cube)] = createCubeModel();
+    models[static_cast<size_t>(ModelTypes::cube)] = createCubeModel();
 }
 
 ModelLibrary::Model ModelLibrary::createCubeModel() {

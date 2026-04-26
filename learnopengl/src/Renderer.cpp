@@ -18,10 +18,11 @@ Renderer::Renderer(GLFWwindow* window) :
 	// enable depth testing
 	glEnable(GL_DEPTH_TEST);
 
+	// backface culling
 	glEnable(GL_CULL_FACE);
 
-	//glfwWindowHint(GLFW_SAMPLES, 4);
-	//glEnable(GL_MULTISAMPLE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glEnable(GL_MULTISAMPLE);
 }
 
 Renderer::~Renderer() {}
@@ -107,7 +108,18 @@ void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 	light_mesh.draw();
 }
 
+// TODO: implement if needed or remove
 void Renderer::endFrame() {
 
+}
+
+void Renderer::uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const {
+	GLuint block_defs_ubo;
+	glGenBuffers(1, &block_defs_ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, block_defs_ubo);
+	glBufferData(GL_UNIFORM_BUFFER, gpu_definitions.size() * sizeof(GPUBlockDefinition), gpu_definitions.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, block_defs_ubo);
+
+	block_shader.linkUBO("BlockBuffer");
 }
 

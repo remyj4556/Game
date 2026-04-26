@@ -184,6 +184,7 @@
     <ClInclude Include="include\glm\glm.hpp" />
     <ClInclude Include="include\glm\gtc\matrix_transform.hpp" />
     <ClInclude Include="include\glm\gtc\type_ptr.hpp" />
+    <ClInclude Include="include\GPUBlockDefinition.hpp" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
     <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
@@ -206,7 +207,6 @@
     <ClInclude Include="include\stb_rect_pack.h" />
     <ClInclude Include="include\Texture.hpp" />
     <ClInclude Include="include\TextureAtlas.hpp" />
-    <ClInclude Include="include\TextureRegion.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />

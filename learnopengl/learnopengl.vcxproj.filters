@@ -167,9 +167,6 @@
     <ClInclude Include="include\BlockDefinition.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\TextureRegion.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\TextureAtlas.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -247,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="include\imgui\imgui.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GPUBlockDefinition.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

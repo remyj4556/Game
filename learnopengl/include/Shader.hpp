@@ -38,6 +38,9 @@ class Shader {
 		void setMat3(const std::string& name, const glm::mat3& mat) const;
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
 
+		// TODO: can maybe pass data here from renderer function too, as we do above for single uniforms
+		void linkUBO(const std::string& name) const;
+
 	private:
 		// shader program id
 		GLuint ID;

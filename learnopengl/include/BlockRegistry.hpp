@@ -3,11 +3,12 @@
 
 #include <string>
 #include <unordered_map>
-#include <cstdint>
+#include <vector>
 
 #include "Block.hpp"
 #include "BlockDefinition.hpp"
 #include "TextureAtlas.hpp"
+#include "GPUBlockDefinition.hpp"
 
 class BlockRegistry {
 	private:
@@ -18,8 +19,7 @@ class BlockRegistry {
 		void addDefinition(const BlockDefinition& definition);
 		const BlockDefinition& getDefinition(block_id_type id) const;
 		void populateDefinitions(const std::string& path, TextureAtlas& atlas);
+		std::vector<GPUBlockDefinition> buildGPUBlockDefinitions() const;
 };
-
-
 
 #endif

@@ -1,16 +1,12 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
-#include "../include/TextureRegion.hpp"
 #include "../include/Vertex.hpp"
 #include "../include/BlockMeshingContext.hpp"
-#include "../include/WorldCoordinates.hpp"
-#include "../include/LocalCoordinates.hpp"
 #include "../include/Block.hpp"
 
 #include <vector>
 #include <utility>
 #include <cstdint>
-#include <iostream>
 
 
 std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context) {
@@ -35,10 +31,6 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(
 		// iterate over each face
 		Direction face_dir = Direction::Back;
 		for (const auto & dir : directions) {
-			if (face_dir != Direction::Left) {
-				//face_dir = static_cast<Direction>(static_cast<int>(face_dir) + 1);
-				//continue;
-			}
 			const Block& face_neighbor = chunks.blockAtLocalPos(x + dir.x, y + dir.y, z + dir.z);
 
 			if (face_neighbor.id == 0) {

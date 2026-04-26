@@ -1,23 +1,18 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-// renderer owns all shaders, uniforms, etc. This includes (currently) light cube shader, lighting shader, future ones may be water shader, reflective glass, etc.
-
-// renderer acts as a simple API, such as:
-//		renderer.beginFrame();
-//		renderer.renderChunk();
-//		renderer.endFrame();
-//		...
-
 #include "Camera.hpp"
 #include "Chunk.hpp"
 #include "Shader.hpp"
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include "LightManager.hpp"
 #include "Mesh.hpp"
 #include "GLFW/glfw3.h"
 #include "TextureAtlas.hpp"
+#include "GPUBlockDefinition.hpp"
+#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
+#include <vector>
 
 class Renderer {
 	private:
@@ -41,10 +36,11 @@ class Renderer {
 		void renderChunk(Chunk& chunk);
 		void endFrame();
 
-		// visualized debug dynamic light
+		// visualized dynamic debug light
 		void renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos);
-		
 
+		// upload UBO containing block definitions to GPU
+		void uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const;
 };
 
 

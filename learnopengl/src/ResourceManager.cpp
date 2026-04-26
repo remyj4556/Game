@@ -1,6 +1,8 @@
 #include "../include/ResourceManager.hpp"
 #include "../include/BlockMeshingContext.hpp"
 #include "../include/TextureAtlas.hpp"
+#include "../include/GPUBlockDefinition.hpp"
+#include <vector>
 #include <string>
 
 // TODO: can probably turn this into a non-default ctor, where filepaths are passed in for atlas and block registry
@@ -16,4 +18,8 @@ BlockMeshingContext ResourceManager::getBlockMeshingContext() const {
 
 const TextureAtlas* ResourceManager::getTextureAtlas() const {
 	return &block_atlas;
+}
+
+std::vector<GPUBlockDefinition> ResourceManager::fetchGPUBlockDefinitions() const {
+	return block_registry.buildGPUBlockDefinitions();
 }

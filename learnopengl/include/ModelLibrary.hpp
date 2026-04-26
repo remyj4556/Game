@@ -2,9 +2,15 @@
 #define MODELLIBRARY_HPP
 
 #include <array>
+#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
-#include "GeometryVertex.hpp"
-#include "BlockDefinition.hpp"
+enum class ModelTypes {
+	cube,
+	stair,
+	slab,
+	NUM_MODEL_TYPES
+};
 
 class ModelLibrary {
 	private:
@@ -17,13 +23,13 @@ class ModelLibrary {
 			FaceTemplate faces[6];
 		};
 
-		std::array<Model, BlockModelCount> models;
+		std::array<Model, static_cast<size_t>(ModelTypes::NUM_MODEL_TYPES)> models;
 		Model createCubeModel();
 
 	public:
 		ModelLibrary();
 
-		const Model& getModel(BlockModel model_type) const;
+		const Model& getModel(ModelTypes model_type) const;
 		void populateDefinitions();
 };
 
