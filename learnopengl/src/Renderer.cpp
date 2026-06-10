@@ -7,9 +7,10 @@
 #include "../include/TextureAtlas.hpp"
 
 Renderer::Renderer(GLFWwindow* window) :
-	// TODO: look into shader buffer or something else other than hardcoding them in here
+	render_distance(500.0f),
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
-	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs")
+	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs"),
+	clear_color(DEFAULT_COLOR)
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 
@@ -28,7 +29,7 @@ Renderer::Renderer(GLFWwindow* window) :
 Renderer::~Renderer() {}
 
 void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const TextureAtlas *block_atlas) {
-	glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
+	glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// view/projection matrix transformations
@@ -41,6 +42,9 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 	block_shader.setMat4("view", view);
 	block_shader.setMat4("projection", projection);
 	block_shader.setVec3("view_pos", camera.position);
+
+	// time of day affects lighting
+	block_shader.setFloat("time_of_day", light_manager.getTimeOfDay());
 	
 	// set sun lighting
 	const DirectionalLight& sun = light_manager.getSun();
@@ -49,8 +53,6 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 	block_shader.setVec3("sun.diffuse", sun.diffuse);
 	block_shader.setVec3("sun.specular", sun.specular);
 	block_shader.setBool("sun.enabled", sun.enabled);
-
-	// TODO: set moon lighting
 
 	// set player light if enabled
 	const PointLight& player_light = light_manager.getPlayerLight();
@@ -72,7 +74,7 @@ void Renderer::renderChunk(Chunk& chunk) {
 
 	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at block position (32, 32, 32))
 	ChunkCoordinates chunk_pos = chunk.getChunkPosition(); 
-	int chunk_size = chunk.getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	chunk_pos.x *= chunk_size;
 	chunk_pos.y *= chunk_size;
@@ -108,11 +110,6 @@ void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 	light_mesh.draw();
 }
 
-// TODO: implement if needed or remove
-void Renderer::endFrame() {
-
-}
-
 void Renderer::uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const {
 	GLuint block_defs_ubo;
 	glGenBuffers(1, &block_defs_ubo);
@@ -122,4 +119,25 @@ void Renderer::uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_def
 
 	block_shader.linkUBO("BlockBuffer");
 }
+
+void Renderer::setClearColor(glm::vec4 color) {
+	clear_color = color;
+}
+
+glm::vec4 Renderer::getClearColor() const {
+	return clear_color;
+}
+
+glm::vec4 Renderer::getDefaultClearColor() const {
+	return DEFAULT_COLOR;
+}
+
+void Renderer::setRenderDistance(float value) {
+	render_distance = value;
+}
+
+float Renderer::getRenderDistance() const {
+	return render_distance;
+}
+
 

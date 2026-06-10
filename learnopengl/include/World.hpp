@@ -17,7 +17,7 @@
 
 struct StreamTarget {
 	glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
-	int load_radius = 0;
+	int chunk_load_radius = 0;
 };
 
 struct ChunkGenRequest {
@@ -31,11 +31,9 @@ struct ChunkGenRequest {
 
 class World {
 	private:
-
 		ChunkCoordinates last_streamed_chunk_coord;
 		int last_radius;
 
-		// TODO: i think we *might* want a separate terrain generator class, right now i'll do this stuff here
 		FastNoiseLite noise;
 
 		ChunkMesher chunk_mesher;
@@ -57,6 +55,7 @@ class World {
 		std::unordered_map<ChunkCoordinates, Chunk*, CoordinatesHash> loaded_chunks;
 		
 		// for profiling
+		int total_vertices_generated = 0;
 		int num_generated = 0;
 		int num_meshed = 0;
 		std::chrono::duration<double, std::milli> total_gen_time;

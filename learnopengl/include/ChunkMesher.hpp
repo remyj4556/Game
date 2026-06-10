@@ -22,7 +22,7 @@ class ChunkGroup {
 		ChunkGroup() : main(nullptr), left(nullptr), right(nullptr), bottom(nullptr), top(nullptr), back(nullptr), front(nullptr) {}
 
 		const Block blockAtLocalPos(int x, int y, int z) const {
-			int chunk_size = Chunk::getChunkSize();
+			int chunk_size = Chunk::CHUNK_SIZE;
 			
 			Chunk* target = main;
 
@@ -59,7 +59,6 @@ class ChunkGroup {
 			
 			return target->getBlockFast(x, y, z);
 		}
-
 };
 
 // Chunk Mesher basically acts as just a utility function, taking in a Chunk and creating its mesh.
@@ -75,10 +74,7 @@ class ChunkMesher {
 		};
 
 		glm::vec3 directions[6] = { {0,0,-1}, {0,0,1}, {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0} };
-
-		GLuint indices[6] = { 0, 2, 1, 0, 3, 2 };
-
-		// TODO: make proper static member and define in ctor
+		int indices[6] = { 0, 2, 1, 0, 3, 2 };
 		glm::vec3 face_vertices[6][4] = {
 			// 0: Back (-Z)
 			{ {0,0,0}, {1,0,0}, {1,1,0}, {0,1,0} },
@@ -98,7 +94,6 @@ class ChunkMesher {
 			// 5: Top (+Y)
 			{ {0,1,0}, {1,1,0}, {1,1,1}, {0,1,1} }
 		};
-
 		// LL - LR - TR - TL vertex order
 		glm::vec2 face_local_uvs[4] = {
 			{0, 0},
@@ -111,6 +106,7 @@ class ChunkMesher {
 
 	public:
 		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context);
+		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildGreedyMesh(ChunkGroup chunks, BlockMeshingContext context);
 };
 
 #endif

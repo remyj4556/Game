@@ -13,7 +13,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(
 	std::vector<Vertex> mesh_vertices;
 	std::vector<GLuint> mesh_indices;
 
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	for (int i = 0; i < (chunk_size * chunk_size * chunk_size); ++i) {
 		int x = i % chunk_size;
@@ -44,9 +44,204 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(
 	return { mesh_vertices, mesh_indices };
 }
 
+std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh(ChunkGroup chunks, BlockMeshingContext context) {
+    std::vector<Vertex> mesh_vertices;
+    std::vector<GLuint> mesh_indices;
+
+    struct FaceDesc {
+        Direction dir;
+        int       d, u, v;
+        int       normalSign;
+    };
+
+    const FaceDesc faces[6] = {
+        { Direction::Back,   2, 0, 1, -1 },
+        { Direction::Front,  2, 0, 1, +1 },
+        { Direction::Left,   0, 2, 1, -1 },
+        { Direction::Right,  0, 2, 1, +1 },
+        { Direction::Bottom, 1, 0, 2, -1 },
+        { Direction::Top,    1, 0, 2, +1 },
+    };
+
+    constexpr int N = Chunk::CHUNK_SIZE;
+    constexpr int N2 = N * N;
+    std::array<uint16_t, N2> mask;
+    std::array<uint8_t, N2> visited;
+    std::array<uint16_t, N2> sliceCurrent;
+    std::array<uint16_t, N2> sliceNeighbor;
+
+    for (const FaceDesc& fd : faces) {
+        for (int depth = 0; depth < N; ++depth) {
+            std::fill(visited.begin(), visited.end(), 0);
+
+            // --- Flatten current and neighbor slices into local arrays ---
+            for (int j = 0; j < N; ++j) {
+                for (int i = 0; i < N; ++i) {
+                    int pos[3], npos[3];
+                    pos[fd.d] = depth;
+                    pos[fd.u] = i;
+                    pos[fd.v] = j;
+
+                    npos[fd.d] = depth + fd.normalSign;
+                    npos[fd.u] = i;
+                    npos[fd.v] = j;
+
+                    sliceCurrent[j * N + i] = chunks.blockAtLocalPos(pos[0], pos[1], pos[2]).id;
+                    sliceNeighbor[j * N + i] = chunks.blockAtLocalPos(npos[0], npos[1], npos[2]).id;
+                }
+            }
+
+            // --- Build mask from flattened slices ---
+            for (int j = 0; j < N; ++j) {
+                for (int i = 0; i < N; ++i) {
+                    uint16_t cur = sliceCurrent[j * N + i];
+                    uint16_t nbr = sliceNeighbor[j * N + i];
+                    mask[j * N + i] = (cur != 0 && nbr == 0) ? cur : 0;
+                }
+            }
+
+            // --- Greedy merge ---
+            for (int j = 0; j < N; ++j) {
+                for (int i = 0; i < N; ++i) {
+                    if (visited[j * N + i]) continue;
+
+                    uint16_t bid = mask[j * N + i];
+                    if (bid == 0) continue;
+
+                    // Expand width along i
+                    int width = 1;
+                    while (i + width < N
+                        && !visited[j * N + (i + width)]
+                        && mask[j * N + (i + width)] == bid)
+                    {
+                        ++width;
+                    }
+
+                    // Expand height along j
+                    int height = 1;
+                    while (j + height < N) {
+                        bool rowOk = true;
+                        for (int k = 0; k < width; ++k) {
+                            int idx = (j + height) * N + (i + k);
+                            if (visited[idx] || mask[idx] != bid) {
+                                rowOk = false;
+                                break;
+                            }
+                        }
+                        if (!rowOk) break;
+                        ++height;
+                    }
+
+                    // Mark consumed
+                    for (int dj = 0; dj < height; ++dj)
+                        for (int di = 0; di < width; ++di)
+                            visited[(j + dj) * N + (i + di)] = 1;
+
+                    // --- Build quad ---
+                    int corner[3];
+                    corner[fd.d] = depth + (fd.normalSign == +1 ? 1 : 0);
+                    corner[fd.u] = i;
+                    corner[fd.v] = j;
+
+                    glm::vec3 origin(corner[0], corner[1], corner[2]);
+                    glm::vec3 uStep(0.0f), vStep(0.0f);
+                    uStep[fd.u] = 1.0f;
+                    vStep[fd.v] = 1.0f;
+
+                    float uw = static_cast<float>(width);
+                    float vh = static_cast<float>(height);
+
+                    glm::vec3 verts[4];
+                    switch (fd.dir) {
+                    case Direction::Back:
+                        verts[0] = origin;
+                        verts[1] = origin + uw * uStep;
+                        verts[2] = origin + uw * uStep + vh * vStep;
+                        verts[3] = origin + vh * vStep;
+                        break;
+                    case Direction::Front:
+                        verts[0] = origin + uw * uStep;
+                        verts[1] = origin;
+                        verts[2] = origin + vh * vStep;
+                        verts[3] = origin + uw * uStep + vh * vStep;
+                        break;
+                    case Direction::Left:
+                        verts[0] = origin + uw * uStep;
+                        verts[1] = origin;
+                        verts[2] = origin + vh * vStep;
+                        verts[3] = origin + uw * uStep + vh * vStep;
+                        break;
+                    case Direction::Right:
+                        verts[0] = origin;
+                        verts[1] = origin + uw * uStep;
+                        verts[2] = origin + uw * uStep + vh * vStep;
+                        verts[3] = origin + vh * vStep;
+                        break;
+                    case Direction::Bottom:
+                        verts[0] = origin + vh * vStep;
+                        verts[1] = origin + uw * uStep + vh * vStep;
+                        verts[2] = origin + uw * uStep;
+                        verts[3] = origin;
+                        break;
+                    case Direction::Top:
+                        verts[0] = origin;
+                        verts[1] = origin + uw * uStep;
+                        verts[2] = origin + uw * uStep + vh * vStep;
+                        verts[3] = origin + vh * vStep;
+                        break;
+                    }
+
+                    glm::vec2 uvs[4];
+
+                    switch (fd.dir) {
+                    case Direction::Back:
+                    case Direction::Right:
+                    case Direction::Top:
+                        // verts: LL, LR, TR, TL
+                        uvs[0] = { 0,  0 };
+                        uvs[1] = { uw, 0 };
+                        uvs[2] = { uw, vh };
+                        uvs[3] = { 0,  vh };
+                        break;
+                    case Direction::Front:
+                    case Direction::Left:
+                        // verts are flipped on u-axis
+                        uvs[0] = { uw, 0 };
+                        uvs[1] = { 0,  0 };
+                        uvs[2] = { 0,  vh };
+                        uvs[3] = { uw, vh };
+                        break;
+                    case Direction::Bottom:
+                        // verts: TL, TR, LR, LL (v is flipped)
+                        uvs[0] = { 0,  vh };
+                        uvs[1] = { uw, vh };
+                        uvs[2] = { uw, 0 };
+                        uvs[3] = { 0,  0 };
+                        break;
+                    }
+
+                    GLuint offset = static_cast<GLuint>(mesh_vertices.size());
+                    for (int idx : indices)
+                        mesh_indices.push_back(idx + offset);
+
+                    for (int k = 0; k < 4; ++k) {
+                        Vertex vert;
+                        vert.position = verts[k];
+                        vert.id = bid;
+                        vert.face = static_cast<uint8_t>(fd.dir);
+                        vert.local_uv = uvs[k];
+                        mesh_vertices.push_back(vert);
+                    }
+                }
+            }
+        }
+    }
+
+    return { mesh_vertices, mesh_indices };
+}
+
 void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex> &mesh_vertices, std::vector<GLuint> &mesh_indices) const {
 	const glm::vec3* face = face_vertices[static_cast<size_t>(direction)];
-
 	
 	// add indices
 	GLuint offset = static_cast<GLuint>(mesh_vertices.size());

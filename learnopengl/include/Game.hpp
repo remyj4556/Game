@@ -26,11 +26,19 @@ class Game {
 		// delta time 
 		float delta_time;
 		float last_frame;
+		float game_time;
 
 		ResourceManager resource_manager;
 		World world;
 		LightManager light_manager; 
 		Renderer renderer;
+
+		// current stream target acts as the "main player", can be switched out however to allow for multiple cameras/players/perspectives
+		StreamTarget current_stream_target;
+
+		// sets the current StreamTarget render distance to provided value (in chunks)
+		// maintains invariant that OpenGL render distance is proportional
+		void setTargetRenderDistance(int value);
 		
 
 	public:

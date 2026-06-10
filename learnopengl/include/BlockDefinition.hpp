@@ -5,8 +5,8 @@
 #include "ModelLibrary.hpp"
 #include <string>
 #include <unordered_map>
-#include <glm/glm.hpp>
-#include <glm/fwd.hpp>
+#include "glm/fwd.hpp"
+#include "glm/vec4.hpp"
 
 struct MaterialProperties {
 	float specular = 0.0f;

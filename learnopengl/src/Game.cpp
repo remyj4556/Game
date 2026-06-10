@@ -1,11 +1,14 @@
 #include "../include/Game.hpp"
 #include "../include/World.hpp"
-#include <../include/imgui/imgui.h>
-#include <../include/imgui/imgui_impl_glfw.h>
-#include <../include/imgui/imgui_impl_opengl3.h>
+#include "../include/Chunk.hpp"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <cmath>
 
 Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 0.0f)), first_mouse(true), 
-delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window) 
+delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window),
+current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 	last_x = screen_width / 2.0f;
@@ -16,36 +19,13 @@ delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContex
 }
 
 void Game::run() {
-	StreamTarget target;
-	target.load_radius = 5; // TODO: remove magic number                  
-
-
-	// setup light manager
-	//LightManager light_manager;
-	//light_manager.enablePlayerLight(false);
-
-
-	// temp --------------------------------------------------------------------
-	// create mesh for light cube, independent of chunks
-	/*
-	std::vector<GeometryVertex> light_geo_verts = ModelLibrary::getInstance().getVertices(BlockModel::cube);
-	std::vector<Vertex> light_verts;
-	for (GeometryVertex& geo_vert : light_geo_verts) {
-		Vertex vert;
-		vert.normal = geo_vert.normal;
-		vert.position = geo_vert.position;
-		vert.tex_coords = geo_vert.tex_coords;
-		vert.shininess = 0.0f;
-		vert.specular_strength = 0.0f;
-		light_verts.push_back(vert);
-	}
-	Mesh light_mesh(light_verts);
-	*/
-
+	// for imgui output; TODO: should probably move these somewhere better
 	const int num_frames_averaged = 60;
 	float fps_arr[num_frames_averaged] = { 0 };
-	float fps = 0;
+	float fps = 0.0f;
 	int count = 0;
+	int render_distance_slider = current_stream_target.chunk_load_radius;
+	bool enable_daylight_cycle = true;
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -71,36 +51,50 @@ void Game::run() {
 			}
 			fps /= num_frames_averaged;
 		}
-		
 
 		// update light source position
 		light_manager.setPlayerLightPosition(camera.position);
+
+		// update time of day
+		if (enable_daylight_cycle) {
+			game_time = sin(glfwGetTime() * 0.05);
+		}
+		light_manager.setTimeOfDay(game_time);
+		renderer.setClearColor(renderer.getDefaultClearColor() * game_time);
 
 		// input
 		processInput();
 
 		// update world (creates new chunks, handles block placing, etc.)
-		target.pos = camera.position;
-		world.update(target);
+		current_stream_target.pos = camera.position;
+		world.update(current_stream_target);
 
 		// rendering
 		renderer.beginFrame(camera, light_manager, resource_manager.getTextureAtlas());
 
 
-		for (Chunk* chunk : world.getVisibleChunks(target)) {
+		for (Chunk* chunk : world.getVisibleChunks(current_stream_target)) {
 			renderer.renderChunk(*chunk);
 		}
-
-		// LIGHT SOURCE
-		//if (light_manager.getPlayerLight().enabled) {
-		//	renderer.renderDebugLight(light_mesh, light_manager.getPlayerLight().position + glm::vec3(1.0f, 0.0f, 0.0f));
-		//}
 
 		// imgui windows with info ------------------------------------------
 		ImGui::SetNextWindowPos(ImVec2(50, 150), ImGuiCond_Once);
 		ImGui::Begin("Info", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 		ImGui::Text("Position: %i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
 		ImGui::Text("FPS: %i", (int)fps);
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(50, 250), ImGuiCond_Once);
+		ImGui::Begin("Day/Night Cycle", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+		ImGui::Checkbox("Enable", &enable_daylight_cycle);
+		ImGui::SliderFloat("Time", &game_time, 0.0f, 1.0f);
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(50, 350), ImGuiCond_Once);
+		ImGui::Begin("Render Distance:", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+		if (ImGui::SliderInt(" ", &render_distance_slider, 0, 24)) {
+			setTargetRenderDistance(render_distance_slider);
+		}
 		ImGui::End();
 
 		ImGui::Render();
@@ -182,6 +176,10 @@ void Game::onMouseMove(double x_pos_in, double y_pos_in) {
 	last_x = x_pos;
 	last_y = y_pos;
 
+	// don't move camera if mouse showing
+	if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
+		return;
+	}
 	camera.processMouseMovement(x_offset, y_offset);
 }
 
@@ -191,4 +189,9 @@ void Game::onScroll(double y_offset) {
 
 void Game::onResize(int width, int height) {
 	glViewport(0, 0, width, height);
+}
+
+void Game::setTargetRenderDistance(int value) {
+	current_stream_target.chunk_load_radius = value;
+	renderer.setRenderDistance(Chunk::CHUNK_SIZE * (current_stream_target.chunk_load_radius - 1));
 }

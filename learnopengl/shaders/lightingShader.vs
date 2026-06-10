@@ -10,7 +10,7 @@ layout (location = 1) in uint aBlockId;
 layout (location = 2) in uint aFaceId;
 layout (location = 3) in vec2 aLocalUV;
 layout (std140) uniform BlockBuffer {
-	BlockDefinition block_defs[255]; // TODO: change magic number here
+	BlockDefinition block_defs[255];
 };
 
 out vec3 FragPos;
@@ -28,15 +28,20 @@ void main() {
 	gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 	FragPos = vec3(model * vec4(aPos, 1.0));
 
-	vec2 uv;
-	vec2 atlas_region_min = vec2(block_defs[aBlockId].face_uv[aFaceId].x, block_defs[aBlockId].face_uv[aFaceId].y);
-	vec2 atlas_region_max = vec2(block_defs[aBlockId].face_uv[aFaceId].z, block_defs[aBlockId].face_uv[aFaceId].w);
-	uv.x = atlas_region_min.x + aLocalUV.x * (atlas_region_max.x - atlas_region_min.x);
-	uv.y = atlas_region_min.y + aLocalUV.y * (atlas_region_max.y - atlas_region_min.y);
-	TexCoord = uv;
+	// signed int safer for GLSL array indexing
+	int int_block_id = int(aBlockId);
+	int int_face_id = int(aFaceId);
+
+	// fetch stored atlas region: (min.x, min.y, max.x, max.y)
+	vec4 region = block_defs[int_block_id].face_uv[int_face_id];
+	vec2 atlas_min = region.xy;
+	vec2 atlas_max = region.zw;
+
+	vec2 tiled_uv = aLocalUV;
+	TexCoord = atlas_min + tiled_uv * (atlas_max - atlas_min);
 	
-	SpecStrength = block_defs[aBlockId].material.x;
-	Shininess = block_defs[aBlockId].material.y;
+	SpecStrength = block_defs[int_block_id].material.x;
+	Shininess = block_defs[int_block_id].material.y;
 	
 	FaceId = aFaceId;
 }

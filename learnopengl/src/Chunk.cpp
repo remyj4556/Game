@@ -13,10 +13,6 @@ void Chunk::printChunkVertices() {
 	chunk_mesh.printInfo();
 }
 
-int Chunk::getChunkSize() {
-	return CHUNK_SIZE;
-}
-
 const Block Chunk::getBlock(LocalCoordinates coordinates) const {
 	return blocks[index(coordinates.x, coordinates.y, coordinates.z)];
 }

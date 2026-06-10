@@ -1,9 +1,10 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 // defines options for camera movement
 enum CameraMovement {

@@ -1,4 +1,7 @@
 #include "../include/LightManager.hpp"
+#include "../include/glm/fwd.hpp"
+#include "../include/glm/glm.hpp"
+#include <cmath>
 
 LightManager::LightManager() {
 	// initialize sun
@@ -21,10 +24,6 @@ LightManager::LightManager() {
 	player_light.intensity = 1.5f;
 	player_light.radius = 8.0f;
 	player_light.enabled = false;
-}
-
-void LightManager::update(float delta_time) {
-
 }
 
 const DirectionalLight& LightManager::getSun() const {

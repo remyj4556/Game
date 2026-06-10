@@ -26,6 +26,7 @@ out vec4 FragColor;
 
 uniform DirectionalLight sun;
 uniform PointLight player_light;
+uniform float time_of_day;
 uniform vec3 view_pos; 
 uniform sampler2D texture1; // Diffuse Texture (albedo)
 // can add another texture here for Specular Texture
@@ -63,7 +64,6 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view
 
     // attenuation (light falloff)
     float attenuation = clamp(1.0 - dist2 / radius2, 0.0, 1.0);
-    attenuation *= attenuation;
     attenuation *= light.intensity;
     
     // diffuse
@@ -89,7 +89,7 @@ void main() {
 	vec3 result = vec3(0.0);
     
 	if (sun.enabled) {
-        result += calculateDirectionalLight(sun, norm, view_dir, tex_color);
+        result += calculateDirectionalLight(sun, norm, view_dir, tex_color) * time_of_day;
     }
 
     if (player_light.enabled) {

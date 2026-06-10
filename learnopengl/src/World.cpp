@@ -5,6 +5,7 @@
 #include "../include/WorldCoordinates.hpp"
 #include "../include/LocalCoordinates.hpp"
 #include "../include/Block.hpp"
+#include "../include/Vertex.hpp"
 #include "../include/Mesh.hpp"
 
 #include <vector>
@@ -13,9 +14,9 @@
 #include <cstdint>
 #include <iostream>
 #include <utility>
-#include <../include/imgui/imgui.h>
-#include <../include/imgui/imgui_impl_glfw.h>
-#include <../include/imgui/imgui_impl_opengl3.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -23,7 +24,7 @@ World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 
 }
 
 WorldCoordinates World::chunkToWorld(ChunkCoordinates chunk_coords) {
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	WorldCoordinates c;
 	c.x = chunk_coords.x * chunk_size;
@@ -34,7 +35,7 @@ WorldCoordinates World::chunkToWorld(ChunkCoordinates chunk_coords) {
 }
 
 ChunkCoordinates World::worldToChunk(WorldCoordinates world_coords) {
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	ChunkCoordinates c;
 	c.x = std::floor(static_cast<double>(world_coords.x) / chunk_size);
@@ -55,7 +56,7 @@ WorldCoordinates World::localToWorld(ChunkCoordinates chunk_coords, LocalCoordin
 }
 
 Block World::blockAtWorldPos(WorldCoordinates world_coords) {
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	ChunkCoordinates chunk_coords = worldToChunk(world_coords);
 	uint8_t local_x = world_coords.x - chunk_coords.x * chunk_size;
@@ -70,24 +71,25 @@ Block World::blockAtWorldPos(WorldCoordinates world_coords) {
 	return loaded_chunks.at(chunk_coords)->getBlock({ local_x, local_y, local_z });
 }
 
-// TODO: test this function when implementing block placement. should not update meshes of chunks that are
-// outside target.load_radius
 std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 	std::vector<Chunk*> visible_chunks;
 
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	// this returns all chunks that are within the target's load radius
 	for (auto& chunk : loaded_chunks) {
-		WorldCoordinates world_coords = chunkToWorld(chunk.second->getChunkPosition());
+		int cx = std::floor(static_cast<double>(target.pos.x) / chunk_size);
+		int cy = std::floor(static_cast<double>(target.pos.y) / chunk_size);
+		int cz = std::floor(static_cast<double>(target.pos.z) / chunk_size);
 
-		if (world_coords.x > target.pos.x + target.load_radius ||
-			world_coords.x < target.pos.x - target.load_radius ||
-			world_coords.y > target.pos.y + target.load_radius ||
-			world_coords.y < target.pos.y - target.load_radius ||
-			world_coords.z > target.pos.z + target.load_radius ||
-			world_coords.z < target.pos.z - target.load_radius) {
-			
+		int dx = abs(chunk.second->getChunkPosition().x - cx);
+		int dy = abs(chunk.second->getChunkPosition().y - cy);
+		int dz = abs(chunk.second->getChunkPosition().z - cz);
+
+		if (dx <= target.chunk_load_radius &&
+			dy <= target.chunk_load_radius &&
+			dz <= target.chunk_load_radius) {
+
 			visible_chunks.push_back(chunk.second);
 		}
 	}
@@ -96,7 +98,7 @@ std::vector<Chunk*> World::getVisibleChunks(StreamTarget target) {
 }
 
 void World::streamTerrain(StreamTarget target) {
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 
 	// get target position
 	ChunkCoordinates current_chunk_coord;
@@ -104,17 +106,16 @@ void World::streamTerrain(StreamTarget target) {
 	current_chunk_coord.y = std::floor(static_cast<double>(target.pos.y) / chunk_size);
 	current_chunk_coord.z = std::floor(static_cast<double>(target.pos.z) / chunk_size);
 
-	if (current_chunk_coord == last_streamed_chunk_coord && target.load_radius == last_radius) {
+	if (current_chunk_coord == last_streamed_chunk_coord && target.chunk_load_radius == last_radius) {
 		return;
 	}
 
 	last_streamed_chunk_coord = current_chunk_coord;
-	last_radius = target.load_radius;
+	last_radius = target.chunk_load_radius;
 
-
-	for (int x = -target.load_radius; x <= target.load_radius; ++x) {
-		for (int z = -target.load_radius; z <= target.load_radius; ++z) {
-			for (int y = -target.load_radius; y <= target.load_radius; ++y) {
+	for (int x = -target.chunk_load_radius; x <= target.chunk_load_radius; ++x) {
+		for (int z = -target.chunk_load_radius; z <= target.chunk_load_radius; ++z) {
+			for (int y = -target.chunk_load_radius; y <= target.chunk_load_radius; ++y) {
 				// get coordinates of surrounding chunks
 				ChunkCoordinates chunk_coord;
 				chunk_coord.x = current_chunk_coord.x + x;
@@ -122,7 +123,7 @@ void World::streamTerrain(StreamTarget target) {
 				chunk_coord.z = current_chunk_coord.z + z;
 
 				// skip "corners" to load a sphere
-				if ((x * x + y * y + z * z) > (target.load_radius * target.load_radius)) {
+				if ((x * x + y * y + z * z) > (target.chunk_load_radius * target.chunk_load_radius)) {
 					continue;
 				}
 
@@ -153,11 +154,11 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 	auto gen_start = std::chrono::high_resolution_clock::now();
 
 	Chunk* chunk = new Chunk(coordinates);
-	int chunk_size = Chunk::getChunkSize();
+	int chunk_size = Chunk::CHUNK_SIZE;
 	
 	for (uint8_t x = 0; x < chunk_size; ++x) {
 		for (uint8_t z = 0; z < chunk_size; z++) {
-			int height = noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 50;
+			int height = pow(2, noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 7);
 
 			for (uint8_t y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
@@ -182,24 +183,22 @@ Chunk* World::genChunk(ChunkCoordinates coordinates) {
 void World::update(StreamTarget target) {
 	// profiling ---------
 	ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
-	ImGui::Begin("Render Info");
-	ImGui::Text("Avg Mesh Time: %f", total_mesh_time / num_meshed);
-	ImGui::Text("Avg Gen Time: %f", total_gen_time / num_generated);
+	ImGui::Begin("Render Info", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("Avg Mesh Time: %fms", total_mesh_time / num_meshed);
+	ImGui::Text("Avg Gen Time: %fms", total_gen_time / num_generated);
+	ImGui::Text("Avg Chunk Vertex Count: %f", (float)total_vertices_generated / num_meshed);
 	ImGui::End();
 
 
 	// -------------------
 	streamTerrain(target);
-
-	// std::cout << queued_chunks.size() << " " << loaded_chunks.size() << "\n";
-
-	// generate some number (say, 4 right now) of chunks per frame
+	// TODO: remove magic number for budget(s)
 	for (int i = 0; i < 4; ++i) {
 		if (queued_chunks.empty()) {
 			break;
 		}
 
-		int chunk_size = Chunk::getChunkSize();
+		int chunk_size = Chunk::CHUNK_SIZE;
 		ChunkGenRequest top = queued_chunks.top();
 
 		queued_chunks.pop();
@@ -234,14 +233,12 @@ void World::update(StreamTarget target) {
 			loaded_chunks[{top.coordinates.x, top.coordinates.y, top.coordinates.z - 1}]->dirty = true;
 	}
 	
-
-	// TODO: assign a budget per frame here as well
 	for (Chunk* chunk : getVisibleChunks(target)) {
 		for (int i = 0; i < 40; ++i) {
 			if (chunk->dirty) {
 				auto mesh_start = std::chrono::high_resolution_clock::now();
 
-				std::pair<std::vector<Vertex>, std::vector<GLuint>> mesh_data = chunk_mesher.buildNaiveMesh(getSurroundingChunks(chunk), context);
+				std::pair<std::vector<Vertex>, std::vector<GLuint>> mesh_data = chunk_mesher.buildGreedyMesh(getSurroundingChunks(chunk), context);
 				chunk->chunk_mesh = Mesh(mesh_data.first, mesh_data.second);
 				chunk->dirty = false;
 
@@ -249,6 +246,7 @@ void World::update(StreamTarget target) {
 				auto duration = std::chrono::duration<double, std::milli>(mesh_end - mesh_start);
 				total_mesh_time += duration;
 				num_meshed++;
+				total_vertices_generated += mesh_data.first.size();
 			}
 
 		}

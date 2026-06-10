@@ -1,15 +1,14 @@
 #include "../include/TextureAtlas.hpp"
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <cstdint>
 #include "../include/stb_image_write.h"
 #include "../include/Texture.hpp"
+#include <filesystem>
 
 TextureAtlas::TextureAtlas() {}
 
 TextureAtlas::TextureAtlas(const char* path) {
-    // TODO: can eventually define these dynamically
     const int atlas_width = 64;
     const int atlas_height = 64;
     const int atlas_channels = 4;  // RGBA

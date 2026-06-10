@@ -1,11 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <iostream>
-
 #include "../include/Game.hpp"
 
 
@@ -35,6 +33,14 @@ int main() {
 		return -1;
 	}
 
+	Game game(window);
+
+	// attach game to the window so callbacks can find it
+	glfwSetWindowUserPointer(window, &game);
+	glfwSetFramebufferSizeCallback(window, Game::framebufferSizeCallbackDispatch);
+	glfwSetCursorPosCallback(window, Game::mouseCallbackDispatch);
+	glfwSetScrollCallback(window, Game::scrollCallbackDispatch);
+
 	// setup DearImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -48,21 +54,13 @@ int main() {
 	ImGui::StyleColorsDark();
 
 	// Setup scaling
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = main_scale;        // Set initial font scale. (in docking branch: using io.ConfigDpiScaleFonts=true automatically overrides this for every window depending on the current monitor)
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+	style.FontScaleDpi = main_scale;        // Set initial font scale. (in docking branch: using io.ConfigDpiScaleFonts=true automatically overrides this for every window depending on the current monitor)
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
-	Game game(window);
-
-	// attach game to the window so callbacks can find it
-	glfwSetWindowUserPointer(window, &game);
-	glfwSetFramebufferSizeCallback(window, Game::framebufferSizeCallbackDispatch);
-	glfwSetCursorPosCallback(window, Game::mouseCallbackDispatch);
-	glfwSetScrollCallback(window, Game::scrollCallbackDispatch);
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	game.run();
 

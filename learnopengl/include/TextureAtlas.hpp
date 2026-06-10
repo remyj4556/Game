@@ -3,8 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/fwd.hpp>
+#include "glm/fwd.hpp"
 #include <string>
 #include "stb_rect_pack.h"
 #include "Texture.hpp"

@@ -11,14 +11,10 @@
 
 
 class Chunk {
-	private:
-		static constexpr int CHUNK_SIZE = 32;
-		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks; 
-		ChunkCoordinates chunk_position;
-
 	public:
 		Chunk();
 		Chunk(ChunkCoordinates coordinates);
+		static constexpr int CHUNK_SIZE = 32;
 
 		// TODO: change the single chunk_mesh into opaque_mesh, transparent_mesh, cutout_mesh, etc.
 		// these are rendered separately in the render loop, and within the meshes we can still
@@ -41,7 +37,10 @@ class Chunk {
 		const ChunkCoordinates getChunkPosition() const;
 
 		void printChunkVertices();
-		static int getChunkSize();
+
+	private:
+		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks;
+		ChunkCoordinates chunk_position;
 };
 
 #endif

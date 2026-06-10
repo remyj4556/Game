@@ -1,7 +1,9 @@
 #ifndef LIGHTMANAGER_HPP
 #define LIGHTMANAGER_HPP
 
-#include <glm/glm.hpp>
+#include "glm/fwd.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 struct DirectionalLight {
 	glm::vec3 direction;
@@ -25,13 +27,10 @@ class LightManager {
 		DirectionalLight moon;
 		PointLight player_light; // torch, lantern, etc.
 
-		float time_of_day = 0.5f;
+		float time_of_day = 0.0f;
 
 	public:
 		LightManager();
-
-		// update lighting based on time of day
-		void update(float delta_time);
 
 		// getter functions
 		const DirectionalLight& getSun() const;
