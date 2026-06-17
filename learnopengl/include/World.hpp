@@ -6,7 +6,6 @@
 #include "ChunkCoordinates.hpp"
 #include "WorldCoordinates.hpp"
 #include "LocalCoordinates.hpp"
-#include "BlockMeshingContext.hpp"
 #include "FastNoiseLite.h"
 #include "Block.hpp"
 #include <unordered_map>
@@ -37,7 +36,6 @@ class World {
 		FastNoiseLite noise;
 
 		ChunkMesher chunk_mesher;
-		const BlockMeshingContext context;
 		
 		void streamTerrain(StreamTarget target);
 		Chunk* genChunk(ChunkCoordinates coordinates);
@@ -63,7 +61,7 @@ class World {
 		
 
 	public:
-		World(BlockMeshingContext context);
+		World();
 		std::vector<Chunk*> getVisibleChunks(StreamTarget target);
 		void update(StreamTarget target);
 		WorldCoordinates chunkToWorld(ChunkCoordinates chunk_coords);

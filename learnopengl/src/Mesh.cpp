@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <cstddef>
 #include "../include/VBO.hpp"
 #include "../include/VAO.hpp"
 #include "../include/EBO.hpp"
@@ -51,7 +52,6 @@ void Mesh::buildMesh() {
 	int layout_loc_pos = 0;
 	int layout_loc_id = 1;
 	int layout_loc_face = 2;
-	int layout_loc_uv = 3;
 
 	// position attribute
 	vao.linkAttribFloat(vbo, layout_loc_pos, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
@@ -59,8 +59,6 @@ void Mesh::buildMesh() {
 	vao.linkAttribInt(vbo, layout_loc_id, 1, GL_UNSIGNED_SHORT, sizeof(Vertex), (void*)offsetof(Vertex, id));
 	// face id attribute
 	vao.linkAttribInt(vbo, layout_loc_face, 1, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, face));
-	// local uv attribute
-	vao.linkAttribFloat(vbo, layout_loc_uv, 2, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, local_uv));
 
 	// 4. unbind for safety
 	vbo.unbind();

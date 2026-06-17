@@ -4,8 +4,9 @@
 #include "../include/Camera.hpp"
 #include "../include/LightManager.hpp"
 #include "../include/Mesh.hpp"
-#include "../include/TextureAtlas.hpp"
+#include "../include/TextureLibrary.hpp"
 
+// TODO: Don't hardcode shader paths
 Renderer::Renderer(GLFWwindow* window) :
 	render_distance(500.0f),
 	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
@@ -24,11 +25,14 @@ Renderer::Renderer(GLFWwindow* window) :
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_MULTISAMPLE);
+
+	// wireframe mode
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 Renderer::~Renderer() {}
 
-void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const TextureAtlas *block_atlas) {
+void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const TextureLibrary& texture_library) {
 	glClearColor(clear_color.r, clear_color.g, clear_color.b, clear_color.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -64,15 +68,14 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 		block_shader.setFloat("player_light.radius", player_light.radius);
 	}
 
-	// bind texture atlas once per frame
-	block_atlas->atlas->bind();
+	// bind texture library once per frame
+	texture_library.bind();
 }
 
 void Renderer::renderChunk(Chunk& chunk) {
 	// translate chunk model matrix based on position in world
 	glm::mat4 model = glm::mat4(1.0f);
 
-	// chunk position uses relative coordinates (e.g., chunk at (1,1,1) is actually at block position (32, 32, 32))
 	ChunkCoordinates chunk_pos = chunk.getChunkPosition(); 
 	int chunk_size = Chunk::CHUNK_SIZE;
 
@@ -83,11 +86,9 @@ void Renderer::renderChunk(Chunk& chunk) {
 	model = glm::translate(model, glm::vec3(chunk_pos.x, chunk_pos.y, chunk_pos.z));
 	block_shader.setMat4("model", model);
 
-	// draw chunk
 	chunk.chunk_mesh.draw();
 }
 
-// temporarily take in light mesh, idk how to render more than one light rn anyways
 void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 	// use shader
 	light_shader.use();

@@ -8,7 +8,7 @@
 #include "LightManager.hpp"
 #include "Mesh.hpp"
 #include "GLFW/glfw3.h"
-#include "TextureAtlas.hpp"
+#include "TextureLibrary.hpp"
 #include "GPUBlockDefinition.hpp"
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
@@ -35,7 +35,7 @@ class Renderer {
 		Renderer(GLFWwindow *window);
 		~Renderer();
 
-		void beginFrame(Camera& camera, LightManager &light_manager, const TextureAtlas *block_atlas);
+		void beginFrame(Camera& camera, LightManager &light_manager, const TextureLibrary& texture_library);
 		void renderChunk(Chunk& chunk);
 		void endFrame();
 

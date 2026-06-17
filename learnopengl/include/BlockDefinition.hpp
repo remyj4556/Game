@@ -5,8 +5,6 @@
 #include "ModelLibrary.hpp"
 #include <string>
 #include <unordered_map>
-#include "glm/fwd.hpp"
-#include "glm/vec4.hpp"
 
 struct MaterialProperties {
 	float specular = 0.0f;
@@ -24,7 +22,7 @@ struct BlockDefinition {
 	block_id_type id;
 	bool is_transparent = false;
 	ModelTypes model = ModelTypes::cube;
-	glm::vec4 face_uv[6];
+	int face_texture_id[6];
 	MaterialProperties material;
 };
 

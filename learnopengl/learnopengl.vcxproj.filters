@@ -60,9 +60,6 @@
     <ClCompile Include="src\EBO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextureAtlas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\stb_image_write.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +117,9 @@
     <ClCompile Include="src\imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\TextureLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EBO.hpp">
@@ -167,9 +167,6 @@
     <ClInclude Include="include\BlockDefinition.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\TextureAtlas.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\stb_rect_pack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -198,9 +195,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ResourceManager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BlockMeshingContext.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\FastNoiseLite.h">
@@ -309,6 +303,9 @@
       <Filter>Header Files\glm</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\opengl\Include\glad\glad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TextureLibrary.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

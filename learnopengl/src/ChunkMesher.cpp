@@ -1,7 +1,6 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Vertex.hpp"
-#include "../include/BlockMeshingContext.hpp"
 #include "../include/Block.hpp"
 
 #include <vector>
@@ -9,7 +8,7 @@
 #include <cstdint>
 
 
-std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context) {
+std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks) {
 	std::vector<Vertex> mesh_vertices;
 	std::vector<GLuint> mesh_indices;
 
@@ -44,7 +43,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(
 	return { mesh_vertices, mesh_indices };
 }
 
-std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh(ChunkGroup chunks, BlockMeshingContext context) {
+std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh(ChunkGroup chunks) {
     std::vector<Vertex> mesh_vertices;
     std::vector<GLuint> mesh_indices;
 
@@ -229,7 +228,6 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                         vert.position = verts[k];
                         vert.id = bid;
                         vert.face = static_cast<uint8_t>(fd.dir);
-                        vert.local_uv = uvs[k];
                         mesh_vertices.push_back(vert);
                     }
                 }
@@ -263,9 +261,6 @@ void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, Block c
 
 		// assign face id to vertex
 		v.face = static_cast<uint8_t>(direction);
-
-		// assign local uv to vertex
-		v.local_uv = face_local_uvs[i];
 
 		// add vertex to mesh
 		mesh_vertices.push_back(v);

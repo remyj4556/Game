@@ -7,7 +7,7 @@
 
 #include "Block.hpp"
 #include "BlockDefinition.hpp"
-#include "TextureAtlas.hpp"
+#include "TextureLibrary.hpp"
 #include "GPUBlockDefinition.hpp"
 
 class BlockRegistry {
@@ -18,7 +18,7 @@ class BlockRegistry {
 		BlockRegistry();
 		void addDefinition(const BlockDefinition& definition);
 		const BlockDefinition& getDefinition(block_id_type id) const;
-		void populateDefinitions(const std::string& path, TextureAtlas& atlas);
+		void populateDefinitions(const std::string& path, TextureLibrary& texture_library);
 		std::vector<GPUBlockDefinition> buildGPUBlockDefinitions() const;
 };
 

@@ -1,6 +1,6 @@
 #include "../include/BlockRegistry.hpp"
 #include "../include/BlockDefinition.hpp"
-#include "../include/TextureAtlas.hpp"
+#include "../include/TextureLibrary.hpp"
 #include "../include/json.hpp"
 #include "../include/GPUBlockDefinition.hpp"
 #include "../include/Block.hpp"
@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
+#include <cassert>
 #include <vector>
 
 BlockRegistry::BlockRegistry() {}
@@ -21,7 +22,7 @@ const BlockDefinition& BlockRegistry::getDefinition(block_id_type id) const {
 	return block_defs.at(id);
 }
 
-void BlockRegistry::populateDefinitions(const std::string& path, TextureAtlas & atlas) {
+void BlockRegistry::populateDefinitions(const std::string& path, TextureLibrary& texture_library) {
 	std::ifstream file(path);
 	nlohmann::json data = nlohmann::json::parse(file);
 	
@@ -38,12 +39,12 @@ void BlockRegistry::populateDefinitions(const std::string& path, TextureAtlas & 
 				<< " - block model: " << (*it)["model"].get<std::string>() << " does not exist\n";
 		}
 
-		definition.face_uv[0] = atlas.getTextureRegion((*it)["back_texture"]);
-		definition.face_uv[1] = atlas.getTextureRegion((*it)["front_texture"]);
-		definition.face_uv[2] = atlas.getTextureRegion((*it)["left_texture"]);
-		definition.face_uv[3] = atlas.getTextureRegion((*it)["right_texture"]);
-		definition.face_uv[4] = atlas.getTextureRegion((*it)["bottom_texture"]);
-		definition.face_uv[5] = atlas.getTextureRegion((*it)["top_texture"]);
+		definition.face_texture_id[0] = texture_library.getTextureID((*it)["back_texture"]);
+		definition.face_texture_id[1] = texture_library.getTextureID((*it)["front_texture"]);
+		definition.face_texture_id[2] = texture_library.getTextureID((*it)["left_texture"]);
+		definition.face_texture_id[3] = texture_library.getTextureID((*it)["right_texture"]);
+		definition.face_texture_id[4] = texture_library.getTextureID((*it)["bottom_texture"]);
+		definition.face_texture_id[5] = texture_library.getTextureID((*it)["top_texture"]);
 
 		float specular  = (*it)["material"]["specular"];
 		float shininess  = (*it)["material"]["shininess"];
@@ -53,6 +54,8 @@ void BlockRegistry::populateDefinitions(const std::string& path, TextureAtlas & 
 		definition.is_transparent = (*it)["material"]["transparent"];
 		
 		addDefinition(definition);
+
+		std::cout << "block: " << (*it)["display_name"] << " has id: " << (*it)["id"] << "\n";
 	}
 }
 
@@ -62,14 +65,18 @@ std::vector<GPUBlockDefinition> BlockRegistry::buildGPUBlockDefinitions() const 
 	for (const auto& [block_id, block_def] : block_defs) {
 		GPUBlockDefinition gpu_def{};
 
-		for (int i = 0; i < 6; ++i) {
-			gpu_def.face_uv[i] = block_def.face_uv[i];
-		}
+		gpu_def.face_texture_id_0_3.x = block_def.face_texture_id[0];
+		gpu_def.face_texture_id_0_3.y = block_def.face_texture_id[1];
+		gpu_def.face_texture_id_0_3.z = block_def.face_texture_id[2];
+		gpu_def.face_texture_id_0_3.w = block_def.face_texture_id[3];
+		gpu_def.face_texture_id_4_5.x = block_def.face_texture_id[4];
+		gpu_def.face_texture_id_4_5.y = block_def.face_texture_id[5];
 
 		gpu_def.material = glm::vec4(block_def.material.specular, block_def.material.shininess, 0.0f, 0.0f);
 
 		definitions[block_id] = gpu_def;
 	}
 
+	assert(definitions.size() > 0);
 	return definitions;
 }

@@ -18,7 +18,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-World::World(BlockMeshingContext context) : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0), context(context) {
+World::World() : last_streamed_chunk_coord({ 0, 0, 0 }), last_radius(0) {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	noise.SetFrequency(0.02);
 }
@@ -238,7 +238,7 @@ void World::update(StreamTarget target) {
 			if (chunk->dirty) {
 				auto mesh_start = std::chrono::high_resolution_clock::now();
 
-				std::pair<std::vector<Vertex>, std::vector<GLuint>> mesh_data = chunk_mesher.buildGreedyMesh(getSurroundingChunks(chunk), context);
+				std::pair<std::vector<Vertex>, std::vector<GLuint>> mesh_data = chunk_mesher.buildGreedyMesh(getSurroundingChunks(chunk));
 				chunk->chunk_mesh = Mesh(mesh_data.first, mesh_data.second);
 				chunk->dirty = false;
 

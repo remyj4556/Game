@@ -166,7 +166,7 @@
     <ClCompile Include="src\stb_image_write.cpp" />
     <ClCompile Include="src\stb_rect_pack.cpp" />
     <ClCompile Include="src\Texture.cpp" />
-    <ClCompile Include="src\TextureAtlas.cpp" />
+    <ClCompile Include="src\TextureLibrary.cpp" />
     <ClCompile Include="src\VAO.cpp" />
     <ClCompile Include="src\VBO.cpp" />
     <ClCompile Include="src\World.cpp" />
@@ -176,7 +176,6 @@
     <ClInclude Include="..\..\..\..\..\..\opengl\Include\glad\glad.h" />
     <ClInclude Include="include\Block.hpp" />
     <ClInclude Include="include\BlockDefinition.hpp" />
-    <ClInclude Include="include\BlockMeshingContext.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
@@ -230,7 +229,7 @@
     <ClInclude Include="include\stb_image_write.h" />
     <ClInclude Include="include\stb_rect_pack.h" />
     <ClInclude Include="include\Texture.hpp" />
-    <ClInclude Include="include\TextureAtlas.hpp" />
+    <ClInclude Include="include\TextureLibrary.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />

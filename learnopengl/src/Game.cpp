@@ -5,16 +5,18 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <cmath>
+#include <iostream>
 
+// TODO: resource_manager should not have hardcoded texture directory path
 Game::Game(GLFWwindow* window) : window(window), camera(glm::vec3(0.0f, 0.0f, 0.0f)), first_mouse(true), 
-delta_time(0.0f), last_frame(0.0f), world(resource_manager.getBlockMeshingContext()), renderer(window),
+delta_time(0.0f), last_frame(0.0f), resource_manager("C:/Users/remyj/source/repos/Game/learnopengl/textures"), renderer(window),
 current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 	last_x = screen_width / 2.0f;
 	last_y = screen_height / 2.0f;
 
-	auto gpu_defs = resource_manager.fetchGPUBlockDefinitions();
+	const auto gpu_defs = resource_manager.fetchGPUBlockDefinitions();
 	renderer.uploadGPUBlockDefinitions(gpu_defs);
 }
 
@@ -70,7 +72,7 @@ void Game::run() {
 		world.update(current_stream_target);
 
 		// rendering
-		renderer.beginFrame(camera, light_manager, resource_manager.getTextureAtlas());
+		renderer.beginFrame(camera, light_manager, resource_manager.getTextureLibrary());
 
 
 		for (Chunk* chunk : world.getVisibleChunks(current_stream_target)) {

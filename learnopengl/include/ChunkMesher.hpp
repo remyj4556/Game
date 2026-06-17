@@ -5,7 +5,6 @@
 #include "Vertex.hpp"
 #include "Chunk.hpp"
 #include "Block.hpp"
-#include "BlockMeshingContext.hpp"
 
 #include <utility>
 
@@ -105,8 +104,8 @@ class ChunkMesher {
 		void addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices) const;
 
 	public:
-		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildNaiveMesh(ChunkGroup chunks, BlockMeshingContext context);
-		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildGreedyMesh(ChunkGroup chunks, BlockMeshingContext context);
+		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildNaiveMesh(ChunkGroup chunks);
+		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildGreedyMesh(ChunkGroup chunks);
 };
 
 #endif
