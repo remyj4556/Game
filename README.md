@@ -1,8 +1,3 @@
-3D Game Engine (OpenGL)
-
-A custom 3D voxel engine built in modern OpenGL. 
-
-- Custom shader pipeline
-- Camera system with FPS-style movement
-- Real-time lighting
-- Custom chunk meshing algorithm
+Strata
+A voxel game engine written in C++ and OpenGL.
+<img width="1280" height="661" alt="VoxelEngineFlyby" src="https://github.com/user-attachments/assets/7910d040-d807-44e8-8811-1e3a04853393" />
