@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "glm/fwd.hpp"
 #include <string>
+#include <filesystem>
 
 class TextureLibrary {
 private:
@@ -18,7 +19,7 @@ private:
 
 public:
 	// constructor takes a path to a directory of textures and builds them into a texture array
-	TextureLibrary(const char* path, GLsizei texture_width, GLsizei texture_height, GLint mipmap_level);
+	TextureLibrary(const std::filesystem::path& texture_dir_path, GLsizei texture_width, GLsizei texture_height, GLint mipmap_level);
 	TextureLibrary();
 	void bind() const;
 	void unbind() const;

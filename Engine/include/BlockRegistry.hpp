@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <filesystem>
 
 #include "Block.hpp"
 #include "BlockDefinition.hpp"
@@ -18,7 +19,7 @@ class BlockRegistry {
 		BlockRegistry();
 		void addDefinition(const BlockDefinition& definition);
 		const BlockDefinition& getDefinition(block_id_type id) const;
-		void populateDefinitions(const std::string& path, TextureLibrary& texture_library);
+		void populateDefinitions(const std::filesystem::path& block_defs_path, TextureLibrary& texture_library);
 		std::vector<GPUBlockDefinition> buildGPUBlockDefinitions() const;
 };
 

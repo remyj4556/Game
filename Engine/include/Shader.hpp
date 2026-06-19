@@ -3,20 +3,15 @@
 
 #include <glad/glad.h>
 #include "glm/fwd.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include "glm/matrix.hpp"
 
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <utility>
-#include <stdexcept>
+#include <filesystem>
 
 class Shader {
 	public:
 		// constructor reads and builds the shader
-		Shader(const char* vertexPath, const char* fragmentPath);
+		Shader(const std::filesystem::path& vertex_path, const std::filesystem::path& fragment_path);
 		Shader();
 		~Shader();
 
@@ -44,8 +39,6 @@ class Shader {
 	private:
 		// shader program id
 		GLuint ID;
-		const char* vert_path;
-		const char* frag_path;
 
 		void checkCompileErrors(GLuint id, const std::string& type) const;
 };

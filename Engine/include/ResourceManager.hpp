@@ -5,6 +5,7 @@
 #include "ModelLibrary.hpp"
 #include "GPUBlockDefinition.hpp"
 #include "TextureLibrary.hpp"
+#include "Paths.hpp"
 #include <vector>
 
 class ResourceManager {
@@ -14,7 +15,7 @@ class ResourceManager {
 		ModelLibrary model_library;
 
 	public:
-		ResourceManager(const std::string& texture_directory_path);
+		ResourceManager(const Paths &paths);
 		const std::vector<GPUBlockDefinition> fetchGPUBlockDefinitions() const;
 		const TextureLibrary& getTextureLibrary() const;
 };

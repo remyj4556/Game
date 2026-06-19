@@ -8,18 +8,17 @@
 
 TextureLibrary::TextureLibrary() {}
 
-TextureLibrary::TextureLibrary(const char* path, GLsizei texture_width, GLsizei texture_height, GLint mipmap_level) 
+TextureLibrary::TextureLibrary(const std::filesystem::path& texture_dir_path, GLsizei texture_width, GLsizei texture_height, GLint mipmap_level) 
     : texture_width(texture_width)
     , texture_height(texture_height)
     , mipmap_level(mipmap_level) 
 {
-    const std::filesystem::path directory{ path };
     std::vector<uint8_t*> texture_buffers;
 
     // add image buffer data to vector
-    for (auto const& dir_entry : std::filesystem::directory_iterator{ directory }) {
+    for (auto const& dir_entry : std::filesystem::directory_iterator{ texture_dir_path }) {
         if (!dir_entry.is_regular_file()) {
-            std::cerr << "error parsing texture directory: " << directory
+            std::cerr << "error parsing texture directory: " << texture_dir_path
                 << "\n - " << dir_entry << " is not a file of the specified type.\n";
         }
 

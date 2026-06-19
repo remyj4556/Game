@@ -1,13 +1,14 @@
 #include "../include/ResourceManager.hpp"
 #include "../include/TextureLibrary.hpp"
 #include "../include/GPUBlockDefinition.hpp"
+#include "../include/Paths.hpp"
 #include <vector>
-#include <string>
-#include <iostream>
 
-// TODO: don't hardcode texture library sizes
-ResourceManager::ResourceManager(const std::string& texture_directory_path) : texture_library(texture_directory_path.c_str(), 16, 16, 4) {
-	block_registry.populateDefinitions("json/blocks.json", texture_library);
+// TODO: don't hardcode texture library sizes and path to json
+ResourceManager::ResourceManager(const Paths &paths) 
+	: texture_library(paths.textures, 16, 16, 4)
+{
+	block_registry.populateDefinitions(paths.json / "blocks.json", texture_library);
 	model_library.populateDefinitions();
 }
 

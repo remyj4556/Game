@@ -5,13 +5,14 @@
 #include "../include/LightManager.hpp"
 #include "../include/Mesh.hpp"
 #include "../include/TextureLibrary.hpp"
+#include "../include/Paths.hpp"
 
 // TODO: Don't hardcode shader paths
-Renderer::Renderer(GLFWwindow* window) :
-	render_distance(500.0f),
-	block_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightingShader.fs"),
-	light_shader("C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.vs", "C:/Users/remyj/source/repos/Game/learnopengl/shaders/lightCubeShader.fs"),
-	clear_color(DEFAULT_COLOR)
+Renderer::Renderer(GLFWwindow* window, const Paths& paths) 
+	: render_distance(500.0f)
+	, block_shader(paths.shaders / "lightingShader.vs", paths.shaders / "lightingShader.fs")
+	, light_shader(paths.shaders / "lightCubeShader.vs", paths.shaders / "lightCubeShader.fs")
+	, clear_color(DEFAULT_COLOR)
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 

@@ -1,10 +1,12 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include <glad/glad.h>
+#include <vector>
+
 #include "Camera.hpp"
 #include "Chunk.hpp"
 #include "Shader.hpp"
-#include <glad/glad.h>
 #include "LightManager.hpp"
 #include "Mesh.hpp"
 #include "GLFW/glfw3.h"
@@ -12,7 +14,7 @@
 #include "GPUBlockDefinition.hpp"
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
-#include <vector>
+#include "Paths.hpp"
 
 class Renderer {
 	private:
@@ -32,7 +34,7 @@ class Renderer {
 		
 
 	public:
-		Renderer(GLFWwindow *window);
+		Renderer(GLFWwindow *window, const Paths& paths);
 		~Renderer();
 
 		void beginFrame(Camera& camera, LightManager &light_manager, const TextureLibrary& texture_library);

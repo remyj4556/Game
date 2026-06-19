@@ -22,6 +22,18 @@
     <Filter Include="Header Files\glm">
       <UniqueIdentifier>{b676a499-eb7f-42de-afd1-709578304178}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\assets">
+      <UniqueIdentifier>{6c8ee1e4-7e69-4d5c-9d61-ae6b073f1f89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\assets\textures">
+      <UniqueIdentifier>{29bc3025-9e0d-4568-87a4-256681b590bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\assets\shaders">
+      <UniqueIdentifier>{81ed9cc0-2c50-4b29-a1a8-040742c47205}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\json">
+      <UniqueIdentifier>{44e5d2ea-7dac-4bd3-9f19-ff8909ca3ef8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c">
@@ -37,9 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ModelLibrary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Chunk.cpp">
@@ -120,6 +129,12 @@
     <ClCompile Include="src\TextureLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\whereami.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Paths.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EBO.hpp">
@@ -141,9 +156,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Camera.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Texture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Mesh.hpp">
@@ -308,22 +320,46 @@
     <ClInclude Include="include\TextureLibrary.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\whereami.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Paths.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\lightingShader.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\lightingShader.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\lightCubeShader.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\lightCubeShader.vs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="json\blocks.json">
-      <Filter>Resource Files</Filter>
-    </None>
+    <CopyFileToFolders Include="assets\shaders\lightCubeShader.fs">
+      <Filter>Resource Files\assets\shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\shaders\lightCubeShader.vs">
+      <Filter>Resource Files\assets\shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\shaders\lightingShader.fs">
+      <Filter>Resource Files\assets\shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\shaders\lightingShader.vs">
+      <Filter>Resource Files\assets\shaders</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\cobblestone.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\default.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\dirt.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\grass.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\iron_block.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\textures\iron_block_side.png">
+      <Filter>Resource Files\assets\textures</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="json\blocks.json">
+      <Filter>Resource Files\json</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

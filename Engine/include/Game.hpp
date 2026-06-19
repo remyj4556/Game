@@ -9,6 +9,7 @@
 #include "Camera.hpp"
 #include "ResourceManager.hpp"
 #include "LightManager.hpp"
+#include "Paths.hpp"
 
 
 class Game {
@@ -28,6 +29,7 @@ class Game {
 		float last_frame;
 		float game_time;
 
+		Paths paths;
 		ResourceManager resource_manager;
 		World world;
 		LightManager light_manager; 

@@ -22,8 +22,14 @@ const BlockDefinition& BlockRegistry::getDefinition(block_id_type id) const {
 	return block_defs.at(id);
 }
 
-void BlockRegistry::populateDefinitions(const std::string& path, TextureLibrary& texture_library) {
-	std::ifstream file(path);
+void BlockRegistry::populateDefinitions(const std::filesystem::path& block_defs_path, TextureLibrary& texture_library) {
+	std::ifstream file(block_defs_path);
+
+	if (!file) {
+		std::cerr << "Error: blocks.json could not be opened!\n";
+		return;
+	}
+
 	nlohmann::json data = nlohmann::json::parse(file);
 	
 	for (nlohmann::json::iterator it = data["blocks"].begin(); it != data["blocks"].end(); ++it) {

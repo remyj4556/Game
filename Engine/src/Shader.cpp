@@ -1,12 +1,14 @@
 #include "../include/Shader.hpp"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <stdexcept>
+#include <filesystem>
 
 Shader::Shader() {}
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
-	// store paths for potential copying
-	vert_path = vertexPath;
-	frag_path = fragmentPath;
-
+Shader::Shader(const std::filesystem::path& vertex_path, const std::filesystem::path& fragment_path) {
 	// 1. retrieve the vertex/fragment source code from filepath
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -19,8 +21,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 	try {
 		// open files
-		vertexShaderFile.open(vert_path);
-		fragmentShaderFile.open(frag_path);
+		vertexShaderFile.open(vertex_path);
+		fragmentShaderFile.open(fragment_path);
 
 		// read files contents into string streams
 		std::stringstream vertexShaderStream, fragmentShaderStream;
