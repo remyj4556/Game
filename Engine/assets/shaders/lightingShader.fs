@@ -91,7 +91,7 @@ void main() {
         tex_coord = vec2(fract(FragPos.x), fract(FragPos.y));
     }
     else if (norm == vec3(-1,0,0) || norm == vec3(1,0,0)) {
-        tex_coord = vec2(fract(FragPos.y), fract(FragPos.z));
+        tex_coord = vec2(fract(FragPos.z), fract(FragPos.y));
     }
     else {
         tex_coord = vec2(fract(FragPos.x), fract(FragPos.z));
