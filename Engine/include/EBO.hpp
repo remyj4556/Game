@@ -20,8 +20,8 @@ class EBO {
 		EBO(const EBO&) = delete;
 		EBO& operator=(const EBO&) = delete;
 
-		void bind();
-		void unbind();
+		void bind() const;
+		void unbind() const;
 		void del();
 
 		const GLuint getID() const;

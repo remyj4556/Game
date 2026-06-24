@@ -37,11 +37,11 @@ EBO& EBO::operator=(EBO&& other) noexcept {
 	return *this;
 }
 
-void EBO::bind() {
+void EBO::bind() const {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 }
 
-void EBO::unbind() {
+void EBO::unbind() const {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 

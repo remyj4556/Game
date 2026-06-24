@@ -60,8 +60,6 @@ void BlockRegistry::populateDefinitions(const std::filesystem::path& block_defs_
 		definition.is_transparent = (*it)["material"]["transparent"];
 		
 		addDefinition(definition);
-
-		std::cout << "block: " << (*it)["display_name"] << " has id: " << (*it)["id"] << "\n";
 	}
 }
 

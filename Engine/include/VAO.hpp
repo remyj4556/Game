@@ -21,8 +21,8 @@ class VAO {
 
 		void linkAttribFloat(VBO &vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
 		void linkAttribInt(VBO& vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
-		void bind();
-		void unbind();
+		void bind() const;
+		void unbind() const;
 		void del();
 		const GLuint getID();
 

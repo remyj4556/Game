@@ -1,18 +1,22 @@
 #include "../include/Renderer.hpp"
 #include "../include/ChunkCoordinates.hpp"
+#include "../include/ChunkRenderRequest.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Camera.hpp"
 #include "../include/LightManager.hpp"
 #include "../include/Mesh.hpp"
 #include "../include/TextureLibrary.hpp"
 #include "../include/Paths.hpp"
+#include <queue>
+#include <utility>
 
-// TODO: Don't hardcode shader paths
-Renderer::Renderer(GLFWwindow* window, const Paths& paths) 
+Renderer::Renderer(GLFWwindow* window, std::queue<ChunkRenderRequest>& chunk_render_queue, std::queue<ChunkCoordinates>& chunk_unload_queue, const Paths& paths)
 	: render_distance(500.0f)
 	, block_shader(paths.shaders / "lightingShader.vs", paths.shaders / "lightingShader.fs")
 	, light_shader(paths.shaders / "lightCubeShader.vs", paths.shaders / "lightCubeShader.fs")
 	, clear_color(DEFAULT_COLOR)
+	, chunk_render_queue(chunk_render_queue)
+	, chunk_unload_queue(chunk_unload_queue)
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 
@@ -73,21 +77,32 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 	texture_library.bind();
 }
 
-void Renderer::renderChunk(Chunk& chunk) {
-	// translate chunk model matrix based on position in world
-	glm::mat4 model = glm::mat4(1.0f);
+void Renderer::processQueuedChunkMeshes() {
+	while (!chunk_render_queue.empty()) {
+		ChunkRenderRequest current_request = std::move(chunk_render_queue.front());
+		chunk_render_queue.pop();
 
-	ChunkCoordinates chunk_pos = chunk.getChunkPosition(); 
+		chunk_meshes[current_request.chunk_coord] = std::move(current_request.chunk_mesh);
+	}
+}
+
+void Renderer::drawChunks() {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
-	chunk_pos.x *= chunk_size;
-	chunk_pos.y *= chunk_size;
-	chunk_pos.z *= chunk_size;
+	// draw all chunks in hashmap
+	for (const auto& [chunk_coord, chunk_mesh] : chunk_meshes) {
+		glm::mat4 model = glm::mat4(1.0f);
 
-	model = glm::translate(model, glm::vec3(chunk_pos.x, chunk_pos.y, chunk_pos.z));
-	block_shader.setMat4("model", model);
+		int x = chunk_coord.x * chunk_size;
+		int y = chunk_coord.y * chunk_size;
+		int z = chunk_coord.z * chunk_size;
 
-	chunk.chunk_mesh.draw();
+		// translate chunk model matrix based on position in world
+		model = glm::translate(model, glm::vec3(x, y, z));
+		block_shader.setMat4("model", model);
+
+		chunk_mesh.draw();
+	}
 }
 
 void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
@@ -110,6 +125,10 @@ void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 
 	// render the cube
 	light_mesh.draw();
+}
+
+void Renderer::unloadChunkMesh(ChunkCoordinates chunk_coord) {
+	chunk_meshes.erase(chunk_coord);
 }
 
 void Renderer::uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const {

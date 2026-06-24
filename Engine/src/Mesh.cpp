@@ -65,7 +65,7 @@ void Mesh::buildMesh() {
 	vao.unbind();
 }
 
-void Mesh::draw() {
+void Mesh::draw() const {
 	// draw the mesh
 	vao.bind();
 

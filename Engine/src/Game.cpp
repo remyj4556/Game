@@ -8,15 +8,16 @@
 #include <cmath>
 #include <iostream>
 
-Game::Game(GLFWwindow* window) 
+Game::Game(GLFWwindow* window)
 	: window(window)
 	, camera(glm::vec3(0.0f, 0.0f, 0.0f))
 	, first_mouse(true)
 	, delta_time(0.0f)
 	, last_frame(0.0f)
-	, game_time(0.0f)
+	, game_time(1.0f)
 	, resource_manager(paths)
-	, renderer(window, paths)
+	, world(chunk_render_queue, chunk_unload_queue)
+	, renderer(window, chunk_render_queue, chunk_unload_queue, paths)
 	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
@@ -34,7 +35,7 @@ void Game::run() {
 	float fps = 0.0f;
 	int count = 0;
 	int render_distance_slider = current_stream_target.chunk_load_radius;
-	bool enable_daylight_cycle = true;
+	bool enable_daylight_cycle = false;
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -80,10 +81,16 @@ void Game::run() {
 
 		// rendering
 		renderer.beginFrame(camera, light_manager, resource_manager.getTextureLibrary());
+		renderer.processQueuedChunkMeshes();
+		renderer.drawChunks();
+		
+		// unload out of range chunks
+		while (!chunk_unload_queue.empty()) {
+			ChunkCoordinates current_chunk_coord = chunk_unload_queue.front();
+			chunk_unload_queue.pop();
 
-
-		for (Chunk* chunk : world.getVisibleChunks(current_stream_target)) {
-			renderer.renderChunk(*chunk);
+			renderer.unloadChunkMesh(current_chunk_coord);
+			world.unloadChunk(current_chunk_coord);
 		}
 
 		// imgui windows with info ------------------------------------------
@@ -119,8 +126,8 @@ void Game::run() {
 void Game::processInput() {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	const float camera_speed = 10;
-	camera.movement_speed = camera_speed;
+
+	camera.movement_speed = 35;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.processKeyboard(FORWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -202,5 +209,5 @@ void Game::onResize(int width, int height) {
 
 void Game::setTargetRenderDistance(int value) {
 	current_stream_target.chunk_load_radius = value;
-	renderer.setRenderDistance(Chunk::CHUNK_SIZE * (current_stream_target.chunk_load_radius - 1));
+	//renderer.setRenderDistance(Chunk::CHUNK_SIZE * (current_stream_target.chunk_load_radius - 1));
 }

@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <queue>
 
 #include "World.hpp"
 #include "Renderer.hpp"
@@ -10,7 +11,8 @@
 #include "ResourceManager.hpp"
 #include "LightManager.hpp"
 #include "Paths.hpp"
-
+#include "ChunkRenderRequest.hpp"
+#include "ChunkCoordinates.hpp"
 
 class Game {
 	private:
@@ -29,17 +31,24 @@ class Game {
 		float last_frame;
 		float game_time;
 
+		// world calls ChunkMesher on chunks and adds their meshes to this queue,
+		// renderer pulls from this queue and renders them asynchronously
+		std::queue<ChunkRenderRequest> chunk_render_queue;
+		// world pushes chunks outside of render distance to this queue,
+		// world unloads them and renderer deletes their mesh data
+		std::queue<ChunkCoordinates> chunk_unload_queue;
+
 		Paths paths;
 		ResourceManager resource_manager;
 		World world;
-		LightManager light_manager; 
 		Renderer renderer;
+		LightManager light_manager; 
 
 		// current stream target acts as the "main player", can be switched out however to allow for multiple cameras/players/perspectives
 		StreamTarget current_stream_target;
 
 		// sets the current StreamTarget render distance to provided value (in chunks)
-		// maintains invariant that OpenGL render distance is proportional
+		// maintains invariant that OpenGL draw distance is proportional
 		void setTargetRenderDistance(int value);
 		
 

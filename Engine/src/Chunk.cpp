@@ -3,15 +3,15 @@
 #include "../include/LocalCoordinates.hpp"
 #include "../include/Mesh.hpp"
 
-Chunk::Chunk() :chunk_position({0,0,0}), chunk_mesh(Mesh()), dirty(true) {
-}
+Chunk::Chunk() 
+	: chunk_position({0,0,0})
+	, blocks{0}
+{}
 
-Chunk::Chunk(ChunkCoordinates coordinates) : chunk_position(coordinates), chunk_mesh(Mesh()), dirty(true) {
-}
-
-void Chunk::printChunkVertices() {
-	chunk_mesh.printInfo();
-}
+Chunk::Chunk(ChunkCoordinates coordinates) 
+	: chunk_position(coordinates)
+	, blocks{0}
+{}
 
 const Block Chunk::getBlock(LocalCoordinates coordinates) const {
 	return blocks[index(coordinates.x, coordinates.y, coordinates.z)];

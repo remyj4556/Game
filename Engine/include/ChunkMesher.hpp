@@ -7,16 +7,17 @@
 #include "Block.hpp"
 
 #include <utility>
+#include <memory>
 
 class ChunkGroup {
 	public:
-		Chunk* main;   // central Chunk to be meshed
-		Chunk* left;   // -X
-		Chunk* right;  // +X
+		Chunk* main; // central Chunk to be meshed
+		Chunk* left; // -X
+		Chunk* right; // +X
 		Chunk* bottom; // -Y
-		Chunk* top;    // +Y
-		Chunk* back;   // -Z
-		Chunk* front;  // +Z
+		Chunk* top; // +Y
+		Chunk* front; // +Z
+		Chunk* back; // -Z
 
 		ChunkGroup() : main(nullptr), left(nullptr), right(nullptr), bottom(nullptr), top(nullptr), back(nullptr), front(nullptr) {}
 
@@ -60,7 +61,7 @@ class ChunkGroup {
 		}
 };
 
-// Chunk Mesher basically acts as just a utility function, taking in a Chunk and creating its mesh.
+
 class ChunkMesher {
 	private:
 		enum class Direction {
@@ -93,17 +94,11 @@ class ChunkMesher {
 			// 5: Top (+Y)
 			{ {0,1,0}, {1,1,0}, {1,1,1}, {0,1,1} }
 		};
-		// LL - LR - TR - TL vertex order
-		glm::vec2 face_local_uvs[4] = {
-			{0, 0},
-			{1, 0},
-			{1, 1},
-			{0, 1}
-		};
 
 		void addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices) const;
 
 	public:
+		// returns pair of Vertices and corresponding Indices
 		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildNaiveMesh(ChunkGroup chunks);
 		std::pair<std::vector<Vertex>, std::vector<GLuint>> buildGreedyMesh(ChunkGroup chunks);
 };

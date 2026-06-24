@@ -37,7 +37,6 @@ TextureLibrary::TextureLibrary(const std::filesystem::path& texture_dir_path, GL
         }
 
         texture_name_to_id[dir_entry.path().stem().string()] = texture_buffers.size();
-        std::cout << "texture: " << dir_entry.path().stem().string() << " has ID: " << texture_buffers.size() << "\n";
         texture_buffers.push_back(data);
     }
 

@@ -38,11 +38,11 @@ void VAO::linkAttribInt(VBO& vbo, GLuint layout, GLuint numComponents, GLenum ty
 	vbo.unbind();
 }
 
-void VAO::bind() {
+void VAO::bind() const{
 	glBindVertexArray(ID);
 }
 
-void VAO::unbind() {
+void VAO::unbind() const {
 	glBindVertexArray(0);
 }
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <cstdint>
+#include <array>
 
 
 std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks) {
@@ -73,7 +74,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
         for (int depth = 0; depth < N; ++depth) {
             std::fill(visited.begin(), visited.end(), 0);
 
-            // --- Flatten current and neighbor slices into local arrays ---
+            // flatten current and neighbor slices into local arrays
             for (int j = 0; j < N; ++j) {
                 for (int i = 0; i < N; ++i) {
                     int pos[3], npos[3];
@@ -90,7 +91,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                 }
             }
 
-            // --- Build mask from flattened slices ---
+            // build mask from flattened slices
             for (int j = 0; j < N; ++j) {
                 for (int i = 0; i < N; ++i) {
                     uint16_t cur = sliceCurrent[j * N + i];
@@ -99,7 +100,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                 }
             }
 
-            // --- Greedy merge ---
+            // greedy merge 
             for (int j = 0; j < N; ++j) {
                 for (int i = 0; i < N; ++i) {
                     if (visited[j * N + i]) continue;
@@ -107,7 +108,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                     uint16_t bid = mask[j * N + i];
                     if (bid == 0) continue;
 
-                    // Expand width along i
+                    // expand width along i
                     int width = 1;
                     while (i + width < N
                         && !visited[j * N + (i + width)]
@@ -116,7 +117,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                         ++width;
                     }
 
-                    // Expand height along j
+                    // expand height along j
                     int height = 1;
                     while (j + height < N) {
                         bool rowOk = true;
@@ -131,12 +132,12 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                         ++height;
                     }
 
-                    // Mark consumed
+                    // mark as consumed
                     for (int dj = 0; dj < height; ++dj)
                         for (int di = 0; di < width; ++di)
                             visited[(j + dj) * N + (i + di)] = 1;
 
-                    // --- Build quad ---
+                    // build quad
                     int corner[3];
                     corner[fd.d] = depth + (fd.normalSign == +1 ? 1 : 0);
                     corner[fd.u] = i;

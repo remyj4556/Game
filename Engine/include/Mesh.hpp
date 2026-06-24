@@ -35,7 +35,7 @@ class Mesh {
 		Mesh& operator=(const Mesh&) = delete;
 
 		void buildMesh();
-		void draw();
+		void draw() const;
 		void printInfo();
 };
 

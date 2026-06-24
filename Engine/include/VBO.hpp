@@ -22,8 +22,8 @@ class VBO {
 		VBO(const VBO&) = delete;
 		VBO& operator=(const VBO&) = delete;
 
-		void bind();
-		void unbind();
+		void bind() const;
+		void unbind() const ;
 		void del();
 		const GLuint getID() const;
 

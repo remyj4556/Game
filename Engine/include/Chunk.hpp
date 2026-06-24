@@ -16,14 +16,6 @@ class Chunk {
 		Chunk(ChunkCoordinates coordinates);
 		static constexpr int CHUNK_SIZE = 32;
 
-		// TODO: change the single chunk_mesh into opaque_mesh, transparent_mesh, cutout_mesh, etc.
-		// these are rendered separately in the render loop, and within the meshes we can still
-		// have different materials (sampled in the shader), for, say, reflectivity of metal vs. wood
-		Mesh chunk_mesh;
-
-		// dirty flag signals if the chunk has been altered
-		bool dirty;
-
 		// block access
 		const Block getBlock(LocalCoordinates coordinates) const;
 		void setBlock(LocalCoordinates coordinates, Block block);
@@ -35,8 +27,6 @@ class Chunk {
 		}
 
 		const ChunkCoordinates getChunkPosition() const;
-
-		void printChunkVertices();
 
 	private:
 		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks;

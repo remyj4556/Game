@@ -326,6 +326,9 @@
     <ClInclude Include="include\Paths.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ChunkRenderRequest.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\shaders\lightCubeShader.fs">

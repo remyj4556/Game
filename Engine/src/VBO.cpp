@@ -36,11 +36,11 @@ VBO& VBO::operator=(VBO&& other) noexcept {
 	return *this;
 }
 
-void VBO::bind() {
+void VBO::bind() const {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
 
-void VBO::unbind() {
+void VBO::unbind() const {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

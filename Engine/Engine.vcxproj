@@ -197,6 +197,7 @@
     <ClInclude Include="include\Chunk.hpp" />
     <ClInclude Include="include\ChunkCoordinates.hpp" />
     <ClInclude Include="include\ChunkMesher.hpp" />
+    <ClInclude Include="include\ChunkRenderRequest.hpp" />
     <ClInclude Include="include\EBO.hpp" />
     <ClInclude Include="include\FastNoiseLite.h" />
     <ClInclude Include="include\Game.hpp" />
