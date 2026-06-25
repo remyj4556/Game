@@ -84,7 +84,7 @@
     <ClCompile Include="src\LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ChunkCoordinates.cpp">
+    <ClCompile Include="src\Coordinates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Game.cpp">
@@ -97,12 +97,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ResourceManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\WorldCoordinates.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LocalCoordinates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_demo.cpp">
@@ -194,7 +188,7 @@
     <ClInclude Include="include\LightManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ChunkCoordinates.hpp">
+    <ClInclude Include="include\Coordinates.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game.hpp">
@@ -213,12 +207,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Block.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\WorldCoordinates.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\LocalCoordinates.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\imgui\imgui_impl_glfw.h">
@@ -326,7 +314,7 @@
     <ClInclude Include="include\Paths.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ChunkRenderRequest.hpp">
+    <ClInclude Include="include\RenderRequest.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

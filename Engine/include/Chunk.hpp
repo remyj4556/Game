@@ -2,8 +2,8 @@
 #define CHUNK_HPP
 
 #include "Mesh.hpp"
-#include "ChunkCoordinates.hpp"
-#include "LocalCoordinates.hpp"
+#include "Coordinates.hpp"
+#include "Coordinates.hpp"
 #include "Block.hpp"
 
 #include <cstdint>
@@ -13,12 +13,12 @@
 class Chunk {
 	public:
 		Chunk();
-		Chunk(ChunkCoordinates coordinates);
+		Chunk(CoordinateSystem::ChunkCoordinates coordinates);
 		static constexpr int CHUNK_SIZE = 32;
 
 		// block access
-		const Block getBlock(LocalCoordinates coordinates) const;
-		void setBlock(LocalCoordinates coordinates, Block block);
+		const Block getBlock(CoordinateSystem::LocalCoordinates coordinates) const;
+		void setBlock(CoordinateSystem::LocalCoordinates coordinates, Block block);
 		inline int index(int x, int y, int z) const {
 			return x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE));
 		}
@@ -26,11 +26,11 @@ class Chunk {
 			return blocks[x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE))];
 		}
 
-		const ChunkCoordinates getChunkPosition() const;
+		const CoordinateSystem::ChunkCoordinates getChunkPosition() const;
 
 	private:
 		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks;
-		ChunkCoordinates chunk_position;
+		CoordinateSystem::ChunkCoordinates chunk_position;
 };
 
 #endif

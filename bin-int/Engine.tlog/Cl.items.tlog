@@ -1,7 +1,7 @@
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\BlockRegistry.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\BlockRegistry.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Camera.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Camera.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Chunk.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Chunk.obj
-C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ChunkCoordinates.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ChunkCoordinates.obj
+C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Coordinates.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Coordinates.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ChunkMesher.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ChunkMesher.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\EBO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\EBO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Game.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Game.obj
@@ -14,7 +14,6 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\imgui\imgui_impl_opengl3.cpp;
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\imgui\imgui_tables.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\imgui_tables.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\imgui\imgui_widgets.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\imgui_widgets.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\LightManager.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\LightManager.obj
-C:\Users\remyj\source\repos\VoxelEngine\Engine\src\LocalCoordinates.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\LocalCoordinates.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\main.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\main.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Mesh.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Mesh.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ModelLibrary.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ModelLibrary.obj
@@ -30,4 +29,3 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VAO.cpp;C:\Users\remyj\source
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VBO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\VBO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\whereami.c;C:\Users\remyj\source\repos\VoxelEngine\bin-int\whereami.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\World.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\World.obj
-C:\Users\remyj\source\repos\VoxelEngine\Engine\src\WorldCoordinates.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\WorldCoordinates.obj

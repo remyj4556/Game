@@ -16,8 +16,8 @@ Game::Game(GLFWwindow* window)
 	, last_frame(0.0f)
 	, game_time(1.0f)
 	, resource_manager(paths)
-	, world(chunk_render_queue, chunk_unload_queue)
-	, renderer(window, chunk_render_queue, chunk_unload_queue, paths)
+	, world(load_queue, unload_queue)
+	, renderer(window, load_queue, unload_queue, paths)
 	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
@@ -85,9 +85,9 @@ void Game::run() {
 		renderer.drawChunks();
 		
 		// unload out of range chunks
-		while (!chunk_unload_queue.empty()) {
-			ChunkCoordinates current_chunk_coord = chunk_unload_queue.front();
-			chunk_unload_queue.pop();
+		while (!unload_queue.empty()) {
+			CoordinateSystem::ChunkCoordinates current_chunk_coord = unload_queue.front();
+			unload_queue.pop();
 
 			renderer.unloadChunkMesh(current_chunk_coord);
 			world.unloadChunk(current_chunk_coord);

@@ -16,8 +16,8 @@
 #include "glm/fwd.hpp"
 #include "glm/glm.hpp"
 #include "Paths.hpp"
-#include "ChunkCoordinates.hpp"
-#include "ChunkRenderRequest.hpp"
+#include "Coordinates.hpp"
+#include "RenderRequest.hpp"
 
 class Renderer {
 	private:
@@ -30,39 +30,38 @@ class Renderer {
 		Shader light_shader;
 
 		const glm::vec4 DEFAULT_COLOR = glm::vec4(0.53f, 0.81f, 0.92f, 1.0f);
-		glm::vec4 clear_color; // sky color
+		glm::vec4 clear_color;
 
 		glm::mat4 projection;
 		glm::mat4 view;
 
 		// references to queues owned by Game
-		std::queue<ChunkRenderRequest>& chunk_render_queue;
-		std::queue<ChunkCoordinates>& chunk_unload_queue;
+		std::queue<RenderRequest>& load_queue;
+		std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue;
 
 		// storage for meshes of all loaded chunks
-		std::unordered_map<ChunkCoordinates, Mesh, CoordinatesHash> chunk_meshes;
+		std::unordered_map<CoordinateSystem::ChunkCoordinates, Mesh, CoordinateSystem::ChunkCoordinatesHash> chunk_meshes;
 
 	public:
-		Renderer(GLFWwindow *window, std::queue<ChunkRenderRequest>& chunk_render_queue, std::queue<ChunkCoordinates>& chunk_unload_queue, const Paths& paths);
+		Renderer(GLFWwindow *window, std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths);
 		~Renderer();
 
 		void beginFrame(Camera& camera, LightManager &light_manager, const TextureLibrary& texture_library);
 		void processQueuedChunkMeshes();
 		void drawChunks();
-		void unloadChunkMesh(ChunkCoordinates chunk_coord);
+		void unloadChunkMesh(CoordinateSystem::ChunkCoordinates chunk_coord);
 
 		void setClearColor(glm::vec4 color);
 		glm::vec4 getClearColor() const;
 		glm::vec4 getDefaultClearColor() const;
-
-		// visualized dynamic debug light
-		void renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos);
-
-		// upload UBO containing block definitions to GPU
-		void uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const;
-
 		void setRenderDistance(float value);
 		float getRenderDistance() const;
+
+		void renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos);
+
+		void uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const;
+
+		
 };
 
 

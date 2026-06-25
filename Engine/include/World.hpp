@@ -3,13 +3,13 @@
 
 #include "Chunk.hpp"
 #include "ChunkMesher.hpp"
-#include "ChunkCoordinates.hpp"
-#include "WorldCoordinates.hpp"
-#include "LocalCoordinates.hpp"
+#include "Coordinates.hpp"
+#include "Coordinates.hpp"
+#include "Coordinates.hpp"
 #include "FastNoiseLite.h"
 #include "Mesh.hpp"
 #include "Block.hpp"
-#include "ChunkRenderRequest.hpp"
+#include "RenderRequest.hpp"
 #include <unordered_map>
 #include <queue>
 #include <unordered_set>
@@ -23,7 +23,7 @@ struct StreamTarget {
 };
 
 struct ChunkLoadRequest {
-	ChunkCoordinates coordinates;
+	CoordinateSystem::ChunkCoordinates coordinates;
 	float dist_to_target;
 
 	bool operator>(const ChunkLoadRequest& other) const {
@@ -33,19 +33,19 @@ struct ChunkLoadRequest {
 
 class World {
 	private:
-		ChunkCoordinates last_streamed_chunk_coord;
+		CoordinateSystem::ChunkCoordinates last_streamed_chunk_coord;
 		int last_radius;
 
 		// references to queues owned by Game
-		std::queue<ChunkRenderRequest>& chunk_render_queue;
-		std::queue<ChunkCoordinates>& chunk_unload_queue;
+		std::queue<RenderRequest>& load_queue;
+		std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue;
 
 		FastNoiseLite noise;
 		ChunkMesher chunk_mesher;
 		std::priority_queue<ChunkLoadRequest, std::vector<ChunkLoadRequest>, std::greater<ChunkLoadRequest>> queued_chunks_to_load;
-		std::unordered_set<ChunkCoordinates, CoordinatesHash> unique_queued_chunks_to_load;
-		std::unordered_map<ChunkCoordinates, std::unique_ptr<Chunk>, CoordinatesHash> loaded_chunks;
-		std::queue<ChunkCoordinates> dirty_chunks;
+		std::unordered_set<CoordinateSystem::ChunkCoordinates, CoordinateSystem::ChunkCoordinatesHash> unique_queued_chunks_to_load;
+		std::unordered_map<CoordinateSystem::ChunkCoordinates, std::unique_ptr<Chunk>, CoordinateSystem::ChunkCoordinatesHash> loaded_chunks;
+		std::queue<CoordinateSystem::ChunkCoordinates> dirty_chunks;
 		
 		// TODO: push data to a DebugRegistry or something, which ImGUI can then read from independently.
 		int total_vertices_generated = 0;
@@ -57,19 +57,19 @@ class World {
 		void streamTerrain(StreamTarget target);
 		void loadQueuedChunks();
 		void enqueueChunkMeshes();
-		std::unique_ptr<Chunk> genChunk(ChunkCoordinates coordinates);
+		std::unique_ptr<Chunk> genChunk(CoordinateSystem::ChunkCoordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
-		Block blockAtWorldPos(WorldCoordinates world_coords);
-		ChunkGroup getSurroundingChunks(ChunkCoordinates chunk_coord) const;
-		std::vector<ChunkCoordinates> getSurroundingChunkCoordinates(ChunkCoordinates chunk_coord) const;
+		Block blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords);
+		ChunkGroup getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord) const;
+		std::vector<CoordinateSystem::ChunkCoordinates> getSurroundingChunkCoordinates(CoordinateSystem::ChunkCoordinates chunk_coord) const;
 
 	public:
-		World(std::queue<ChunkRenderRequest>& chunk_render_queue, std::queue<ChunkCoordinates>& chunk_unload_queue);
+		World(std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue);
 		void update(StreamTarget target);
-		WorldCoordinates chunkToWorld(ChunkCoordinates chunk_coords);
-		ChunkCoordinates worldToChunk(WorldCoordinates world_coords);
-		WorldCoordinates localToWorld(ChunkCoordinates chunk_coords, LocalCoordinates local_coords);
-		void unloadChunk(ChunkCoordinates chunk_coord);
+		CoordinateSystem::WorldCoordinates chunkToWorld(CoordinateSystem::ChunkCoordinates chunk_coords);
+		CoordinateSystem::ChunkCoordinates worldToChunk(CoordinateSystem::WorldCoordinates world_coords);
+		CoordinateSystem::WorldCoordinates localToWorld(CoordinateSystem::ChunkCoordinates chunk_coords, CoordinateSystem::LocalCoordinates local_coords);
+		void unloadChunk(CoordinateSystem::ChunkCoordinates chunk_coord);
 };
 
 #endif

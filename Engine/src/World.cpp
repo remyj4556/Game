@@ -1,13 +1,13 @@
 #include "../include/World.hpp"
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
-#include "../include/ChunkCoordinates.hpp"
-#include "../include/WorldCoordinates.hpp"
-#include "../include/LocalCoordinates.hpp"
+#include "../include/Coordinates.hpp"
+#include "../include/Coordinates.hpp"
+#include "../include/Coordinates.hpp"
 #include "../include/Block.hpp"
 #include "../include/Vertex.hpp"
 #include "../include/Mesh.hpp"
-#include "../include/ChunkRenderRequest.hpp"
+#include "../include/RenderRequest.hpp"
 
 #include <vector>
 #include <cmath>
@@ -21,20 +21,20 @@
 #include <iostream>
 #include <queue>
 
-World::World(std::queue<ChunkRenderRequest>& chunk_render_queue, std::queue<ChunkCoordinates>& chunk_unload_queue)
+World::World(std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue)
 	: last_streamed_chunk_coord({ 0, 0, 0 })
 	, last_radius(0)
-	, chunk_render_queue(chunk_render_queue)
-	, chunk_unload_queue(chunk_unload_queue)
+	, load_queue(load_queue)
+	, unload_queue(unload_queue)
 {
 	noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 	noise.SetFrequency(0.02);
 }
 
-WorldCoordinates World::chunkToWorld(ChunkCoordinates chunk_coords) {
+CoordinateSystem::WorldCoordinates World::chunkToWorld(CoordinateSystem::ChunkCoordinates chunk_coords) {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
-	WorldCoordinates c;
+	CoordinateSystem::WorldCoordinates c;
 	c.x = chunk_coords.x * chunk_size;
 	c.y = chunk_coords.y * chunk_size;
 	c.z = chunk_coords.z * chunk_size;
@@ -42,10 +42,10 @@ WorldCoordinates World::chunkToWorld(ChunkCoordinates chunk_coords) {
 	return c;
 }
 
-ChunkCoordinates World::worldToChunk(WorldCoordinates world_coords) {
+CoordinateSystem::ChunkCoordinates World::worldToChunk(CoordinateSystem::WorldCoordinates world_coords) {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
-	ChunkCoordinates c;
+	CoordinateSystem::ChunkCoordinates c;
 	c.x = std::floor(static_cast<double>(world_coords.x) / chunk_size);
 	c.y = std::floor(static_cast<double>(world_coords.y) / chunk_size);
 	c.z = std::floor(static_cast<double>(world_coords.z) / chunk_size);
@@ -53,8 +53,8 @@ ChunkCoordinates World::worldToChunk(WorldCoordinates world_coords) {
 	return c;
 }
 
-WorldCoordinates World::localToWorld(ChunkCoordinates chunk_coords, LocalCoordinates local_coords) {
-	WorldCoordinates world_coords = chunkToWorld(chunk_coords);
+CoordinateSystem::WorldCoordinates World::localToWorld(CoordinateSystem::ChunkCoordinates chunk_coords, CoordinateSystem::LocalCoordinates local_coords) {
+	CoordinateSystem::WorldCoordinates world_coords = chunkToWorld(chunk_coords);
 
 	world_coords.x += local_coords.x;
 	world_coords.y += local_coords.y;
@@ -63,10 +63,10 @@ WorldCoordinates World::localToWorld(ChunkCoordinates chunk_coords, LocalCoordin
 	return world_coords;
 }
 
-Block World::blockAtWorldPos(WorldCoordinates world_coords) {
+Block World::blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords) {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
-	ChunkCoordinates chunk_coords = worldToChunk(world_coords);
+	CoordinateSystem::ChunkCoordinates chunk_coords = worldToChunk(world_coords);
 	uint8_t local_x = world_coords.x - chunk_coords.x * chunk_size;
 	uint8_t local_y = world_coords.y - chunk_coords.y * chunk_size;
 	uint8_t local_z = world_coords.z - chunk_coords.z * chunk_size;
@@ -83,7 +83,7 @@ void World::streamTerrain(StreamTarget target) {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
 	// get target position
-	ChunkCoordinates current_chunk_coord;
+	CoordinateSystem::ChunkCoordinates current_chunk_coord;
 	current_chunk_coord.x = std::floor(static_cast<double>(target.pos.x) / chunk_size);
 	current_chunk_coord.y = std::floor(static_cast<double>(target.pos.y) / chunk_size);
 	current_chunk_coord.z = std::floor(static_cast<double>(target.pos.z) / chunk_size);
@@ -94,8 +94,8 @@ void World::streamTerrain(StreamTarget target) {
 
 	// rebuild priority queue to ensure nearest/newest chunks are processed first
 	queued_chunks_to_load = std::priority_queue<ChunkLoadRequest, std::vector<ChunkLoadRequest>, std::greater<ChunkLoadRequest>>();
-	std::vector<ChunkCoordinates> to_remove;
-	for (ChunkCoordinates chunk_coord : unique_queued_chunks_to_load) {
+	std::vector<CoordinateSystem::ChunkCoordinates> to_remove;
+	for (CoordinateSystem::ChunkCoordinates chunk_coord : unique_queued_chunks_to_load) {
 		float distance = squaredDistance({ chunk_coord.x * chunk_size, chunk_coord.y * chunk_size, chunk_coord.z * chunk_size }, target.pos);
 
 		if (distance > (target.chunk_load_radius * target.chunk_load_radius)) {
@@ -106,7 +106,7 @@ void World::streamTerrain(StreamTarget target) {
 		queued_chunks_to_load.push({ chunk_coord, distance });
 	}
 
-	for (ChunkCoordinates chunk_coord : to_remove) {
+	for (CoordinateSystem::ChunkCoordinates chunk_coord : to_remove) {
 		unique_queued_chunks_to_load.erase(chunk_coord);
 	}
 
@@ -117,7 +117,7 @@ void World::streamTerrain(StreamTarget target) {
 		for (int z = -target.chunk_load_radius; z <= target.chunk_load_radius; ++z) {
 			for (int y = -target.chunk_load_radius; y <= target.chunk_load_radius; ++y) {
 				// get coordinates of neighboring chunk
-				ChunkCoordinates chunk_coord;
+				CoordinateSystem::ChunkCoordinates chunk_coord;
 				chunk_coord.x = current_chunk_coord.x + x;
 				chunk_coord.y = current_chunk_coord.y + y;
 				chunk_coord.z = current_chunk_coord.z + z;
@@ -151,12 +151,12 @@ void World::streamTerrain(StreamTarget target) {
 		float distance = squaredDistance(chunk_position, target_chunk_position);
 
 		if (distance > (target.chunk_load_radius * target.chunk_load_radius)) {
-			chunk_unload_queue.push(ChunkCoordinates(chunk_coord.x, chunk_coord.y, chunk_coord.z));
+			unload_queue.push(CoordinateSystem::ChunkCoordinates(chunk_coord.x, chunk_coord.y, chunk_coord.z));
 		}
 	}
 }
 
-std::unique_ptr<Chunk> World::genChunk(ChunkCoordinates coordinates) {
+std::unique_ptr<Chunk> World::genChunk(CoordinateSystem::ChunkCoordinates coordinates) {
 	auto gen_start = std::chrono::high_resolution_clock::now();
 
 	std::unique_ptr<Chunk> chunk = std::make_unique<Chunk>(coordinates);
@@ -168,10 +168,10 @@ std::unique_ptr<Chunk> World::genChunk(ChunkCoordinates coordinates) {
 
 			for (uint8_t y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
-					chunk->setBlock(LocalCoordinates(x,y,z), Block(1));
+					chunk->setBlock(CoordinateSystem::LocalCoordinates(x,y,z), Block(1));
 				}
 				if ((coordinates.y * chunk_size + y) == height) {
-					chunk->setBlock(LocalCoordinates(x, y, z), Block(3));
+					chunk->setBlock(CoordinateSystem::LocalCoordinates(x, y, z), Block(3));
 				}
 			}
 		
@@ -186,7 +186,7 @@ std::unique_ptr<Chunk> World::genChunk(ChunkCoordinates coordinates) {
 	return chunk;
 }
 
-void World::unloadChunk(ChunkCoordinates chunk_coord) {
+void World::unloadChunk(CoordinateSystem::ChunkCoordinates chunk_coord) {
 	// TODO: write to disk
 	loaded_chunks.erase(chunk_coord);
 }
@@ -212,7 +212,7 @@ void World::loadQueuedChunks() {
 
 		// enqueue chunk and neighbors to dirty queue to be (re)meshed
 		dirty_chunks.push(current_load_request.coordinates);
-		for (ChunkCoordinates chunk_coord : getSurroundingChunkCoordinates(current_load_request.coordinates)) {
+		for (CoordinateSystem::ChunkCoordinates chunk_coord : getSurroundingChunkCoordinates(current_load_request.coordinates)) {
 			dirty_chunks.push(chunk_coord);
 		}
 	}
@@ -222,13 +222,13 @@ void World::enqueueChunkMeshes() {
 	auto deadline = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(50);
 
 	while (!dirty_chunks.empty() && std::chrono::high_resolution_clock::now() < deadline) {
-		ChunkCoordinates current_chunk_coords = dirty_chunks.front();
+		CoordinateSystem::ChunkCoordinates current_chunk_coords = dirty_chunks.front();
 		dirty_chunks.pop();
 
 		auto mesh_start_time = std::chrono::high_resolution_clock::now();
 
 		auto [mesh_vertices, mesh_indices] = chunk_mesher.buildGreedyMesh(getSurroundingChunks(current_chunk_coords));
-		chunk_render_queue.push(ChunkRenderRequest(current_chunk_coords, Mesh(mesh_vertices, mesh_indices)));
+		load_queue.push(RenderRequest(current_chunk_coords, Mesh(mesh_vertices, mesh_indices)));
 
 		auto mesh_end_time = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration<double, std::milli>(mesh_end_time - mesh_start_time);
@@ -255,7 +255,7 @@ void World::update(StreamTarget target) {
 	enqueueChunkMeshes();
 }
 
-ChunkGroup World::getSurroundingChunks(ChunkCoordinates chunk_coord) const {
+ChunkGroup World::getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord) const {
 	ChunkGroup group;
 
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y, chunk_coord.z })) {
@@ -283,8 +283,8 @@ ChunkGroup World::getSurroundingChunks(ChunkCoordinates chunk_coord) const {
 	return group;
 }
 
-std::vector<ChunkCoordinates> World::getSurroundingChunkCoordinates(ChunkCoordinates chunk_coord) const {
-	std::vector<ChunkCoordinates> neighbors;
+std::vector<CoordinateSystem::ChunkCoordinates> World::getSurroundingChunkCoordinates(CoordinateSystem::ChunkCoordinates chunk_coord) const {
+	std::vector<CoordinateSystem::ChunkCoordinates> neighbors;
 
 	if (loaded_chunks.contains({ chunk_coord.x - 1, chunk_coord.y, chunk_coord.z })) {
 		neighbors.push_back({ chunk_coord.x - 1, chunk_coord.y, chunk_coord.z });

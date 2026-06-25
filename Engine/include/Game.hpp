@@ -11,8 +11,10 @@
 #include "ResourceManager.hpp"
 #include "LightManager.hpp"
 #include "Paths.hpp"
-#include "ChunkRenderRequest.hpp"
-#include "ChunkCoordinates.hpp"
+#include "RenderRequest.hpp"
+#include "Coordinates.hpp"
+
+struct DebugInfo;
 
 class Game {
 	private:
@@ -31,12 +33,8 @@ class Game {
 		float last_frame;
 		float game_time;
 
-		// world calls ChunkMesher on chunks and adds their meshes to this queue,
-		// renderer pulls from this queue and renders them asynchronously
-		std::queue<ChunkRenderRequest> chunk_render_queue;
-		// world pushes chunks outside of render distance to this queue,
-		// world unloads them and renderer deletes their mesh data
-		std::queue<ChunkCoordinates> chunk_unload_queue;
+		std::queue<RenderRequest> load_queue;
+		std::queue<CoordinateSystem::ChunkCoordinates> unload_queue;
 
 		Paths paths;
 		ResourceManager resource_manager;
@@ -67,7 +65,24 @@ class Game {
 		void onResize(int width, int height);
 
 		void processInput();
-		
+};
+
+struct DebugInfo {
+	// chunk generation
+	float total_gen_time = 0.0f;
+	int chunks_generated = 0;
+
+	// meshing
+	float total_mesh_time = 0.0f;
+	int meshes_generated = 0;
+
+	// rendering
+	int chunks_rendered = 0;
+	int fps = 0;
+
+	void reset() {
+		*this = DebugInfo{};
+	}
 };
 
 #endif

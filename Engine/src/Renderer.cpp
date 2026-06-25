@@ -1,6 +1,6 @@
 #include "../include/Renderer.hpp"
-#include "../include/ChunkCoordinates.hpp"
-#include "../include/ChunkRenderRequest.hpp"
+#include "../include/Coordinates.hpp"
+#include "../include/RenderRequest.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Camera.hpp"
 #include "../include/LightManager.hpp"
@@ -10,13 +10,13 @@
 #include <queue>
 #include <utility>
 
-Renderer::Renderer(GLFWwindow* window, std::queue<ChunkRenderRequest>& chunk_render_queue, std::queue<ChunkCoordinates>& chunk_unload_queue, const Paths& paths)
+Renderer::Renderer(GLFWwindow* window, std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths)
 	: render_distance(500.0f)
 	, block_shader(paths.shaders / "lightingShader.vs", paths.shaders / "lightingShader.fs")
 	, light_shader(paths.shaders / "lightCubeShader.vs", paths.shaders / "lightCubeShader.fs")
 	, clear_color(DEFAULT_COLOR)
-	, chunk_render_queue(chunk_render_queue)
-	, chunk_unload_queue(chunk_unload_queue)
+	, load_queue(load_queue)
+	, unload_queue(unload_queue)
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 
@@ -78,9 +78,9 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 }
 
 void Renderer::processQueuedChunkMeshes() {
-	while (!chunk_render_queue.empty()) {
-		ChunkRenderRequest current_request = std::move(chunk_render_queue.front());
-		chunk_render_queue.pop();
+	while (!load_queue.empty()) {
+		RenderRequest current_request = std::move(load_queue.front());
+		load_queue.pop();
 
 		chunk_meshes[current_request.chunk_coord] = std::move(current_request.chunk_mesh);
 	}
@@ -127,7 +127,7 @@ void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
 	light_mesh.draw();
 }
 
-void Renderer::unloadChunkMesh(ChunkCoordinates chunk_coord) {
+void Renderer::unloadChunkMesh(CoordinateSystem::ChunkCoordinates chunk_coord) {
 	chunk_meshes.erase(chunk_coord);
 }
 

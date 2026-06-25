@@ -157,7 +157,7 @@
     <ClCompile Include="src\BlockRegistry.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
-    <ClCompile Include="src\ChunkCoordinates.cpp" />
+    <ClCompile Include="src\Coordinates.cpp" />
     <ClCompile Include="src\ChunkMesher.cpp" />
     <ClCompile Include="src\EBO.cpp" />
     <ClCompile Include="src\Game.cpp" />
@@ -170,7 +170,6 @@
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\LightManager.cpp" />
-    <ClCompile Include="src\LocalCoordinates.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\ModelLibrary.cpp" />
@@ -186,7 +185,6 @@
     <ClCompile Include="src\VBO.cpp" />
     <ClCompile Include="src\whereami.c" />
     <ClCompile Include="src\World.cpp" />
-    <ClCompile Include="src\WorldCoordinates.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\opengl\Include\glad\glad.h" />
@@ -195,9 +193,9 @@
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
-    <ClInclude Include="include\ChunkCoordinates.hpp" />
+    <ClInclude Include="include\Coordinates.hpp" />
     <ClInclude Include="include\ChunkMesher.hpp" />
-    <ClInclude Include="include\ChunkRenderRequest.hpp" />
+    <ClInclude Include="include\RenderRequest.hpp" />
     <ClInclude Include="include\EBO.hpp" />
     <ClInclude Include="include\FastNoiseLite.h" />
     <ClInclude Include="include\Game.hpp" />
@@ -236,7 +234,6 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\LightManager.hpp" />
-    <ClInclude Include="include\LocalCoordinates.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
     <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Paths.hpp" />
@@ -252,7 +249,6 @@
     <ClInclude Include="include\Vertex.hpp" />
     <ClInclude Include="include\whereami.h" />
     <ClInclude Include="include\World.hpp" />
-    <ClInclude Include="include\WorldCoordinates.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\shaders\lightCubeShader.fs">
