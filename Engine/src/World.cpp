@@ -180,8 +180,8 @@ std::unique_ptr<Chunk> World::genChunk(CoordinateSystem::ChunkCoordinates coordi
 
 	auto gen_end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration<double, std::milli>(gen_end - gen_start);
-	total_gen_time += duration;
-	num_generated++;
+	world_debug_info.total_gen_time += duration;
+	world_debug_info.num_generated++;
 	
 	return chunk;
 }
@@ -219,7 +219,7 @@ void World::loadQueuedChunks() {
 }
 
 void World::enqueueChunkMeshes() {
-	auto deadline = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(50);
+	auto deadline = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(20);
 
 	while (!dirty_chunks.empty() && std::chrono::high_resolution_clock::now() < deadline) {
 		CoordinateSystem::ChunkCoordinates current_chunk_coords = dirty_chunks.front();
@@ -232,24 +232,13 @@ void World::enqueueChunkMeshes() {
 
 		auto mesh_end_time = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration<double, std::milli>(mesh_end_time - mesh_start_time);
-		total_mesh_time += duration;
-		num_meshed++;
-		total_vertices_generated += mesh_vertices.size();
+		world_debug_info.total_mesh_time += duration;
+		world_debug_info.num_meshed++;
+		world_debug_info.total_vertices_generated += mesh_vertices.size();
 	}
 }
 
 void World::update(StreamTarget target) {
-	int chunk_size = Chunk::CHUNK_SIZE;
-
-	// profiling ---------
-	ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
-	ImGui::Begin("Render Info", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Avg Mesh Time: %fms", total_mesh_time / num_meshed);
-	ImGui::Text("Avg Gen Time: %fms", total_gen_time / num_generated);
-	ImGui::Text("Avg Chunk Vertex Count: %f", (float)total_vertices_generated / num_meshed);
-	ImGui::End();
-	// -------------------
-
 	streamTerrain(target);
 	loadQueuedChunks();
 	enqueueChunkMeshes();
@@ -314,5 +303,11 @@ float World::squaredDistance(glm::vec3 a, glm::vec3 b) const {
 	float dz = a.z - b.z;
 
 	return (dx * dx) + (dy * dy) + (dz * dz);
+}
+
+void World::renderWorldDebugInfo() {
+	ImGui::Text("Avg Mesh Time: %fms", world_debug_info.total_mesh_time / world_debug_info.num_meshed);
+	ImGui::Text("Avg Gen Time: %fms", world_debug_info.total_gen_time / world_debug_info.num_generated);
+	ImGui::Text("Avg Chunk Vertex Count: %f", (float)world_debug_info.total_vertices_generated / world_debug_info.num_meshed);
 }
 

@@ -2,11 +2,10 @@
 #include "../include/World.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Paths.hpp"
+#include "../include/Coordinates.hpp"
+#include <vector>
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#include <cmath>
-#include <iostream>
+#include <functional>
 
 Game::Game(GLFWwindow* window)
 	: window(window)
@@ -26,56 +25,50 @@ Game::Game(GLFWwindow* window)
 
 	const auto gpu_defs = resource_manager.fetchGPUBlockDefinitions();
 	renderer.uploadGPUBlockDefinitions(gpu_defs);
+
+	std::function<void()> f_renderEngineDebugInfo = [this]{ renderEngineDebugInfo(); };
+	std::function<void()> f_renderRendererDebugInfo = [this] { renderer.renderRendererDebugInfo(); };
+	std::function<void()> f_renderWorldDebugInfo = [this] { world.renderWorldDebugInfo(); };
+	debug_registry.registerMember("Game", f_renderEngineDebugInfo);
+	debug_registry.registerMember("Renderer", f_renderRendererDebugInfo);
+	debug_registry.registerMember("World", f_renderWorldDebugInfo);
 }
 
 void Game::run() {
-	// for imgui output; TODO: should probably move these somewhere better
-	const int num_frames_averaged = 60;
-	float fps_arr[num_frames_averaged] = { 0 };
-	float fps = 0.0f;
-	int count = 0;
-	int render_distance_slider = current_stream_target.chunk_load_radius;
-	bool enable_daylight_cycle = false;
-
-	// render loop
+	std::vector<int> fps_arr;
+	
 	while (!glfwWindowShouldClose(window)) {
-		// TODO: cleanup/move ImGui code
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
 		// calculate new delta_time
 		float current_frame = glfwGetTime();
 		delta_time = current_frame - last_frame;
 		last_frame = current_frame;
 
 		// average fps calculation
-		fps_arr[count++] = 1 / delta_time;
-		if (count >= num_frames_averaged) {
-			count = 0;
-			fps = 0;
+		fps_arr.push_back(1 / delta_time);
+		if (fps_arr.size() == 60) {
+			engine_debug_info.fps = 0;
 			
 			// get average
-			for (int i = 0; i < num_frames_averaged; ++i) {
-				fps += fps_arr[i];
+			float current_fps = 0.0f;
+			for (int val : fps_arr) {
+				current_fps += val;
 			}
-			fps /= num_frames_averaged;
+
+			engine_debug_info.fps = current_fps / 60;
+			fps_arr.clear();
 		}
 
 		// update light source position
 		light_manager.setPlayerLightPosition(camera.position);
 
 		// update time of day
-		if (enable_daylight_cycle) {
-			game_time = sin(glfwGetTime() * 0.05);
-		}
 		light_manager.setTimeOfDay(game_time);
 		renderer.setClearColor(renderer.getDefaultClearColor() * game_time);
 
 		// input
 		processInput();
 
-		// update world (creates new chunks, handles block placing, etc.)
+		// update world
 		current_stream_target.pos = camera.position;
 		world.update(current_stream_target);
 
@@ -84,7 +77,7 @@ void Game::run() {
 		renderer.processQueuedChunkMeshes();
 		renderer.drawChunks();
 		
-		// unload out of range chunks
+		// coordinate out of range chunks unloading
 		while (!unload_queue.empty()) {
 			CoordinateSystem::ChunkCoordinates current_chunk_coord = unload_queue.front();
 			unload_queue.pop();
@@ -92,30 +85,9 @@ void Game::run() {
 			renderer.unloadChunkMesh(current_chunk_coord);
 			world.unloadChunk(current_chunk_coord);
 		}
-
-		// imgui windows with info ------------------------------------------
-		ImGui::SetNextWindowPos(ImVec2(50, 150), ImGuiCond_Once);
-		ImGui::Begin("Info", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::Text("Position: %i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
-		ImGui::Text("FPS: %i", (int)fps);
-		ImGui::End();
-
-		ImGui::SetNextWindowPos(ImVec2(50, 250), ImGuiCond_Once);
-		ImGui::Begin("Day/Night Cycle", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-		ImGui::Checkbox("Enable", &enable_daylight_cycle);
-		ImGui::SliderFloat("Time", &game_time, 0.0f, 1.0f);
-		ImGui::End();
-
-		ImGui::SetNextWindowPos(ImVec2(50, 350), ImGuiCond_Once);
-		ImGui::Begin("Render Distance:", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-		if (ImGui::SliderInt(" ", &render_distance_slider, 0, 24)) {
-			setTargetRenderDistance(render_distance_slider);
-		}
-		ImGui::End();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		// ------------------------------------------------------------------
+		
+		// render debug data
+		debug_registry.renderMemberData();
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
@@ -209,5 +181,10 @@ void Game::onResize(int width, int height) {
 
 void Game::setTargetRenderDistance(int value) {
 	current_stream_target.chunk_load_radius = value;
-	//renderer.setRenderDistance(Chunk::CHUNK_SIZE * (current_stream_target.chunk_load_radius - 1));
+	renderer.setRenderDistance(Chunk::CHUNK_SIZE * (current_stream_target.chunk_load_radius));
+}
+
+void Game::renderEngineDebugInfo() const {
+	ImGui::Text("Position: %i %i %i", (int)camera.position.x, (int)camera.position.y, (int)camera.position.z);
+	ImGui::Text("FPS: %i", engine_debug_info.fps);
 }

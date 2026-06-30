@@ -19,6 +19,10 @@
 #include "Coordinates.hpp"
 #include "RenderRequest.hpp"
 
+struct RendererDebugInfo {
+
+};
+
 class Renderer {
 	private:
 		int screen_width;
@@ -35,6 +39,8 @@ class Renderer {
 		glm::mat4 projection;
 		glm::mat4 view;
 
+		RendererDebugInfo renderer_debug_info;
+
 		// references to queues owned by Game
 		std::queue<RenderRequest>& load_queue;
 		std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue;
@@ -50,19 +56,16 @@ class Renderer {
 		void processQueuedChunkMeshes();
 		void drawChunks();
 		void unloadChunkMesh(CoordinateSystem::ChunkCoordinates chunk_coord);
-
 		void setClearColor(glm::vec4 color);
 		glm::vec4 getClearColor() const;
 		glm::vec4 getDefaultClearColor() const;
 		void setRenderDistance(float value);
 		float getRenderDistance() const;
-
 		void renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos);
-
 		void uploadGPUBlockDefinitions(std::vector<GPUBlockDefinition> gpu_definitions) const;
-
-		
+		void renderRendererDebugInfo() const;
 };
+
 
 
 

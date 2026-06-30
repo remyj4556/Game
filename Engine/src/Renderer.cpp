@@ -7,7 +7,9 @@
 #include "../include/Mesh.hpp"
 #include "../include/TextureLibrary.hpp"
 #include "../include/Paths.hpp"
+#include "../include/GPUBlockDefinition.hpp"
 #include <queue>
+#include <vector>
 #include <utility>
 
 Renderer::Renderer(GLFWwindow* window, std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths)
@@ -161,4 +163,6 @@ float Renderer::getRenderDistance() const {
 	return render_distance;
 }
 
+void Renderer::renderRendererDebugInfo() const {
 
+}

@@ -17,6 +17,14 @@
 #include <chrono>
 #include <memory>
 
+struct WorldDebugInfo {
+	int total_vertices_generated = 0;
+	int num_generated = 0;
+	int num_meshed = 0;
+	std::chrono::duration<double, std::milli> total_gen_time;
+	std::chrono::duration<double, std::milli> total_mesh_time;
+};
+
 struct StreamTarget {
 	glm::vec3 pos = { 0.0f, 0.0f, 0.0f };
 	int chunk_load_radius = 0;
@@ -46,13 +54,7 @@ class World {
 		std::unordered_set<CoordinateSystem::ChunkCoordinates, CoordinateSystem::ChunkCoordinatesHash> unique_queued_chunks_to_load;
 		std::unordered_map<CoordinateSystem::ChunkCoordinates, std::unique_ptr<Chunk>, CoordinateSystem::ChunkCoordinatesHash> loaded_chunks;
 		std::queue<CoordinateSystem::ChunkCoordinates> dirty_chunks;
-		
-		// TODO: push data to a DebugRegistry or something, which ImGUI can then read from independently.
-		int total_vertices_generated = 0;
-		int num_generated = 0;
-		int num_meshed = 0;
-		std::chrono::duration<double, std::milli> total_gen_time;
-		std::chrono::duration<double, std::milli> total_mesh_time;
+		WorldDebugInfo world_debug_info;
 
 		void streamTerrain(StreamTarget target);
 		void loadQueuedChunks();
@@ -70,6 +72,9 @@ class World {
 		CoordinateSystem::ChunkCoordinates worldToChunk(CoordinateSystem::WorldCoordinates world_coords);
 		CoordinateSystem::WorldCoordinates localToWorld(CoordinateSystem::ChunkCoordinates chunk_coords, CoordinateSystem::LocalCoordinates local_coords);
 		void unloadChunk(CoordinateSystem::ChunkCoordinates chunk_coord);
+		void renderWorldDebugInfo();
 };
+
+
 
 #endif

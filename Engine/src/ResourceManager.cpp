@@ -4,7 +4,6 @@
 #include "../include/Paths.hpp"
 #include <vector>
 
-// TODO: don't hardcode texture library sizes and path to json
 ResourceManager::ResourceManager(const Paths &paths) 
 	: texture_library(paths.textures, 16, 16, 4)
 {

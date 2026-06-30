@@ -3,6 +3,7 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Camera.cpp;C:\Users\remyj\sou
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Chunk.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Chunk.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Coordinates.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Coordinates.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ChunkMesher.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ChunkMesher.obj
+C:\Users\remyj\source\repos\VoxelEngine\Engine\src\DebugRegistry.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\DebugRegistry.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\EBO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\EBO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Game.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Game.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\glad.c;C:\Users\remyj\source\repos\VoxelEngine\bin-int\glad.obj
