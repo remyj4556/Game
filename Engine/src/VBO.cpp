@@ -1,4 +1,6 @@
 #include "../include/VBO.hpp"
+#include "../include/Vertex.hpp"
+#include <vector>
 
 VBO::VBO() {
 	glGenBuffers(1, &ID);

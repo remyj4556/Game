@@ -6,7 +6,6 @@
 #include <vector>
 #include <filesystem>
 
-#include "Block.hpp"
 #include "BlockDefinition.hpp"
 #include "TextureLibrary.hpp"
 #include "GPUBlockDefinition.hpp"

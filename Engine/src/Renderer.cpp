@@ -8,6 +8,8 @@
 #include "../include/TextureLibrary.hpp"
 #include "../include/Paths.hpp"
 #include "../include/GPUBlockDefinition.hpp"
+#include "../include/glm/fwd.hpp"
+#include "../include/glm/glm.hpp"
 #include <queue>
 #include <vector>
 #include <utility>

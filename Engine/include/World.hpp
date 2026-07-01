@@ -4,11 +4,8 @@
 #include "Chunk.hpp"
 #include "ChunkMesher.hpp"
 #include "Coordinates.hpp"
-#include "Coordinates.hpp"
-#include "Coordinates.hpp"
 #include "FastNoiseLite.h"
-#include "Mesh.hpp"
-#include "Block.hpp"
+
 #include "RenderRequest.hpp"
 #include <unordered_map>
 #include <queue>
@@ -61,7 +58,7 @@ class World {
 		void enqueueChunkMeshes();
 		std::unique_ptr<Chunk> genChunk(CoordinateSystem::ChunkCoordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
-		Block blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords);
+		block_id_type blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords);
 		ChunkGroup getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord) const;
 		std::vector<CoordinateSystem::ChunkCoordinates> getSurroundingChunkCoordinates(CoordinateSystem::ChunkCoordinates chunk_coord) const;
 

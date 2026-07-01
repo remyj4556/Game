@@ -173,7 +173,6 @@
     <ClCompile Include="src\LightManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\ModelLibrary.cpp" />
     <ClCompile Include="src\Paths.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
@@ -184,12 +183,12 @@
     <ClCompile Include="src\TextureLibrary.cpp" />
     <ClCompile Include="src\VAO.cpp" />
     <ClCompile Include="src\VBO.cpp" />
+    <ClCompile Include="src\Vertex.cpp" />
     <ClCompile Include="src\whereami.c" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\opengl\Include\glad\glad.h" />
-    <ClInclude Include="include\Block.hpp" />
     <ClInclude Include="include\BlockDefinition.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
@@ -237,7 +236,6 @@
     <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\LightManager.hpp" />
     <ClInclude Include="include\Mesh.hpp" />
-    <ClInclude Include="include\ModelLibrary.hpp" />
     <ClInclude Include="include\Paths.hpp" />
     <ClInclude Include="include\Renderer.hpp" />
     <ClInclude Include="include\ResourceManager.hpp" />
@@ -358,6 +356,9 @@
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/assets/textures</DestinationFolders>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/assets/textures</DestinationFolders>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\Vertex.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

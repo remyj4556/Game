@@ -2,9 +2,7 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Coordinates.hpp"
-#include "../include/Coordinates.hpp"
-#include "../include/Coordinates.hpp"
-#include "../include/Block.hpp"
+#include "../include/BlockDefinition.hpp"
 #include "../include/Vertex.hpp"
 #include "../include/Mesh.hpp"
 #include "../include/RenderRequest.hpp"
@@ -63,7 +61,7 @@ CoordinateSystem::WorldCoordinates World::localToWorld(CoordinateSystem::ChunkCo
 	return world_coords;
 }
 
-Block World::blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords) {
+block_id_type World::blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords) {
 	int chunk_size = Chunk::CHUNK_SIZE;
 
 	CoordinateSystem::ChunkCoordinates chunk_coords = worldToChunk(world_coords);
@@ -72,7 +70,7 @@ Block World::blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords) {
 	uint8_t local_z = world_coords.z - chunk_coords.z * chunk_size;
 
 	if (!loaded_chunks.contains(chunk_coords)) {
-		Block air = { 0 };
+		block_id_type air = { 0 };
 		return air;
 	}
 	
@@ -159,19 +157,20 @@ void World::streamTerrain(StreamTarget target) {
 std::unique_ptr<Chunk> World::genChunk(CoordinateSystem::ChunkCoordinates coordinates) {
 	auto gen_start = std::chrono::high_resolution_clock::now();
 
-	std::unique_ptr<Chunk> chunk = std::make_unique<Chunk>(coordinates);
+	std::unique_ptr<Chunk> chunk = std::make_unique<Chunk>();
 	int chunk_size = Chunk::CHUNK_SIZE;
 	
-	for (uint8_t x = 0; x < chunk_size; ++x) {
-		for (uint8_t z = 0; z < chunk_size; z++) {
+	for (int x = 0; x < chunk_size; ++x) {
+		for (int z = 0; z < chunk_size; z++) {
 			int height = pow(2, noise.GetNoise(static_cast<float>(coordinates.x * chunk_size + x), static_cast<float>(coordinates.z * chunk_size + z)) * 7);
+			//int height = 0;
 
-			for (uint8_t y = 0; y < chunk_size; y++) {
+			for (int y = 0; y < chunk_size; y++) {
 				if ((coordinates.y * chunk_size + y) < height) {
-					chunk->setBlock(CoordinateSystem::LocalCoordinates(x,y,z), Block(1));
+					chunk->setBlock(CoordinateSystem::LocalCoordinates(x,y,z), 1);
 				}
 				if ((coordinates.y * chunk_size + y) == height) {
-					chunk->setBlock(CoordinateSystem::LocalCoordinates(x, y, z), Block(3));
+					chunk->setBlock(CoordinateSystem::LocalCoordinates(x, y, z), 3);
 				}
 			}
 		

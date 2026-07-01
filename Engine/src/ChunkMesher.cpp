@@ -1,13 +1,14 @@
 #include "../include/ChunkMesher.hpp"
 #include "../include/Chunk.hpp"
 #include "../include/Vertex.hpp"
-#include "../include/Block.hpp"
+#include "../include/BlockDefinition.hpp"
+#include "../include/glm/fwd.hpp"
+#include "../include/glm/glm.hpp"
 
 #include <vector>
 #include <utility>
 #include <cstdint>
 #include <array>
-
 
 std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks) {
 	std::vector<Vertex> mesh_vertices;
@@ -21,19 +22,19 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(
 		int z = ((i / chunk_size) / chunk_size) % chunk_size;
 
 		// get the id of the current block
-		Block current_block = chunks.blockAtLocalPos(x, y, z);
+		block_id_type current_block = chunks.blockAtLocalPos(x, y, z);
 
 		// skip if air
-		if (current_block.id == 0) {
+		if (current_block == 0) {
 			continue;
 		}
 
 		// iterate over each face
 		Direction face_dir = Direction::Back;
 		for (const auto & dir : directions) {
-			const Block& face_neighbor = chunks.blockAtLocalPos(x + dir.x, y + dir.y, z + dir.z);
+			block_id_type face_neighbor = chunks.blockAtLocalPos(x + dir.x, y + dir.y, z + dir.z); 
 
-			if (face_neighbor.id == 0) {
+			if (face_neighbor == 0) {
 				addBlockFace(x, y, z, face_dir, current_block, mesh_vertices, mesh_indices);
 			}
 
@@ -86,8 +87,8 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                     npos[fd.u] = i;
                     npos[fd.v] = j;
 
-                    sliceCurrent[j * N + i] = chunks.blockAtLocalPos(pos[0], pos[1], pos[2]).id;
-                    sliceNeighbor[j * N + i] = chunks.blockAtLocalPos(npos[0], npos[1], npos[2]).id;
+                    sliceCurrent[j * N + i] = chunks.blockAtLocalPos(pos[0], pos[1], pos[2]);
+                    sliceNeighbor[j * N + i] = chunks.blockAtLocalPos(npos[0], npos[1], npos[2]);
                 }
             }
 
@@ -225,10 +226,12 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                         mesh_indices.push_back(idx + offset);
 
                     for (int k = 0; k < 4; ++k) {
-                        Vertex vert;
-                        vert.position = verts[k];
-                        vert.id = bid;
-                        vert.face = static_cast<uint8_t>(fd.dir);
+                        // TODO: make sure these still work with the new "types" of each in the packed vertex
+                        Vertex vert(verts[k].x, verts[k].y, verts[k].z, static_cast<uint8_t>(fd.dir), bid);
+                        //vert.position = verts[k];
+                        //vert.id = bid;
+                        //vert.face = static_cast<uint8_t>(fd.dir);
+                        //mesh_vertices.push_back(vert);
                         mesh_vertices.push_back(vert);
                     }
                 }
@@ -239,8 +242,8 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
     return { mesh_vertices, mesh_indices };
 }
 
-void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex> &mesh_vertices, std::vector<GLuint> &mesh_indices) const {
-	const glm::vec3* face = face_vertices[static_cast<size_t>(direction)];
+void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, block_id_type current_block, std::vector<Vertex> &mesh_vertices, std::vector<GLuint> &mesh_indices) const {
+	const glm::ivec3* face = face_vertices[static_cast<size_t>(direction)];
 	
 	// add indices
 	GLuint offset = static_cast<GLuint>(mesh_vertices.size());
@@ -250,21 +253,14 @@ void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, Block c
 
 	// LL - LR - TR - TL vertex order
 	for (int i = 0; i < 4; ++i) {
-		Vertex v;
-
-		// assign position to vertex
-		v.position.x = face[i].x + x;
-		v.position.y = face[i].y + y;
-		v.position.z = face[i].z + z;
-
-		// assign block id to vertex
-		v.id = current_block.id;
-
-		// assign face id to vertex
-		v.face = static_cast<uint8_t>(direction);
-
+        // TODO: make sure these still work with the new "types" of each in the packed vertex
+        float vx = face[i].x + x;
+        float vy = face[i].y + y;
+        float vz = face[i].z + z;
+		Vertex vert(vx, vy, vz, static_cast<uint8_t>(direction), current_block);
+      
 		// add vertex to mesh
-		mesh_vertices.push_back(v);
+		mesh_vertices.push_back(vert);
 	}
 }
 

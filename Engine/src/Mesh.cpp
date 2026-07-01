@@ -39,28 +39,16 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
 }
 
 void Mesh::buildMesh() {
-	// 1. bind VAO;
+	if (vertices.empty()) {
+		return;
+	}
+
 	vao.bind();
-
-	// 2. create VBO
 	vbo = VBO(vertices, GL_STATIC_DRAW);
-
-	// 2.5 create EBO
 	ebo = EBO(indices, GL_STATIC_DRAW);
 
-	// 3. tell openGL how to read vertex data
-	int layout_loc_pos = 0;
-	int layout_loc_id = 1;
-	int layout_loc_face = 2;
+	vao.linkAttribInt(vbo, 0, 1, GL_UNSIGNED_INT, sizeof(Vertex), (void*)0);
 
-	// position attribute
-	vao.linkAttribFloat(vbo, layout_loc_pos, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	// block id attribute
-	vao.linkAttribInt(vbo, layout_loc_id, 1, GL_UNSIGNED_SHORT, sizeof(Vertex), (void*)offsetof(Vertex, id));
-	// face id attribute
-	vao.linkAttribInt(vbo, layout_loc_face, 1, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, face));
-
-	// 4. unbind for safety
 	vbo.unbind();
 	vao.unbind();
 }
@@ -77,7 +65,7 @@ void Mesh::draw() const {
 void Mesh::printInfo() {
 	std::cout << "Mesh vertices: \n";
 	for (auto& vert : vertices) {
-		std::cout << vert.position.x << " " << vert.position.y << " " << vert.position.z << "\n";
+		std::cout << vert.getX() << " " << vert.getY() << " " << vert.getZ() << "\n";
 	}
 }
 

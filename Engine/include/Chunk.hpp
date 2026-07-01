@@ -3,34 +3,26 @@
 
 #include "Mesh.hpp"
 #include "Coordinates.hpp"
-#include "Coordinates.hpp"
-#include "Block.hpp"
-
-#include <cstdint>
+#include "BlockDefinition.hpp"
 #include <array>
-
 
 class Chunk {
 	public:
 		Chunk();
-		Chunk(CoordinateSystem::ChunkCoordinates coordinates);
 		static constexpr int CHUNK_SIZE = 32;
 
 		// block access
-		const Block getBlock(CoordinateSystem::LocalCoordinates coordinates) const;
-		void setBlock(CoordinateSystem::LocalCoordinates coordinates, Block block);
+		const block_id_type getBlock(CoordinateSystem::LocalCoordinates coordinates) const;
+		void setBlock(CoordinateSystem::LocalCoordinates coordinates, block_id_type block);
 		inline int index(int x, int y, int z) const {
 			return x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE));
 		}
-		inline Block getBlockFast(int x, int y, int z) const {
+		inline block_id_type getBlockFast(int x, int y, int z) const {
 			return blocks[x + (z * CHUNK_SIZE) + (y * (CHUNK_SIZE * CHUNK_SIZE))];
 		}
 
-		const CoordinateSystem::ChunkCoordinates getChunkPosition() const;
-
 	private:
-		std::array<Block, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks;
-		CoordinateSystem::ChunkCoordinates chunk_position;
+		std::array<block_id_type, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE> blocks;
 };
 
 #endif

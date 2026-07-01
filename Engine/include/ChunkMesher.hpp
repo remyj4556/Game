@@ -4,10 +4,11 @@
 #include <vector>
 #include "Vertex.hpp"
 #include "Chunk.hpp"
-#include "Block.hpp"
+#include "BlockDefinition.hpp"
+#include "glm/fwd.hpp"
+#include "glm/glm.hpp"
 
 #include <utility>
-#include <memory>
 
 class ChunkGroup {
 	public:
@@ -21,7 +22,7 @@ class ChunkGroup {
 
 		ChunkGroup() : main(nullptr), left(nullptr), right(nullptr), bottom(nullptr), top(nullptr), back(nullptr), front(nullptr) {}
 
-		const Block blockAtLocalPos(int x, int y, int z) const {
+		const block_id_type blockAtLocalPos(int x, int y, int z) const {
 			int chunk_size = Chunk::CHUNK_SIZE;
 			
 			Chunk* target = main;
@@ -55,7 +56,7 @@ class ChunkGroup {
 
 			// if target chunk does not exist, return air (i.e., do not cull face)
 			if (!target)
-				return Block{ 0 };
+				return 0;
 			
 			return target->getBlockFast(x, y, z);
 		}
@@ -73,9 +74,9 @@ class ChunkMesher {
 			Top,
 		};
 
-		glm::vec3 directions[6] = { {0,0,-1}, {0,0,1}, {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0} };
+		glm::ivec3 directions[6] = { {0,0,-1}, {0,0,1}, {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0} };
 		int indices[6] = { 0, 2, 1, 0, 3, 2 };
-		glm::vec3 face_vertices[6][4] = {
+		glm::ivec3 face_vertices[6][4] = {
 			// 0: Back (-Z)
 			{ {0,0,0}, {1,0,0}, {1,1,0}, {0,1,0} },
 
@@ -95,7 +96,7 @@ class ChunkMesher {
 			{ {0,1,0}, {1,1,0}, {1,1,1}, {0,1,1} }
 		};
 
-		void addBlockFace(int x, int y, int z, Direction direction, Block current_block, std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices) const;
+		void addBlockFace(int x, int y, int z, Direction direction, block_id_type current_block, std::vector<Vertex>& mesh_vertices, std::vector<GLuint>& mesh_indices) const;
 
 	public:
 		// returns pair of Vertices and corresponding Indices

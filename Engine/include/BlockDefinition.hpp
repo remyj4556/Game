@@ -1,27 +1,20 @@
 #ifndef BLOCKDEFINITION_HPP
 #define BLOCKDEFINITION_HPP
 
-#include "Block.hpp"
-#include "ModelLibrary.hpp"
 #include <string>
 #include <unordered_map>
+#include <cstdint>
+
+using block_id_type = uint16_t;
 
 struct MaterialProperties {
 	float specular = 0.0f;
 	float shininess = 0.0f;
 };
 
-// get a block model from a string
-static const std::unordered_map<std::string, ModelTypes> blockModelLookup = {
-	{"cube", ModelTypes::cube},
-	{"stair", ModelTypes::stair},
-	{"slab", ModelTypes::slab}
-};
-
 struct BlockDefinition {
 	block_id_type id;
 	bool is_transparent = false;
-	ModelTypes model = ModelTypes::cube;
 	int face_texture_id[6];
 	MaterialProperties material;
 };

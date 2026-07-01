@@ -17,7 +17,6 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\imgui\imgui_widgets.cpp;C:\Us
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\LightManager.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\LightManager.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\main.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\main.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Mesh.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Mesh.obj
-C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ModelLibrary.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ModelLibrary.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Paths.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Paths.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Renderer.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Renderer.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ResourceManager.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ResourceManager.obj
@@ -28,5 +27,6 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\stb_rect_pack.cpp;C:\Users\re
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\TextureLibrary.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\TextureLibrary.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VAO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\VAO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VBO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\VBO.obj
+C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Vertex.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Vertex.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\whereami.c;C:\Users\remyj\source\repos\VoxelEngine\bin-int\whereami.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\World.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\World.obj

@@ -3,7 +3,7 @@
 #include "../include/TextureLibrary.hpp"
 #include "../include/json.hpp"
 #include "../include/GPUBlockDefinition.hpp"
-#include "../include/Block.hpp"
+#include "../include/BlockDefinition.hpp"
 
 #include <iostream>
 #include <string>
@@ -36,14 +36,6 @@ void BlockRegistry::populateDefinitions(const std::filesystem::path& block_defs_
 		BlockDefinition definition;
 
 		definition.id = (*it)["id"];
-
-		try {
-			definition.model = blockModelLookup.at((*it)["model"].get<std::string>());
-		}
-		catch (const std::out_of_range& oor) {
-			std::cerr << "error populating definition for block: " << (*it)["display_name"] << "\n"
-				<< " - block model: " << (*it)["model"].get<std::string>() << " does not exist\n";
-		}
 
 		definition.face_texture_id[0] = texture_library.getTextureID((*it)["back_texture"]);
 		definition.face_texture_id[1] = texture_library.getTextureID((*it)["front_texture"]);
