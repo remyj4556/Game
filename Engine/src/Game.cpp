@@ -95,6 +95,8 @@ void Game::run() {
 	}
 }
 
+bool c_key_pressed = false;
+bool l_key_pressed = false;
 void Game::processInput() {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -112,19 +114,27 @@ void Game::processInput() {
 		camera.processKeyboard(UP, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		camera.processKeyboard(DOWN, delta_time);
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS && !l_key_pressed) {
+		l_key_pressed = true;
 		if (light_manager.getPlayerLight().enabled)
 			light_manager.enablePlayerLight(false);
 		else
 			light_manager.enablePlayerLight(true);
 	}
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !c_key_pressed) {
+		c_key_pressed = true;
 		if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 		else {
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_C) != GLFW_PRESS) {
+		c_key_pressed = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_L) != GLFW_PRESS) {
+		l_key_pressed = false;
 	}
 }
 
