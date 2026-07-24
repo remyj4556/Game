@@ -132,6 +132,9 @@
     <ClCompile Include="src\Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ThreadPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\EBO.hpp">
@@ -317,6 +320,9 @@
     <ClInclude Include="include\DebugRegistry.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ThreadPool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\shaders\lightCubeShader.fs">
@@ -355,6 +361,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="include\Vertex.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="include\ThreadPool.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

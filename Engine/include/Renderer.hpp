@@ -41,8 +41,12 @@ class Renderer {
 
 		RendererDebugInfo renderer_debug_info;
 
-		// references to queues owned by Game
-		std::queue<RenderRequest>& load_queue;
+		// Mesh upload queue reference, owned by Game.
+		// state is strictly ChunkState::Meshed
+		std::queue<RenderRequest>& upload_queue;
+
+		// Mesh unload queue reference, owned by Game.
+		// state is strictly ChunkState::Uploaded
 		std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue;
 
 		// storage for meshes of all loaded chunks

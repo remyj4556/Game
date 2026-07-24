@@ -48,7 +48,8 @@ class Game {
 		float last_frame;
 		float game_time;
 
-		std::queue<RenderRequest> load_queue;
+		// to coordinate RenderRequest (Chunk Mesh) upload and unload between World and Renderer
+		std::queue<RenderRequest> upload_queue;
 		std::queue<CoordinateSystem::ChunkCoordinates> unload_queue;
 	
 		DebugRegistry debug_registry;

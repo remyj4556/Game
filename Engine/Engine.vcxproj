@@ -181,6 +181,7 @@
     <ClCompile Include="src\stb_image_write.cpp" />
     <ClCompile Include="src\stb_rect_pack.cpp" />
     <ClCompile Include="src\TextureLibrary.cpp" />
+    <ClCompile Include="src\ThreadPool.cpp" />
     <ClCompile Include="src\VAO.cpp" />
     <ClCompile Include="src\VBO.cpp" />
     <ClCompile Include="src\Vertex.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="include\stb_image_write.h" />
     <ClInclude Include="include\stb_rect_pack.h" />
     <ClInclude Include="include\TextureLibrary.hpp" />
+    <ClInclude Include="include\ThreadPool.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />
@@ -358,6 +360,7 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <None Include="include\ThreadPool.inl" />
     <None Include="include\Vertex.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

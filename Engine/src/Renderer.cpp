@@ -10,6 +10,9 @@
 #include "../include/GPUBlockDefinition.hpp"
 #include "../include/glm/fwd.hpp"
 #include "../include/glm/glm.hpp"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <queue>
 #include <vector>
 #include <utility>
@@ -19,7 +22,7 @@ Renderer::Renderer(GLFWwindow* window, std::queue<RenderRequest>& load_queue, st
 	, block_shader(paths.shaders / "lightingShader.vs", paths.shaders / "lightingShader.fs")
 	, light_shader(paths.shaders / "lightCubeShader.vs", paths.shaders / "lightCubeShader.fs")
 	, clear_color(DEFAULT_COLOR)
-	, load_queue(load_queue)
+	, upload_queue(load_queue)
 	, unload_queue(unload_queue)
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
@@ -82,9 +85,9 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 }
 
 void Renderer::processQueuedChunkMeshes() {
-	while (!load_queue.empty()) {
-		RenderRequest current_request = std::move(load_queue.front());
-		load_queue.pop();
+	while (!upload_queue.empty()) {
+		RenderRequest current_request = std::move(upload_queue.front());
+		upload_queue.pop();
 
 		chunk_meshes[current_request.chunk_coord] = std::move(current_request.chunk_mesh);
 	}
@@ -166,5 +169,6 @@ float Renderer::getRenderDistance() const {
 }
 
 void Renderer::renderRendererDebugInfo() const {
-
+	ImGui::Text("Mesh Upload Queue: %i", unload_queue.size());
+	ImGui::Text("Total Meshes: %i", chunk_meshes.size());
 }

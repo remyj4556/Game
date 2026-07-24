@@ -15,9 +15,9 @@ Game::Game(GLFWwindow* window)
 	, last_frame(0.0f)
 	, game_time(1.0f)
 	, resource_manager(paths)
-	, world(load_queue, unload_queue)
-	, renderer(window, load_queue, unload_queue, paths)
-	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
+	, world(upload_queue, unload_queue)
+	, renderer(window, upload_queue, unload_queue, paths)
+	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 10))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 	last_x = screen_width / 2.0f;
@@ -101,7 +101,7 @@ void Game::processInput() {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	camera.movement_speed = 15;
+	camera.movement_speed = 100;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.processKeyboard(FORWARD, delta_time);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

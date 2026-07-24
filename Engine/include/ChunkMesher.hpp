@@ -9,6 +9,7 @@
 #include "glm/glm.hpp"
 
 #include <utility>
+#include <glad/glad.h>
 
 class ChunkGroup {
 	public:

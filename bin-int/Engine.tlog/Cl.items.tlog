@@ -25,6 +25,7 @@ C:\Users\remyj\source\repos\VoxelEngine\Engine\src\stb_image.cpp;C:\Users\remyj\
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\stb_image_write.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\stb_image_write.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\stb_rect_pack.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\stb_rect_pack.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\TextureLibrary.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\TextureLibrary.obj
+C:\Users\remyj\source\repos\VoxelEngine\Engine\src\ThreadPool.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\ThreadPool.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VAO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\VAO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\VBO.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\VBO.obj
 C:\Users\remyj\source\repos\VoxelEngine\Engine\src\Vertex.cpp;C:\Users\remyj\source\repos\VoxelEngine\bin-int\Vertex.obj

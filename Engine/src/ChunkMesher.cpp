@@ -9,6 +9,7 @@
 #include <utility>
 #include <cstdint>
 #include <array>
+#include <glad/glad.h>
 
 std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildNaiveMesh(ChunkGroup chunks) {
 	std::vector<Vertex> mesh_vertices;
