@@ -5,22 +5,24 @@
 #include "BlockDefinition.hpp"
 #include <array>
 #include <string>
+#include <atomic>
 
 enum class ChunkState {
 	Unloaded,
 	QueuedToLoad, // any chunks that exist but do not contain data yet, will either be generated or loaded from disk
 	Loaded,		  
-	QueuedToMesh, // functions as "dirty" flag
+	QueuedToMesh, // functions as a "dirty" flag
 	Meshed,
 	Uploaded,
-	QueuedToUnload // any state can be queued to unload, hence not used in advance state function
+	QueuedToUnload // any state can be queued to unload, thus not used in advance state function
 };
 
 class Chunk {
 	public:
 		Chunk();
 		static constexpr int CHUNK_SIZE = 32;
-		ChunkState state;
+		
+		std::atomic<ChunkState> state;
 
 		// block access
 		const block_id_type getBlock(CoordinateSystem::LocalCoordinates coordinates) const;

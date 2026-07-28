@@ -26,7 +26,7 @@ ThreadPool::~ThreadPool() {
 	}
 }
 
-// all threads loop here infinitely, until either:
+// all threads loop here indefinitely, until either:
 // 1. pool running AND no work to be done -> put to "sleep" 
 // or 
 // 2. pool stopped AND no work to be done -> quits

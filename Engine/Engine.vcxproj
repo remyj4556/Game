@@ -194,6 +194,7 @@
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Chunk.hpp" />
+    <ClInclude Include="include\concurrentqueue.h" />
     <ClInclude Include="include\Coordinates.hpp" />
     <ClInclude Include="include\ChunkMesher.hpp" />
     <ClInclude Include="include\DebugRegistry.hpp" />
@@ -246,6 +247,8 @@
     <ClInclude Include="include\stb_rect_pack.h" />
     <ClInclude Include="include\TextureLibrary.hpp" />
     <ClInclude Include="include\ThreadPool.hpp" />
+    <ClInclude Include="include\ThreadSafeQueue.hpp" />
+    <ClInclude Include="include\ChunkMap.hpp" />
     <ClInclude Include="include\VAO.hpp" />
     <ClInclude Include="include\VBO.hpp" />
     <ClInclude Include="include\Vertex.hpp" />

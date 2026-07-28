@@ -3,9 +3,11 @@
 #include "../include/Chunk.hpp"
 #include "../include/Paths.hpp"
 #include "../include/Coordinates.hpp"
+
 #include <vector>
 #include <imgui.h>
 #include <functional>
+#include <thread>
 
 Game::Game(GLFWwindow* window)
 	: window(window)
@@ -14,8 +16,9 @@ Game::Game(GLFWwindow* window)
 	, delta_time(0.0f)
 	, last_frame(0.0f)
 	, game_time(1.0f)
+	, thread_pool(std::thread::hardware_concurrency() - 1)
 	, resource_manager(paths)
-	, world(upload_queue, unload_queue)
+	, world(upload_queue, unload_queue, thread_pool)
 	, renderer(window, upload_queue, unload_queue, paths)
 	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 10))
 {
@@ -48,7 +51,6 @@ void Game::run() {
 		if (fps_arr.size() == 60) {
 			engine_debug_info.fps = 0;
 			
-			// get average
 			float current_fps = 0.0f;
 			for (int val : fps_arr) {
 				current_fps += val;

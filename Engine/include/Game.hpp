@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <queue>
 
+#include "ThreadSafeQueue.hpp"
+#include "ThreadPool.hpp"
 #include "World.hpp"
 #include "Renderer.hpp"
 #include "Camera.hpp"
@@ -52,6 +54,7 @@ class Game {
 		std::queue<RenderRequest> upload_queue;
 		std::queue<CoordinateSystem::ChunkCoordinates> unload_queue;
 	
+		ThreadPool thread_pool;
 		DebugRegistry debug_registry;
 		Paths paths;
 		ResourceManager resource_manager;

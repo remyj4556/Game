@@ -10,6 +10,8 @@
 #include "../include/GPUBlockDefinition.hpp"
 #include "../include/glm/fwd.hpp"
 #include "../include/glm/glm.hpp"
+#include "../include/concurrentqueue.h"
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>

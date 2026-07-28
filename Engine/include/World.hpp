@@ -6,16 +6,19 @@
 #include "Coordinates.hpp"
 #include "FastNoiseLite.h"
 #include "BlockDefinition.hpp"
-
+#include "ThreadPool.hpp"
+#include "ThreadSafeQueue.hpp"
 #include "RenderRequest.hpp"
+#include "ChunkMap.hpp"
+
 #include <unordered_map>
-#include <queue>
-#include <unordered_set>
 #include <vector>
 #include <chrono>
 #include <memory>
+#include <queue>
 #include <utility>
 
+// TODO: might need to make these atomics so they dont get fucked up
 struct WorldDebugInfo {
 	int total_vertices_generated = 0;
 	int num_generated = 0;
@@ -47,15 +50,11 @@ class World {
 		FastNoiseLite noise;
 		ChunkMesher chunk_mesher;
 		WorldDebugInfo world_debug_info;
+		ThreadPool& thread_pool;
 
-		// Contains chunks queued for loading (either from disk or new generation).
-		// state is strictly ChunkState::QueuedToLoad
-		std::priority_queue<ChunkLoadRequest, std::vector<ChunkLoadRequest>, std::greater<ChunkLoadRequest>> load_queue;
-		std::unordered_set<CoordinateSystem::ChunkCoordinates, CoordinateSystem::ChunkCoordinatesHash> load_set;
-
-		// Sole owner of actual Chunk objects (unique_ptr's). Everything else uses ChunkCoordinates to access from here.
+		// Sole owner of actual Chunk objects (shared_ptr's for multithreading ease). Everything else uses ChunkCoordinates to access from here.
 		// state may be anything other than ChunkState::Unloaded
-		std::unordered_map<CoordinateSystem::ChunkCoordinates, std::unique_ptr<Chunk>, CoordinateSystem::ChunkCoordinatesHash> loaded_chunks;
+		ChunkMap loaded_chunks;
 
 		// Contains chunks that need to be remeshed.
 		// state is strictly ChunkState::QueuedToMesh
@@ -71,18 +70,17 @@ class World {
 		
 		void streamChunkLoads(StreamTarget target);
 		void streamChunkUnloads(StreamTarget target);
-		void loadChunks();
+		void loadChunk(CoordinateSystem::ChunkCoordinates chunk_coord);
 		void uploadChunkMeshes();
-		void streamChunkMeshing();
+		void streamChunkMeshing(StreamTarget target);
 		void genChunk(CoordinateSystem::ChunkCoordinates coordinates);
 		float squaredDistance(glm::vec3 a, glm::vec3 b) const;
 		block_id_type blockAtWorldPos(CoordinateSystem::WorldCoordinates world_coords);
-		ChunkGroup getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord) const;
+		ChunkGroup getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord);
 		std::pair<bool, std::vector<CoordinateSystem::ChunkCoordinates>> getSurroundingChunkCoordinates(CoordinateSystem::ChunkCoordinates chunk_coord) const;
-		void pruneLoadQueue(StreamTarget target);
 
 	public:
-		World(std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue);
+		World(std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, ThreadPool& thread_pool);
 		void update(StreamTarget target);
 		CoordinateSystem::WorldCoordinates chunkToWorld(CoordinateSystem::ChunkCoordinates chunk_coords);
 		CoordinateSystem::ChunkCoordinates worldToChunk(CoordinateSystem::WorldCoordinates world_coords);

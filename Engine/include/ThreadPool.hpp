@@ -8,6 +8,7 @@
 #include <functional>
 #include <condition_variable>
 #include <future>
+#include <type_traits>
 
 class ThreadPool {
 	private:
@@ -23,7 +24,7 @@ class ThreadPool {
 		~ThreadPool();
 
 		template <typename F, typename... Args>
-		auto enqueueTask(F&& f, Args&&... args) -> std::future<decltype(f(args...))>;
+		auto enqueueTask(F&& f, Args&&... args) -> std::future<std::invoke_result_t<F, Args...>>;
 
 		ThreadPool(ThreadPool&) = delete;
 		ThreadPool(const ThreadPool&) = delete;
@@ -31,6 +32,6 @@ class ThreadPool {
 		ThreadPool& operator=(const ThreadPool&) = delete;
 };
 
-//#include "ThreadPool.inl"
+#include "ThreadPool.inl"
 
 #endif
