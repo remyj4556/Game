@@ -8,7 +8,7 @@
 template <typename T>
 class ThreadSafeQueue {
 	private:
-		std::mutex m;
+		mutable std::mutex m;
 		std::queue<T> q;
 
 	public:
@@ -17,13 +17,20 @@ class ThreadSafeQueue {
 			std::unique_lock<std::mutex> l(m);
 			return q.size();
 		}
+		
+		bool empty() const {
+			std::unique_lock<std::mutex> l(m);
+			return q.empty();
+		}
 
 		void push(T value) {
 			std::unique_lock<std::mutex> l(m);
 			q.push(std::move(value));
 		}
 
-		bool try_pop(T& front_val) {
+		// enables queue.front(); q.pop() in a single call.
+		// front_val only valid when return value is true.
+		bool tryPop(T& front_val) {
 			std::unique_lock<std::mutex> l(m);
 
 			if (q.empty())

@@ -3,7 +3,6 @@
 #include "../include/Chunk.hpp"
 #include "../include/Coordinates.hpp"
 #include "../include/BlockDefinition.hpp"
-#include "../include/Mesh.hpp"
 #include "../include/RenderRequest.hpp"
 #include "../include/ThreadPool.hpp"
 #include "../include/ThreadSafeQueue.hpp"
@@ -18,10 +17,10 @@
 #include <imgui_impl_opengl3.h>
 #include <memory>
 #include <iostream>
-#include <queue>
 #include <ratio>
 #include <string>
 #include <cstdlib>
+#include <mutex>
 
 enum ErrorCodes : int {
 	IncorrectChunkState,
@@ -37,7 +36,7 @@ static std::string errorToString(ErrorCodes error_code) {
 	}
 }
 
-World::World(std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, ThreadPool &thread_pool)
+World::World(ThreadSafeQueue<RenderRequest>& load_queue, ThreadSafeQueue<CoordinateSystem::ChunkCoordinates>& unload_queue, ThreadPool &thread_pool)
 	: last_streamed_chunk_coord({ 0, 0, 0 })
 	, last_radius(0)
 	, upload_queue(load_queue)
@@ -112,8 +111,10 @@ void World::streamChunkLoads(StreamTarget target) {
 	}
 
 	auto current_chunk_ptr = loaded_chunks.tryGet(current_chunk_coord);
-	if (current_chunk_ptr)
-		world_debug_info.current_chunk_state = current_chunk_ptr->state;
+	if (current_chunk_ptr) {
+		ChunkState state = current_chunk_ptr->state;
+		world_debug_info.current_chunk_state = state;
+	}
 
 	last_streamed_chunk_coord = current_chunk_coord;
 	last_radius = target.chunk_load_radius;
@@ -201,7 +202,7 @@ void World::genChunk(CoordinateSystem::ChunkCoordinates chunk_coord) {
 
 	for (int x = 0; x < chunk_size; ++x) {
 		for (int z = 0; z < chunk_size; z++) {
-			int height = pow(2, noise.GetNoise(static_cast<float>(chunk_coord.x * chunk_size + x), static_cast<float>(chunk_coord.z * chunk_size + z)) * 7);
+			int height = noise.GetNoise(static_cast<float>(chunk_coord.x * chunk_size + x), static_cast<float>(chunk_coord.z * chunk_size + z)) * 25;
 
 			for (int y = 0; y < chunk_size; y++) {
 				if ((chunk_coord.y * chunk_size + y) < height) {
@@ -218,8 +219,11 @@ void World::genChunk(CoordinateSystem::ChunkCoordinates chunk_coord) {
 
 	auto gen_end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration<double, std::milli>(gen_end - gen_start);
-	world_debug_info.total_gen_time += duration;
+
+	// update debug data
 	world_debug_info.num_generated++;
+	std::unique_lock<std::mutex> lock(world_debug_info.debug_info_mutex);
+	world_debug_info.total_gen_time += duration;
 }
 
 void World::unloadChunk(CoordinateSystem::ChunkCoordinates chunk_coord) {
@@ -297,13 +301,11 @@ void World::streamChunkMeshing(StreamTarget target) {
 					continue;
 				}
 
-				// chunk is ready to be remeshed
+				// submit mesh task to thread pool for central chunk
 				chunk_ptr->state = ChunkState::QueuedToMesh;
+				thread_pool.enqueueTask(&World::meshChunk, this, chunk_coord);
 
-				// TODO: may not need this, just submit meshing jobs directly to thread pool
-				dirty_chunks.push(chunk_coord);
-
-				// enqueue neighbors to be (re)meshed
+				// submit (re)mesh tasks for neighbor chunks if applicable
 				for (CoordinateSystem::ChunkCoordinates neighbor_coord : neighboring_coords) {
 					auto neighbor_ptr = loaded_chunks.tryGet(neighbor_coord);
 
@@ -315,7 +317,7 @@ void World::streamChunkMeshing(StreamTarget target) {
 						neighbor_ptr->state == ChunkState::Meshed) {
 
 						neighbor_ptr->state = ChunkState::QueuedToMesh;
-						dirty_chunks.push(neighbor_coord);
+						thread_pool.enqueueTask(&World::meshChunk, this, neighbor_coord);
 					}
 				}
 			}
@@ -323,64 +325,59 @@ void World::streamChunkMeshing(StreamTarget target) {
 	}
 }
 
-void World::uploadChunkMeshes() {
-	auto deadline = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(20);
+void World::meshChunk(CoordinateSystem::ChunkCoordinates chunk_coord) {
+	auto chunk_ptr = loaded_chunks.tryGet(chunk_coord);
 
-	while (!dirty_chunks.empty() && std::chrono::high_resolution_clock::now() < deadline) {
-		CoordinateSystem::ChunkCoordinates current_chunk_coords = dirty_chunks.front();
-		dirty_chunks.pop();
-
-		auto chunk_ptr = loaded_chunks.tryGet(current_chunk_coords);
-
-		if (!chunk_ptr || chunk_ptr->state != ChunkState::QueuedToMesh) {
-			continue;
-		}
-
-		auto mesh_start_time = std::chrono::high_resolution_clock::now();
-
-		auto [mesh_vertices, mesh_indices] = chunk_mesher.buildGreedyMesh(getSurroundingChunks(current_chunk_coords));
-		chunk_ptr->state = ChunkState::Meshed;
-
-		upload_queue.push(RenderRequest(current_chunk_coords, Mesh(mesh_vertices, mesh_indices)));
-
-		auto mesh_end_time = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration<double, std::milli>(mesh_end_time - mesh_start_time);
-		world_debug_info.total_mesh_time += duration;
-		world_debug_info.num_meshed++;
-		world_debug_info.total_vertices_generated += mesh_vertices.size();
+	if (!chunk_ptr || chunk_ptr->state != ChunkState::QueuedToMesh) {
+		return;
 	}
+
+	auto mesh_start_time = std::chrono::high_resolution_clock::now();
+
+	auto [mesh_vertices, mesh_indices] = chunk_mesher.buildGreedyMesh(getSurroundingChunks(chunk_coord));
+	chunk_ptr->state = ChunkState::Meshed;
+
+	upload_queue.push(RenderRequest(chunk_coord, mesh_vertices, mesh_indices));
+
+	auto mesh_end_time = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration<double, std::milli>(mesh_end_time - mesh_start_time);
+
+	// update debug data
+	world_debug_info.num_meshed++;
+	std::unique_lock<std::mutex> lock(world_debug_info.debug_info_mutex);
+	world_debug_info.total_mesh_time += duration;
+	world_debug_info.total_vertices_generated += mesh_vertices.size();
 }
 
 void World::update(StreamTarget target) {
 	streamChunkLoads(target);
 	streamChunkUnloads(target);
 	streamChunkMeshing(target);
-	uploadChunkMeshes();
 }
 
 ChunkGroup World::getSurroundingChunks(CoordinateSystem::ChunkCoordinates chunk_coord) {
 	ChunkGroup group;
 
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y, chunk_coord.z })) {
-		group.main = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z }).get();
+		group.main = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z });
 	}
  	if (loaded_chunks.contains({ chunk_coord.x - 1, chunk_coord.y, chunk_coord.z })) {
-		group.left = loaded_chunks.tryGet({ chunk_coord.x - 1, chunk_coord.y, chunk_coord.z }).get();
+		group.left = loaded_chunks.tryGet({ chunk_coord.x - 1, chunk_coord.y, chunk_coord.z });
 	}
 	if (loaded_chunks.contains({ chunk_coord.x + 1, chunk_coord.y, chunk_coord.z })) {
-		group.right = loaded_chunks.tryGet({ chunk_coord.x + 1, chunk_coord.y, chunk_coord.z }).get();
+		group.right = loaded_chunks.tryGet({ chunk_coord.x + 1, chunk_coord.y, chunk_coord.z });
 	}
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y - 1, chunk_coord.z })) {
-		group.bottom = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y - 1, chunk_coord.z }).get();
+		group.bottom = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y - 1, chunk_coord.z });
 	}
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y + 1, chunk_coord.z })) {
-		group.top = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y + 1, chunk_coord.z }).get();
+		group.top = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y + 1, chunk_coord.z });
 	}
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y, chunk_coord.z - 1 })) {
-		group.back = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z - 1}).get();
+		group.back = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z - 1});
 	}
 	if (loaded_chunks.contains({ chunk_coord.x, chunk_coord.y, chunk_coord.z + 1 })) {
-		group.front = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z + 1 }).get();
+		group.front = loaded_chunks.tryGet({ chunk_coord.x, chunk_coord.y, chunk_coord.z + 1 });
 	}
 
 	return group;
@@ -422,11 +419,13 @@ float World::squaredDistance(glm::vec3 a, glm::vec3 b) const {
 }
 
 void World::renderWorldDebugInfo() {
-	ImGui::Text("Avg Mesh Time: %fms", world_debug_info.total_mesh_time / world_debug_info.num_meshed);
-	ImGui::Text("Avg Gen Time: %fms", world_debug_info.total_gen_time / world_debug_info.num_generated);
+	int num_meshed = world_debug_info.num_meshed;
+	int num_generated = world_debug_info.num_generated;
+
+	ImGui::Text("Avg Mesh Time: %fms", world_debug_info.total_mesh_time / num_meshed);
+	ImGui::Text("Avg Gen Time: %fms", world_debug_info.total_gen_time / num_generated);
 	ImGui::Text("Avg Chunk Vertex Count: %f", (float)world_debug_info.total_vertices_generated / world_debug_info.num_meshed);
 	//ImGui::Text("Total Chunks Loaded: %i", loaded_chunks.size());
-	ImGui::Text("Chunk Meshing Queue: %i", dirty_chunks.size());
 	ImGui::Text("Current Chunk State: %s", Chunk::chunkStateToString(world_debug_info.current_chunk_state).c_str());
 }
 

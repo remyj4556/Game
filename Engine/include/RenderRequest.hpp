@@ -2,11 +2,14 @@
 #define RENDER_REQUEST
 
 #include "Coordinates.hpp"
-#include "Mesh.hpp"
+#include "Vertex.hpp"
+#include <vector>
+#include <glad/glad.h>
 
 struct RenderRequest {
 	CoordinateSystem::ChunkCoordinates chunk_coord;
-	Mesh chunk_mesh;
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
 };
 
 #endif

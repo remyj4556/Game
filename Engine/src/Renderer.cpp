@@ -10,16 +10,15 @@
 #include "../include/GPUBlockDefinition.hpp"
 #include "../include/glm/fwd.hpp"
 #include "../include/glm/glm.hpp"
-#include "../include/concurrentqueue.h"
+#include "../include/ThreadSafeQueue.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <queue>
 #include <vector>
 #include <utility>
 
-Renderer::Renderer(GLFWwindow* window, std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths)
+Renderer::Renderer(GLFWwindow* window, ThreadSafeQueue<RenderRequest>& load_queue, ThreadSafeQueue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths)
 	: render_distance(500.0f)
 	, block_shader(paths.shaders / "lightingShader.vs", paths.shaders / "lightingShader.fs")
 	, light_shader(paths.shaders / "lightCubeShader.vs", paths.shaders / "lightCubeShader.fs")
@@ -86,12 +85,17 @@ void Renderer::beginFrame(Camera& camera, LightManager& light_manager, const Tex
 	texture_library.bind();
 }
 
+// single consumer of the multi-producer mesh queue
 void Renderer::processQueuedChunkMeshes() {
 	while (!upload_queue.empty()) {
-		RenderRequest current_request = std::move(upload_queue.front());
-		upload_queue.pop();
+		RenderRequest current_request;
+		bool valid = upload_queue.tryPop(current_request);
 
-		chunk_meshes[current_request.chunk_coord] = std::move(current_request.chunk_mesh);
+		if (!valid)
+			continue;
+
+		Mesh chunk_mesh = Mesh(current_request.vertices, current_request.indices);
+		chunk_meshes[current_request.chunk_coord] = std::move(chunk_mesh);
 	}
 }
 
@@ -115,7 +119,6 @@ void Renderer::drawChunks() {
 }
 
 void Renderer::renderDebugLight(Mesh& light_mesh, const glm::vec3& light_pos) {
-	// use shader
 	light_shader.use();
 
 	// set uniform(s) for view and projection transformations (reuse same ones for cube)

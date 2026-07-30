@@ -227,12 +227,7 @@ std::pair<std::vector<Vertex>, std::vector<GLuint>> ChunkMesher::buildGreedyMesh
                         mesh_indices.push_back(idx + offset);
 
                     for (int k = 0; k < 4; ++k) {
-                        // TODO: make sure these still work with the new "types" of each in the packed vertex
                         Vertex vert(verts[k].x, verts[k].y, verts[k].z, static_cast<uint8_t>(fd.dir), bid);
-                        //vert.position = verts[k];
-                        //vert.id = bid;
-                        //vert.face = static_cast<uint8_t>(fd.dir);
-                        //mesh_vertices.push_back(vert);
                         mesh_vertices.push_back(vert);
                     }
                 }
@@ -254,7 +249,6 @@ void ChunkMesher::addBlockFace(int x, int y, int z, Direction direction, block_i
 
 	// LL - LR - TR - TL vertex order
 	for (int i = 0; i < 4; ++i) {
-        // TODO: make sure these still work with the new "types" of each in the packed vertex
         float vx = face[i].x + x;
         float vy = face[i].y + y;
         float vz = face[i].z + z;

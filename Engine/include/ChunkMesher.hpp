@@ -10,23 +10,24 @@
 
 #include <utility>
 #include <glad/glad.h>
+#include <memory>
 
 class ChunkGroup {
 	public:
-		Chunk* main; // central Chunk to be meshed
-		Chunk* left; // -X
-		Chunk* right; // +X
-		Chunk* bottom; // -Y
-		Chunk* top; // +Y
-		Chunk* front; // +Z
-		Chunk* back; // -Z
+		std::shared_ptr<Chunk> main; // central Chunk to be meshed
+		std::shared_ptr<Chunk> left; // -X
+		std::shared_ptr<Chunk> right; // +X
+		std::shared_ptr<Chunk> bottom; // -Y
+		std::shared_ptr<Chunk> top; // +Y
+		std::shared_ptr<Chunk> front; // +Z
+		std::shared_ptr<Chunk> back; // -Z
 
 		ChunkGroup() : main(nullptr), left(nullptr), right(nullptr), bottom(nullptr), top(nullptr), back(nullptr), front(nullptr) {}
 
 		const block_id_type blockAtLocalPos(int x, int y, int z) const {
 			int chunk_size = Chunk::CHUNK_SIZE;
 			
-			Chunk* target = main;
+			auto target = main;
 
 			if (x < 0) {
 				x = chunk_size - 1;

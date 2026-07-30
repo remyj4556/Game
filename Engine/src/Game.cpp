@@ -16,11 +16,11 @@ Game::Game(GLFWwindow* window)
 	, delta_time(0.0f)
 	, last_frame(0.0f)
 	, game_time(1.0f)
-	, thread_pool(std::thread::hardware_concurrency() - 1)
+	, thread_pool(std::thread::hardware_concurrency() - 2)
 	, resource_manager(paths)
 	, world(upload_queue, unload_queue, thread_pool)
 	, renderer(window, upload_queue, unload_queue, paths)
-	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 10))
+	, current_stream_target(StreamTarget({0.0f, 0.0f, 0.0f}, 12))
 {
 	glfwGetWindowSize(window, &screen_width, &screen_height);
 	last_x = screen_width / 2.0f;
@@ -79,10 +79,12 @@ void Game::run() {
 		renderer.processQueuedChunkMeshes();
 		renderer.drawChunks();
 		
-		// coordinate out of range chunks unloading
 		while (!unload_queue.empty()) {
-			CoordinateSystem::ChunkCoordinates current_chunk_coord = unload_queue.front();
-			unload_queue.pop();
+			CoordinateSystem::ChunkCoordinates current_chunk_coord;
+			bool valid = unload_queue.tryPop(current_chunk_coord);
+
+			if (!valid)
+				continue;
 
 			renderer.unloadChunkMesh(current_chunk_coord);
 			world.unloadChunk(current_chunk_coord);

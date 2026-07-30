@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <queue> 
 
-#include "concurrentqueue.h"
+#include "ThreadSafeQueue.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "LightManager.hpp"
@@ -44,17 +44,17 @@ class Renderer {
 
 		// Mesh upload queue reference, owned by Game.
 		// state is strictly ChunkState::Meshed
-		std::queue<RenderRequest>& upload_queue;
+		ThreadSafeQueue<RenderRequest>& upload_queue;
 
 		// Mesh unload queue reference, owned by Game.
 		// state is strictly ChunkState::Uploaded
-		std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue;
+		ThreadSafeQueue<CoordinateSystem::ChunkCoordinates>& unload_queue;
 
 		// storage for meshes of all loaded chunks
 		std::unordered_map<CoordinateSystem::ChunkCoordinates, Mesh, CoordinateSystem::ChunkCoordinatesHash> chunk_meshes;
 
 	public:
-		Renderer(GLFWwindow *window, std::queue<RenderRequest>& load_queue, std::queue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths);
+		Renderer(GLFWwindow *window, ThreadSafeQueue<RenderRequest>& load_queue, ThreadSafeQueue<CoordinateSystem::ChunkCoordinates>& unload_queue, const Paths& paths);
 		~Renderer();
 
 		void beginFrame(Camera& camera, LightManager &light_manager, const TextureLibrary& texture_library);
