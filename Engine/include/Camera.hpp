@@ -23,7 +23,6 @@ const GLfloat SPEED = 5.0f;
 const GLfloat SENSITIVITY = 0.1f;
 const GLfloat FOV = 80.0f;
 
-
 class Camera {
 	public:	
 		// camera attributes

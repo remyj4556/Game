@@ -72,8 +72,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\opengl\Include;C:\Users\remyj\source\repos\Game\learnopengl\include;C:\Users\remyj\source\repos\Game\learnopengl\include\imgui;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opengl\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>..\bin\</OutDir>
     <IntDir>..\bin-int\</IntDir>
   </PropertyGroup>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\remyj\source\repos\VoxelEngine\Engine\include\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -189,7 +189,6 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\opengl\Include\glad\glad.h" />
     <ClInclude Include="include\BlockDefinition.hpp" />
     <ClInclude Include="include\BlockRegistry.hpp" />
     <ClInclude Include="include\Camera.hpp" />
@@ -254,6 +253,7 @@
     <ClInclude Include="include\Vertex.hpp" />
     <ClInclude Include="include\whereami.h" />
     <ClInclude Include="include\World.hpp" />
+    <ClInclude Include="third_party_include\glad\glad.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\shaders\lightCubeShader.fs">
